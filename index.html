@@ -228,6 +228,8 @@
   .kpi-drill-card:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(16,35,31,.06);border-color:#cbd5d2;}
   .kpi-next-card{width:100%;text-align:left;border:1px dashed #cbd5d2;border-radius:14px;padding:14px 16px;background:#FCFEFD;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease,background .16s ease;}
   .kpi-next-card:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(16,35,31,.06);border-color:#9fb7b0;background:#fff;}
+  .kpi-next-card{border-style:solid;border-width:2px;background:#fff;}
+  .kpi-next-card::after{content:"Open";font-size:12px;font-weight:700;color:var(--teal);margin-left:10px;}
   .kpi-item-card{cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease,background .16s ease;}
   .kpi-item-card:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(16,35,31,.06);border-color:#cbd5d2;background:#fff;}
   .ai-box-btn{display:block;width:100%;text-align:left;cursor:pointer;border-radius:9px;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease,background .16s ease;}
@@ -410,6 +412,19 @@
   .grid2,.legend-grid,.scope-grid{grid-template-columns:1fr;}
   .grid4{grid-template-columns:repeat(2,1fr);}
 }
+
+  .demo-card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+  .demo-work-card{border:1px solid var(--hair);border-top:4px solid var(--tone);border-radius:14px;background:#fff;padding:16px;display:flex;flex-direction:column;min-height:330px;box-shadow:0 1px 2px rgba(16,35,31,.035),0 8px 24px rgba(16,35,31,.025);}
+  .demo-work-card h3{font-size:16px;line-height:1.25;margin:10px 0 4px;}
+  .demo-status{display:inline-flex;align-items:center;gap:6px;width:max-content;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:800;background:var(--tonebg);color:var(--tone);}
+  .demo-field{margin-top:12px}.demo-field b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);margin-bottom:4px}.demo-field p{font-size:12.5px;line-height:1.45;color:#475569;margin:0;}
+  .demo-time{margin-top:auto;padding-top:14px;font-size:12px;font-weight:700;color:var(--tone);}
+  .demo-owner{margin-top:10px;border:0;border-radius:9px;background:var(--tone);color:#fff;padding:10px 12px;font-size:12.5px;font-weight:700;width:100%;}
+  .demo-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.demo-detail{border:1px solid var(--hair);border-radius:12px;padding:12px;background:#FCFEFD}.demo-detail b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);margin-bottom:5px}.demo-detail p{margin:0;font-size:13px;line-height:1.45;color:#334155}
+  .demo-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px}.demo-action{border:1px solid var(--hair);border-radius:9px;background:#fff;padding:10px 12px;text-align:left;font-size:12.5px;font-weight:600;color:#334155}.demo-action.primary{background:var(--teal);color:#fff;border-color:var(--teal)}.demo-action[disabled]{opacity:.45;cursor:not-allowed;background:#F1F5F9}
+  .demo-note{margin-top:16px;border-left:4px solid var(--teal);background:#F0FDF8;border-radius:0 10px 10px 0;padding:12px 14px;font-size:13px;line-height:1.45;color:#334155}
+  @media(max-width:980px){.demo-card-grid{grid-template-columns:1fr}.demo-work-card{min-height:0}.demo-detail-grid,.demo-actions{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -570,7 +585,7 @@ function bankFor(studentId){
 function badgeSt(s,sm){var c=STATUS[s]||STATUS['Not Checked'];return '<span class="badge-st'+(sm?' sm':'')+'" style="color:'+c.text+';background:'+c.bg+'"><span class="dot" style="background:'+c.dot+'"></span>'+s+'</span>';}
 function sevBadge(s){var c=SEV[s]||SEV.Low;return '<span class="sev" style="color:'+c.text+';background:'+c.bg+'">'+s+'</span>';}
 
-var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,calendarCell:null,tlBy:'student',role:'leader',asStudent:'s5',asHospital:'site4'};
+var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',role:'leader',asStudent:'s5',asHospital:'site4'};
 
 function openChecks(){var all=generateChecks(ST.data),rv=ST.reviewed;return all.filter(function(c){return rv.indexOf(c.key)<0;});}
 function checksFor(id){return openChecks().filter(function(c){return c.assignmentId===id;});}
@@ -697,20 +712,18 @@ function viewAssignments(){
 }
 
 function viewChecks(){
-  var oc=openChecks(), r=rows();
-  var body = oc.length===0 ? emptyState('All clear','No open readiness checks across the schedule.') :
-    oc.map(function(ch){
-      var row=r.filter(function(x){return x.id===ch.assignmentId;})[0];
-      return '<div class="card" style="padding:16px">'+
-        '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+sevBadge(ch.severity)+'<span style="font-weight:600;font-size:14px">'+esc(ch.type)+'</span><span class="mono" style="font-size:11px;color:var(--muted2);margin-left:auto">'+ch.aid+'</span></div>'+
-        '<p class="desc" style="margin-top:8px">'+esc(ch.summary)+'</p>'+
-        '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--hair);gap:10px;flex-wrap:wrap">'+
-          '<p class="act" style="margin:0">'+ic('arrowr',13,'var(--teal)')+' '+esc(ch.action)+'</p>'+
-          '<div style="display:flex;gap:6px"><button class="mini" data-act="open" data-id="'+row.id+'">Open assignment</button>'+
-          '<button class="mini go" data-act="review" data-key="'+esc(ch.key)+'">'+ic('check',13)+' Mark reviewed</button></div></div></div>';
-    }).join('');
-  return '<div class="stack"><div><h1>Readiness checks</h1><p class="sub">Junior and senior assignments only, with a clear reason and recommended action for every item needing attention.</p></div>'+
-    '<div style="display:flex;flex-direction:column;gap:10px">'+body+'</div>'+legend()+'</div>';
+  var cards=[
+    {id:'blocked',tone:'#DC2626',bg:'#FEE2E2',status:'Blocked',student:'Jordan Lee',request:'ICU Rotation Move',risk:'Requested dates overlap with an approved time-off block, and no qualified ICU preceptor is available.',next:'Request two alternate date ranges before changing the assignment.',time:'Urgent — response needed today',button:'Resolve Conflict'},
+    {id:'review',tone:'#D97706',bg:'#FEF3C7',status:'Needs Review',student:'Priya Shah',request:'OB Rotation Schedule Change',risk:'Site capacity appears available, but preceptor confirmation is still pending.',next:'Confirm preceptor availability before approving the move.',time:'Review within 24 hours',button:'Review Request'},
+    {id:'ready',tone:'#16A34A',bg:'#DCFCE7',status:'Ready',student:'Marcus Reed',request:'PACU Rotation Swap',risk:'No assignment, site-capacity, preceptor, or time-off conflicts were identified.',next:'Approve the request and notify the student and preceptor.',time:'Routine — approve by end of day',button:'Approve & Notify'}
+  ];
+  var html=cards.map(function(c){return '<article class="demo-work-card" style="--tone:'+c.tone+';--tonebg:'+c.bg+'">'+
+    '<span class="demo-status">'+c.status+'</span><h3>'+esc(c.student)+' — '+esc(c.request)+'</h3>'+
+    '<div class="demo-field"><b>Risk reason</b><p>'+esc(c.risk)+'</p></div>'+
+    '<div class="demo-field"><b>Recommended next action</b><p>'+esc(c.next)+'</p></div>'+
+    '<div class="demo-time">'+esc(c.time)+'</div>'+
+    '<button class="demo-owner" data-act="democard" data-id="'+c.id+'">'+esc(c.button)+'</button></article>';}).join('');
+  return '<div class="stack"><div><h1>Schedule-change command cards</h1><p class="sub">Three realistic requests show the full operating range: blocked, needs review, and ready for approval. Open any card to move from signal to detail to action.</p></div><div class="demo-card-grid">'+html+'</div><p class="note">This is where the work happens: understand the issue, inspect the context, and take action without leaving the operating view.</p></div>';
 }
 
 function viewRequests(){
@@ -991,7 +1004,17 @@ function viewHospitalFeed(){
 
 function renderOverlay(){
   var o=document.getElementById('overlay'); var html='';
-  if(ST.calendarCell){
+  if(ST.demoCard){
+    var demos={
+      blocked:{tone:'#DC2626',bg:'#FEE2E2',status:'Blocked',title:'Jordan Lee — ICU Rotation Move',changed:'Jordan requested moving the ICU rotation from July 13–17 to July 20–24.',matters:'The new dates conflict with approved student time off and would leave the rotation without a confirmed preceptor.',assignment:'ASN-014 — Adult ICU Rotation',site:'Community North Hospital',preceptor:'Dr. Elena Ruiz — unavailable July 20–24',confidence:'96%',summary:'The request should not be approved until both the schedule conflict and preceptor coverage are resolved.',note:'Requested dates conflict with approved time off and no ICU preceptor is currently available. Please provide two alternate date ranges.',actions:['Approve request — disabled','Request alternate dates','Notify student','Notify clinical coordinator','Add review note','Mark resolved']},
+      review:{tone:'#D97706',bg:'#FEF3C7',status:'Needs Review',title:'Priya Shah — OB Rotation Schedule Change',changed:'Priya requested moving her OB rotation from July 6–10 to July 13–17.',matters:'The site has capacity, but the proposed preceptor has not confirmed the revised dates.',assignment:'ASN-005 — Obstetrics Rotation',site:'Highland Park Hospital',preceptor:'Melissa Grant, CRNA — confirmation pending',confidence:'84%',summary:'The request is likely feasible but requires human confirmation of preceptor coverage.',note:'Site availability is confirmed. Approval is pending confirmation from Melissa Grant for the revised rotation dates.',actions:['Approve request','Request additional information','Notify student','Notify preceptor','Add review note','Mark resolved']},
+      ready:{tone:'#16A34A',bg:'#DCFCE7',status:'Ready',title:'Marcus Reed — PACU Rotation Swap',changed:'Marcus requested swapping his July 27 PACU shift with his open July 29 clinical block.',matters:'The change preserves required clinical hours and does not create downstream scheduling conflicts.',assignment:'ASN-021 — PACU Clinical Rotation',site:'St. Vincent Carmel',preceptor:'Daniel Brooks, CRNA — available',confidence:'98%',summary:'The request is ready for approval. All required schedule, site, and preceptor checks passed.',note:'Schedule change approved. The updated assignment has been confirmed with the clinical site and preceptor.',actions:['Approve request','Request additional information','Notify student','Notify preceptor','Add note','Mark resolved']}
+    };
+    var d=demos[ST.demoCard], stage=ST.demoStage||1;
+    var details='<div class="demo-detail-grid"><div class="demo-detail"><b>What changed</b><p>'+esc(d.changed)+'</p></div><div class="demo-detail"><b>Why it matters</b><p>'+esc(d.matters)+'</p></div><div class="demo-detail"><b>Affected assignment</b><p>'+esc(d.assignment)+'</p></div><div class="demo-detail"><b>Clinical site</b><p>'+esc(d.site)+'</p></div><div class="demo-detail"><b>Preceptor</b><p>'+esc(d.preceptor)+'</p></div><div class="demo-detail"><b>AI confidence</b><p>'+esc(d.confidence)+'</p></div></div><div class="demo-note"><b>AI summary</b><br>'+esc(d.summary)+'</div>';
+    var actions='<div class="demo-actions">'+d.actions.map(function(a,i){var disabled=a.indexOf('disabled')>-1;return '<button class="demo-action'+(i===0&&!disabled?' primary':'')+'" data-act="demoaction" data-label="'+esc(a.replace(' — disabled',''))+'" '+(disabled?'disabled':'')+'>'+esc(a.replace(' — disabled',''))+'</button>';}).join('')+'</div><div class="demo-note"><b>Suggested note</b><br>“'+esc(d.note)+'”</div>';
+    html='<div class="modal-wrap"><div class="scrim" data-act="closedemocard" style="position:absolute"></div><div class="modal" style="max-width:780px;--tone:'+d.tone+';--tonebg:'+d.bg+'"><button class="close" data-act="closedemocard">'+ic('x',18)+'</button><span class="demo-status" style="--tone:'+d.tone+';--tonebg:'+d.bg+'">'+d.status+'</span><h2 style="margin-top:10px">'+esc(d.title)+'</h2><p class="sub">'+(stage===1?'Expanded detail — what changed, why it matters, and the AI context.':'Action view — complete the review and move the request forward.')+'</p>'+(stage===1?details:actions)+'<div style="display:flex;justify-content:space-between;gap:10px;margin-top:18px"><button class="mini" data-act="closedemocard">Close</button>'+(stage===1?'<button class="gate-cta on" data-act="demostage" data-stage="2">Open action view '+ic('arrowr',14,'#fff')+'</button>':'<button class="mini" data-act="demostage" data-stage="1">'+ic('back',13)+' Back to detail</button>')+'</div></div></div>';
+  } else if(ST.calendarCell){
     var cc=ST.calendarCell;
     var tone=cc.type==='conflict'?'#DC2626':(cc.type==='pto'?'#7C3AED':(cc.type==='oncall'?'#C2410C':'#15803D'));
     var bg=cc.type==='conflict'?'#FEF2F2':(cc.type==='pto'?'#F5F3FF':(cc.type==='oncall'?'#FFF7ED':'#ECFDF3'));
@@ -1366,7 +1389,7 @@ function renderOverlay(){
       '<div style="margin-top:18px">'+kd.stats+'</div>'+
       '<div class="kpi-hint">Click any summary box or any card below to open a second layer of detail.</div>'+
       kd.body+
-      '<section style="margin-top:18px">'+secHead('Explore one level deeper','Additional clickable detail for this KPI.')+'<button class="kpi-next-card" data-act="kpideep" data-key="'+defaultDeepKeys[ST.kpi]+'"><div class="kpi-next-copy"><span style="font-size:12px;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;font-weight:700">Deeper detail</span><span style="font-size:14px;font-weight:600;color:var(--ink)">Open a focused drilldown for '+kd.title.toLowerCase()+'</span><span style="font-size:12.5px;color:var(--muted)">This adds one more clickable layer with demo-safe operational context.</span></div><span class="cc-kpi-ic" style="background:'+kd.tone+'18;color:'+kd.tone+'">'+ic('spark',18)+'</span></button></section>'+
+      '<section style="margin-top:18px">'+secHead('Second-level detail','Click below to open another layer of demo content.')+'<button class="kpi-next-card" data-act="kpideep" data-key="'+defaultDeepKeys[ST.kpi]+'"><div class="kpi-next-copy"><span style="font-size:12px;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;font-weight:700">Clickable second level</span><span style="font-size:14px;font-weight:600;color:var(--ink)">Open second-level detail for '+kd.title.toLowerCase()+'</span><span style="font-size:12.5px;color:var(--muted)">Opens a separate detail view with realistic demo data and next-step context.</span></div><span class="cc-kpi-ic" style="background:'+kd.tone+'18;color:'+kd.tone+'">'+ic('spark',18)+'</span></button></section>'+
       '<div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="gate-cta on" data-act="kpigoto" data-v="'+kd.view+'">'+kd.cta+' '+ic('arrowr',14,'#fff')+'</button></div>'+
     '</div></div>';
   } else if(ST.about){
@@ -1446,12 +1469,16 @@ document.addEventListener('click',function(e){
   if(!t)return;
   var act=t.getAttribute('data-act');
   if(act==='goto'){ST.view=t.getAttribute('data-v');ST.siteFocus=null;render();}
-  else if(act==='home'){ST.role='leader';ST.view='dashboard';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.calendarCell=null;ST.about=false;render();}
+  else if(act==='home'){ST.role='leader';ST.view='dashboard';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;render();}
   else if(act==='open'){ST.openStudentId=null;ST.openId=t.getAttribute('data-id');renderOverlay();}
   else if(act==='openstudent'){ST.openId=null;ST.openStudentId=t.getAttribute('data-id');renderOverlay();}
   else if(act==='closedrawer'){ST.openId=null;renderOverlay();}
   else if(act==='closestudent'){ST.openStudentId=null;renderOverlay();}
   else if(act==='about'){ST.about=true;renderOverlay();}
+  else if(act==='democard'){ST.demoCard=t.getAttribute('data-id');ST.demoStage=1;renderOverlay();}
+  else if(act==='demostage'){ST.demoStage=parseInt(t.getAttribute('data-stage'),10)||1;renderOverlay();}
+  else if(act==='closedemocard'){ST.demoCard=null;ST.demoStage=1;renderOverlay();}
+  else if(act==='demoaction'){toast((t.getAttribute('data-label')||'Action')+' recorded in demo.');}
   else if(act==='calendarcell'){ST.calendarCell={name:t.getAttribute('data-name'),site:t.getAttribute('data-site'),rotation:t.getAttribute('data-rotation'),when:t.getAttribute('data-when'),type:t.getAttribute('data-type')};renderOverlay();}
   else if(act==='closecalendarcell'){ST.calendarCell=null;renderOverlay();}
   else if(act==='coverageview'){ST.coverageView=t.getAttribute('data-gap');ST.coverageSub=false;renderOverlay();}
@@ -1491,7 +1518,7 @@ document.addEventListener('click',function(e){
     toast(s==='Approved'?'Request approved \u2014 re-checking the schedule.':'Request marked '+s.toLowerCase()+'.');
     render();
   }
-  else if(act==='reset'){ST.data=seed();ST.view='dashboard';ST.openId=null;ST.openStudentId=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.calendarCell=null;ST.tlBy='student';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';toast('Demo reset to starting data.');render();}
+  else if(act==='reset'){ST.data=seed();ST.view='dashboard';ST.openId=null;ST.openStudentId=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.tlBy='student';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';toast('Demo reset to starting data.');render();}
 });
 document.addEventListener('change',function(e){
   var t=e.target.closest('[data-act="reassign"]');
@@ -1505,7 +1532,7 @@ document.addEventListener('change',function(e){
   var ps=e.target.closest('[data-act="pickstudent"]'); if(ps){ST.asStudent=ps.value;render();return;}
   var ph=e.target.closest('[data-act="pickhospital"]'); if(ph){ST.asHospital=ph.value;render();return;}
 });
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(ST.openId){ST.openId=null;renderOverlay();}else if(ST.openStudentId){ST.openStudentId=null;renderOverlay();}else if(ST.aiInsight){ST.aiInsight=null;renderOverlay();}else if(ST.calendarCell){ST.calendarCell=null;renderOverlay();}else if(ST.coverageSub){ST.coverageSub=false;renderOverlay();}else if(ST.coverageView!==null){ST.coverageView=null;renderOverlay();}else if(ST.readinessInfo){ST.readinessInfo=null;renderOverlay();}else if(ST.kpiDeep){ST.kpiDeep=null;renderOverlay();}else if(ST.kpi!==null){ST.kpi=null;renderOverlay();}else if(ST.about){ST.about=false;renderOverlay();}}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(ST.demoCard){ST.demoCard=null;ST.demoStage=1;renderOverlay();}else if(ST.openId){ST.openId=null;renderOverlay();}else if(ST.openStudentId){ST.openStudentId=null;renderOverlay();}else if(ST.aiInsight){ST.aiInsight=null;renderOverlay();}else if(ST.calendarCell){ST.calendarCell=null;renderOverlay();}else if(ST.coverageSub){ST.coverageSub=false;renderOverlay();}else if(ST.coverageView!==null){ST.coverageView=null;renderOverlay();}else if(ST.readinessInfo){ST.readinessInfo=null;renderOverlay();}else if(ST.kpiDeep){ST.kpiDeep=null;renderOverlay();}else if(ST.kpi!==null){ST.kpi=null;renderOverlay();}else if(ST.about){ST.about=false;renderOverlay();}}});
 
 render();
 </script>
