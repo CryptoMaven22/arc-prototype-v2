@@ -208,6 +208,12 @@
   .issue:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(16,35,31,.07);}
   .sitecard{transition:border-color .16s ease,box-shadow .16s ease,transform .16s ease;}
   .sitecard:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(16,35,31,.07);}
+  .student-sitecard{min-height:150px;display:flex;flex-direction:column;justify-content:space-between;}
+  .student-sitecard .student-card-head{display:flex;align-items:center;gap:8px;}
+  .student-sitecard .student-meta{font-size:12px;color:var(--muted);}
+  .student-sitecard .student-summary{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:10px;}
+  .student-sitecard .student-assign{font-size:12px;color:var(--muted2);}
+
   .reason-label{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#B91C1C;margin-top:8px;}
   .source-chip{display:inline-flex;align-items:center;gap:5px;border:1px solid #BFDBFE;background:#EFF6FF;color:#1D4ED8;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:600;}
   .attention-note{border-left:3px solid #DC2626;padding-left:10px;}
@@ -774,24 +780,24 @@ function viewStudents(){
       return '<span class="student-flag-chip '+sev+'">'+n+' '+esc(k)+(n>1?'s':'')+'</span>';
     }).join('');
   }
-  var html=ST.data.students.map(function(st){
+  var cards=ST.data.students.map(function(st){
     var mine=r.filter(function(x){return x.studentId===st.id;});
     var issues=mine.reduce(function(n,x){return n+x.open.length;},0);
     var bank=bankFor(st.id);
     var bankChips=bank.map(function(b){var low=b.left<=Math.max(1,Math.round(b.allow*0.15));return '<span class="pill" style="color:'+(b.left<0?'#B91C1C':(low?'#92400E':'#475569'))+';background:'+(b.left<0?'#FEE2E2':(low?'#FEF3C7':'#EEF1F0'))+'" title="'+esc(TYPE_LABEL[b.type])+'">'+b.type+' '+b.left+'/'+b.allow+'</span>';}).join('');
-    var assignSummary = mine.length===0
-      ? '<div class="student-assignment-line"><span class="pill">No active assignment</span></div>'
-      : mine.map(function(x){return '<div class="student-assignment-line">'+ic('building',13,'var(--muted2)')+' <span style="font-weight:500">'+esc(x.site.name)+'</span> <span style="color:#cbd5d2">·</span> '+specPill(x.rotation)+' <span class="mono" style="font-size:11px;color:var(--muted2)">'+fmtRange(x.start,x.end)+'</span></div>';}).join('');
-    var flags = summarizeFlags(mine);
-    return '<button class="row clk student-card compact" data-act="openstudent" data-id="'+st.id+'">'+avatar(st.name,34)+'<div class="grow"><div class="student-main-head">'+esc(st.name)+'</div><div class="student-main-sub">'+esc(st.cohort)+' · '+esc(st.level)+' · '+esc(st.region)+'</div>'+
-      '<div class="student-section-label">Assignments</div>'+assignSummary+
-      '<div class="student-section-label">Potential flags</div><div class="student-flags">'+flags+'</div>'+
-      '<div class="chips" style="margin-top:6px">'+bankChips+'</div></div>'+
-      '<div class="student-side"><div class="mono" style="font-size:12px;color:var(--muted2)">'+mine.length+' assignment'+(mine.length!==1?'s':'')+'</div>'+
-      (issues>0?'<span class="badge-st sm" style="color:#92400E;background:#FEF3C7">'+issues+' issue'+(issues>1?'s':'')+'</span>':'<span class="badge-st sm" style="color:#15803D;background:#DCFCE7">Clear</span>')+
-      '<span style="color:#cbd5d2">'+ic('chevr',16,'#cbd5d2')+'</span></div></button>';
+    var assignmentPills = mine.length===0
+      ? '<span class="pill">No active assignment</span>'
+      : mine.map(function(x){return '<span class="pill">'+esc(x.site.name)+'</span>'+specPill(x.rotation);}).join('');
+    var flags=summarizeFlags(mine);
+    return '<button class="sitecard student-sitecard" data-act="openstudent" data-id="'+st.id+'">'+
+      '<div><div class="student-card-head">'+avatar(st.name,34)+
+      '<div class="grow"><div style="font-weight:600;font-size:14px">'+esc(st.name)+'</div><div class="student-meta">'+esc(st.cohort)+' · '+esc(st.level)+' · '+esc(st.region)+'</div></div>'+ic('chevr',16,'#cbd5d2')+'</div>'+
+      '<div class="student-section-label" style="margin-top:10px">Assignments</div><div class="chips" style="margin-top:5px">'+assignmentPills+'</div>'+
+      '<div class="student-section-label" style="margin-top:9px">Potential flags</div><div class="student-flags" style="margin-top:5px">'+flags+'</div>'+
+      '<div class="chips" style="margin-top:9px">'+bankChips+'</div></div>'+
+      '<div class="student-summary"><span class="student-assign">'+mine.length+' assignment'+(mine.length!==1?'s':'')+' this period</span><span class="linkbtn">'+(issues>0?issues+' issue'+(issues>1?'s':''):'Clear')+' · View details '+ic('chevr',12)+'</span></div></button>';
   }).join('');
-  return '<div class="stack"><div><h1>Students</h1><p class="sub">All students represented in this demo view, with assignment summaries, potential readiness flags, and time-off bank balances. Click any student to open a second layer of detail.</p></div><div class="rowlist">'+html+'</div>'+
+  return '<div class="stack"><div><h1>Students</h1><p class="sub">All students represented in this demo view, with assignment summaries, potential readiness flags, and time-off bank balances. Click any student to open a second layer of detail.</p></div><div class="grid2">'+cards+'</div>'+
     '<p class="note">Days remaining / allowance per category: ATO '+ALLOW.ATO+', DNP '+ALLOW.DNP+', MTG '+ALLOW.MTG+', STDY '+ALLOW.STDY+'. Balances update as requests are approved. Demo-safe names only.</p></div>';
 }
 
