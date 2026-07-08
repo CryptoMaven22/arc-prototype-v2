@@ -260,7 +260,7 @@
   .cc-title h1{font-size:20px;}
   .cc-title p{margin:2px 0 0;color:var(--muted);font-size:12px;}
   .cc-tools{display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:flex-end;}
-  .cc-kpis{display:grid;grid-template-columns:repeat(6,minmax(125px,1fr));gap:10px;}
+  .cc-kpis{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:10px;}
   .cc-kpi{background:#fff;border:1px solid var(--hair);border-radius:12px;padding:12px 13px;display:flex;gap:10px;align-items:center;min-height:78px;box-shadow:0 3px 12px rgba(16,35,31,.035);width:100%;text-align:left;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;}
   .cc-kpi:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(16,35,31,.09);border-color:#cbd5d2;}
   .cc-kpi:after{content:"›";margin-left:auto;color:var(--muted2);font-size:20px;}
@@ -605,9 +605,7 @@ function viewDashboard(){
     ['calendar','#EAF4FF','#1683E8','Open assignments','5','2 need action'],
     ['alert','#FFF7ED','#F97316','Coverage gaps','3','1 added this week'],
     ['shield','#FEF2F2','#EF4444','Readiness issues',String(oc.length),'Reasons identified'],
-    ['inbox','#F5F3FF','#8B5CF6','Pending approvals',String(pr.length),'Time-off tracking'],
-    ['users','#ECFDF3','#10B981','Students on rotation','42','Junior + senior'],
-    ['checkc','#ECFEF8','#14B8A6','Sites ready','5 / 7','2 require review']
+    ['inbox','#F5F3FF','#8B5CF6','Pending approvals',String(pr.length),'Time-off tracking']
   ];
   var kpiHtml=kpis.map(function(k,i){return '<button class="cc-kpi" data-act="kpi" data-k="'+i+'"><span class="cc-kpi-ic" style="background:'+k[1]+';color:'+k[2]+'">'+ic(k[0],21)+'</span><div><div class="lab">'+k[3]+'</div><div class="num">'+k[4]+'</div><div class="delta">'+k[5]+'</div></div></button>';}).join('');
   var alerts=[
