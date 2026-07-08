@@ -156,8 +156,8 @@
   select.reassign{width:100%;border:1px solid var(--hair);background:#fff;border-radius:10px;padding:9px 11px;font-size:13.5px;color:var(--ink);}
   select.reassign:focus{border-color:var(--teal);}
 
-  .modal-wrap{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;}
-  .modal{position:relative;z-index:1;width:100%;max-width:560px;background:#fff;border:1px solid var(--hair);border-radius:18px;padding:26px;max-height:88vh;overflow-y:auto;animation:pop .22s cubic-bezier(.22,.61,.36,1);}
+  .modal-wrap{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;isolation:isolate;}
+  .modal{position:relative;z-index:2;width:100%;max-width:560px;background:#fff;border:1px solid var(--hair);border-radius:18px;padding:26px;max-height:88vh;overflow-y:auto;animation:pop .22s cubic-bezier(.22,.61,.36,1);pointer-events:auto;}
   .modal .close{position:absolute;top:16px;right:16px;color:var(--muted2);}
   .modal .close:hover{color:var(--ink);}
   .scope-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px;}
@@ -426,6 +426,12 @@
   .second-level-card{width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;text-align:left;padding:16px 18px;margin-top:16px;border:1px solid color-mix(in srgb,var(--tone,#0F766E) 28%,#dbe7e3);border-left:4px solid var(--tone,#0F766E);border-radius:14px;background:#fff;box-shadow:0 5px 16px rgba(15,23,42,.06);cursor:pointer;transition:.18s ease}
   .second-level-card:hover{transform:translateY(-1px);box-shadow:0 9px 22px rgba(15,23,42,.10);border-color:var(--tone,#0F766E)}
   .second-level-card:focus-visible{outline:3px solid color-mix(in srgb,var(--tone,#0F766E) 30%,transparent);outline-offset:2px}
+  /* Command-center modal interaction fix: the backdrop must remain behind both detail levels. */
+  .modal-wrap > .scrim{z-index:0 !important;pointer-events:auto;}
+  .modal-wrap > .modal{z-index:2 !important;pointer-events:auto;}
+  .modal-wrap .second-level-card{position:relative;z-index:3;pointer-events:auto;}
+  .cc-kpi{cursor:pointer;}
+  .cc-kpi:focus-visible,.second-level-card:focus-visible{outline:3px solid rgba(15,118,110,.28);outline-offset:3px;}
   .second-level-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
   .second-level-kicker{font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--tone,#0F766E)}
   .second-level-title{font-size:14px;font-weight:700;color:var(--ink)}
@@ -644,7 +650,7 @@ function viewDashboard(){
     ['inbox','#F5F3FF','#8B5CF6','Pending approvals',String(pr.length),'Time-off tracking',3],
     ['calendar','#EAF4FF','#1683E8','Open assignments','5','2 need action',0]
   ];
-  var kpiHtml=kpis.map(function(k){return '<button class="cc-kpi" data-act="kpi" data-k="'+k[6]+'"><span class="cc-kpi-ic" style="background:'+k[1]+';color:'+k[2]+'">'+ic(k[0],21)+'</span><div><div class="lab">'+k[3]+'</div><div class="num">'+k[4]+'</div><div class="delta">'+k[5]+'</div></div></button>';}).join('');
+  var kpiHtml=kpis.map(function(k){return '<button class="cc-kpi" type="button" aria-label="Open '+k[3]+' detail" data-act="kpi" data-k="'+k[6]+'"><span class="cc-kpi-ic" style="background:'+k[1]+';color:'+k[2]+'">'+ic(k[0],21)+'</span><div><div class="lab">'+k[3]+'</div><div class="num">'+k[4]+'</div><div class="delta">'+k[5]+'</div></div></button>';}).join('');
   var alerts=[
     ['Highland Park — Jul 8','Junior placed at senior-only site','Level mismatch','#FEF2F2','#DC2626'],
     ["Children's Rotation — Jul 7",'Class day overlaps clinical assignment','Calendar conflict','#FFF7ED','#D97706'],
@@ -1408,7 +1414,7 @@ function renderOverlay(){
         {kicker:'Coverage recovery',title:'Open the most urgent coverage gap',desc:'Review the uncovered site and shift, why coverage is missing, and the best available backfill path.'},
         {kicker:'Priority readiness issue',title:'Open Emily Parker’s time-off conflict',desc:'Review the affected assignment, approved time-off overlap, schedule impact, and the action needed before release.'},
         {kicker:'Assignment action queue',title:'Open the assignment needing action',desc:'Review the student, site, dates, unresolved issue, and the next operational step before schedule release.'}
-      ];var sc=secondCards[ST.kpi];return '<button class="second-level-card" data-act="kpideep" data-key="'+defaultDeepKeys[ST.kpi]+'" style="--tone:'+kd.tone+';background:linear-gradient(135deg,#fff 0%,'+kd.tone+'12 100%)"><span class="second-level-copy"><span class="second-level-kicker">'+sc.kicker+'</span><span class="second-level-title">'+sc.title+'</span><span class="second-level-desc">'+sc.desc+'</span></span><span class="cc-kpi-ic" style="background:'+kd.tone+';color:#fff">'+ic('arrowr',18,'#fff')+'</span></button>';})()+
+      ];var sc=secondCards[ST.kpi];return '<button class="second-level-card" type="button" aria-label="Open second-level detail" data-act="kpideep" data-key="'+defaultDeepKeys[ST.kpi]+'" style="--tone:'+kd.tone+';background:linear-gradient(135deg,#fff 0%,'+kd.tone+'12 100%)"><span class="second-level-copy"><span class="second-level-kicker">'+sc.kicker+'</span><span class="second-level-title">'+sc.title+'</span><span class="second-level-desc">'+sc.desc+'</span></span><span class="cc-kpi-ic" style="background:'+kd.tone+';color:#fff">'+ic('arrowr',18,'#fff')+'</span></button>';})()+
       '<div style="margin-top:18px">'+kd.stats+'</div>'+
       '<div class="kpi-hint">Click any summary box or any card below to open a second layer of detail.</div>'+
       kd.body+
