@@ -129,13 +129,15 @@
   .empty{border:1px solid var(--hair);background:#fff;border-radius:14px;padding:32px;text-align:center;}
   .empty .ec{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:999px;background:#ECFDF3;color:#15803D;margin-bottom:8px;}
 
-  .legend{border:1px solid var(--hair);background:#fff;border-radius:14px;padding:16px;}
-  .legend .lh{font-size:12px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:12px;}
-  .legend-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;}
-  .lg-item{display:flex;gap:10px;align-items:flex-start;}
-  .lg-item .li-ic{color:var(--teal);margin-top:1px;}
-  .lg-item .li-t{font-size:13px;font-weight:500;}
-  .lg-item .li-b{font-size:12px;color:var(--muted);}
+  .legend{border:1px solid var(--hair);background:#fff;border-radius:14px;padding:14px 16px;}
+  .legend .lh{font-size:12px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:8px;}
+  .legend-grid{display:grid;grid-template-columns:repeat(2,minmax(280px,420px));justify-content:start;gap:6px 20px;}
+  .lg-item{display:flex;gap:8px;align-items:flex-start;border-radius:10px;padding:6px 8px;margin-left:-8px;background:transparent;text-align:left;cursor:pointer;transition:background .16s ease,transform .16s ease,box-shadow .16s ease;}
+  .lg-item:hover{background:#F7FAF9;transform:translateY(-1px);box-shadow:0 6px 18px rgba(16,35,31,.05);}
+  .lg-item .li-ic{color:var(--teal);margin-top:1px;flex-shrink:0;}
+  .lg-item .li-t{font-size:13px;font-weight:600;line-height:1.2;}
+  .lg-item .li-b{font-size:12px;color:var(--muted);line-height:1.25;margin-top:1px;}
+  .li-more{display:block;font-size:11px;color:var(--teal);margin-top:4px;font-weight:600;}
 
   .note{font-size:12.5px;color:var(--muted2);}
   .dash{border:1px dashed var(--hair);background:rgba(244,246,245,.6);border-radius:14px;padding:16px;display:flex;gap:12px;align-items:center;}
@@ -554,7 +556,7 @@ function bankFor(studentId){
 function badgeSt(s,sm){var c=STATUS[s]||STATUS['Not Checked'];return '<span class="badge-st'+(sm?' sm':'')+'" style="color:'+c.text+';background:'+c.bg+'"><span class="dot" style="background:'+c.dot+'"></span>'+s+'</span>';}
 function sevBadge(s){var c=SEV[s]||SEV.Low;return '<span class="sev" style="color:'+c.text+';background:'+c.bg+'">'+s+'</span>';}
 
-var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,tlBy:'student',role:'leader',asStudent:'s5',asHospital:'site4'};
+var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,tlBy:'student',role:'leader',asStudent:'s5',asHospital:'site4'};
 
 function openChecks(){var all=generateChecks(ST.data),rv=ST.reviewed;return all.filter(function(c){return rv.indexOf(c.key)<0;});}
 function checksFor(id){return openChecks().filter(function(c){return c.assignmentId===id;});}
@@ -570,7 +572,7 @@ function pendingReq(){return ST.data.requests.filter(function(r){return r.status
 function secHead(title,hint,cnt){return '<div class="sec-head"><div class="ttl"><h2>'+esc(title)+'</h2>'+(cnt!=null?'<span class="cnt mono">'+cnt+'</span>':'')+'</div>'+(hint?'<p class="hint">'+esc(hint)+'</p>':'')+'</div>';}
 function emptyState(t,b){return '<div class="empty"><span class="ec">'+ic('checkc',22)+'</span><div style="font-weight:600;font-size:14px">'+esc(t)+'</div><div style="font-size:13px;color:var(--muted);margin-top:2px">'+esc(b)+'</div></div>';}
 function legend(){
-  var items=CHECK_TYPES.map(function(c){return '<div class="lg-item"><span class="li-ic">'+ic(c.icon,16)+'</span><div><div class="li-t">'+esc(c.type)+'</div><div class="li-b">'+esc(c.blurb)+'</div></div></div>';}).join('');
+  var items=CHECK_TYPES.map(function(c){return '<button class="lg-item" data-act="checkinfo" data-key="'+esc(c.type)+'"><span class="li-ic">'+ic(c.icon,16)+'</span><div><div class="li-t">'+esc(c.type)+'</div><div class="li-b">'+esc(c.blurb)+'</div><span class="li-more">Click for definition and examples</span></div></button>';}).join('');
   return '<div class="legend"><div class="lh">'+ic('spark',14,'var(--teal)')+' What the readiness engine checks</div><div class="legend-grid">'+items+'</div></div>';
 }
 
@@ -976,7 +978,26 @@ function viewHospitalFeed(){
 
 function renderOverlay(){
   var o=document.getElementById('overlay'); var html='';
-  if(ST.openStudentId){
+  if(ST.readinessInfo){
+    var defs={
+      'Time-Off Conflict':{icon:'clock',tone:'#B45309',bg:'#FFFBEB',summary:'A time-off conflict appears when approved time off overlaps a student\'s scheduled clinical assignment.',definition:'Arc checks approved ATO, DNP, meeting, or study-day requests against the assignment date range. If any approved day falls inside the clinical week, the assignment is flagged for review.',examples:['A student has approved ATO on Jul 3 while assigned Jul 1–7.','A DNP day lands on a scheduled Saturday clinical shift.'],actions:['Confirm coverage for the affected days.','Shorten or move the assignment if coverage cannot be maintained.']},
+      'School Calendar Conflict':{icon:'calendar',tone:'#0F766E',bg:'#ECFDF5',summary:'A school-calendar conflict appears when a class, research, exam, or no-clinical block overlaps a clinical assignment.',definition:'Arc compares school calendar blocks to the assignment schedule. If a student is expected to be in class or unavailable for clinical time, the record is flagged.',examples:['Class Day on Jul 2 overlaps a pediatric rotation.','An exam block lands during an OB assignment week.'],actions:['Remove the clinical day that overlaps the school block.','Reassign or shift the placement to a clean date range.']},
+      'Level Mismatch':{icon:'grad',tone:'#B91C1C',bg:'#FEF2F2',summary:'A level mismatch appears when the student\'s level does not meet the site\'s rule.',definition:'Arc evaluates whether the assignment site is junior-eligible, senior-only, or otherwise limited by level. If the student does not match that rule, the assignment is flagged.',examples:['A junior student is placed at a senior-only hospital.','A site requires advanced students but the current assignment is below that level.'],actions:['Move the student to a junior-eligible site.','Replace the slot with a student whose level matches the site rule.']},
+      'Specialty Mismatch':{icon:'layers',tone:'#0F766E',bg:'#F0FDFA',summary:'A specialty mismatch appears when the rotation type is not tagged as allowed at that site.',definition:'Arc compares the assignment\'s rotation or specialty tag with the site\'s supported specialties. If the site is not configured for that specialty, the assignment is flagged.',examples:['A pediatric rotation is placed at a site not tagged for Peds.','An OB rotation is assigned to a general-only site.'],actions:['Choose a site that supports the rotation specialty.','Retag or correct the assignment if the rotation type was entered incorrectly.']},
+      'Site Capacity':{icon:'building',tone:'#0F766E',bg:'#F0FDFA',summary:'A site-capacity issue appears when more students are scheduled than the site allows that week.',definition:'Arc can compare the number of assigned students to the site\'s configured capacity threshold. If scheduled demand exceeds the limit, the site is flagged.',examples:['Three students are placed at a site with capacity for two.','A coordinator approved only one OB slot, but two students are assigned.'],actions:['Move one or more students to a different site.','Hold the extra assignment until capacity is confirmed.']},
+      'Missing Data':{icon:'alert',tone:'#92400E',bg:'#FEF3C7',summary:'Missing data appears when a required scheduling field is blank or incomplete.',definition:'Arc checks whether the assignment has the fields needed for readiness review, such as student, site, dates, rotation, or other required values. If something essential is missing, it cannot clear the record.',examples:['Rotation type is blank on the assignment.','The site is selected, but the date range is missing.'],actions:['Complete the missing field before publishing.','Re-run readiness once the required data is in place.']}
+    };
+    var d=defs[ST.readinessInfo]||{icon:'spark',tone:'var(--teal)',bg:'#F0FDFA',summary:'Readiness rule detail.',definition:'This rule helps explain why an item may need review before schedule release.',examples:['Prototype readiness example.'],actions:['Review the flagged record.']};
+    html='<div class="modal-wrap"><div class="scrim" data-act="closereadinessinfo" style="position:absolute"></div><div class="modal" style="max-width:720px">'+
+      '<button class="close" data-act="closereadinessinfo">'+ic('x',18)+'</button>'+
+      '<div style="display:flex;align-items:center;gap:10px;color:'+d.tone+'"><span class="cc-kpi-ic" style="background:'+d.bg+';color:'+d.tone+'">'+ic(d.icon,20,d.tone)+'</span><span style="font-weight:700">Readiness rule detail</span></div>'+
+      '<h1 style="font-size:22px;margin-top:12px">'+esc(ST.readinessInfo)+'</h1><p style="font-size:13.5px;color:#475569;margin-top:8px">'+esc(d.summary)+'</p>'+
+      '<section style="margin-top:18px"><div class="sec-head"><div class="ttl"><h2>Definition</h2></div></div><div class="card" style="padding:14px;font-size:13px;color:#475569">'+esc(d.definition)+'</div></section>'+
+      '<section style="margin-top:18px"><div class="sec-head"><div class="ttl"><h2>Examples</h2></div></div><div class="rowlist">'+d.examples.map(function(x){return '<div class="row"><span style="color:'+d.tone+'">'+ic('checkc',14,d.tone)+'</span><div class="grow" style="font-size:13px">'+esc(x)+'</div></div>';}).join('')+'</div></section>'+
+      '<section style="margin-top:18px"><div class="sec-head"><div class="ttl"><h2>What Ryan would typically do</h2></div></div><div class="rowlist">'+d.actions.map(function(x){return '<div class="row"><span style="color:var(--teal)">'+ic('arrowr',14,'var(--teal)')+'</span><div class="grow" style="font-size:13px">'+esc(x)+'</div></div>';}).join('')+'</div></section>'+
+      '<div style="display:flex;justify-content:flex-end;gap:10px;align-items:center;margin-top:18px"><button class="mini" data-act="closereadinessinfo">Close</button></div>'+
+    '</div></div>';
+  } else if(ST.openStudentId){
     var st=ST.data.students.filter(function(s){return s.id===ST.openStudentId;})[0];
     if(st){
       var mine=rows().filter(function(x){return x.studentId===st.id;});
@@ -1361,12 +1382,14 @@ document.addEventListener('click',function(e){
   if(!t)return;
   var act=t.getAttribute('data-act');
   if(act==='goto'){ST.view=t.getAttribute('data-v');ST.siteFocus=null;render();}
-  else if(act==='home'){ST.role='leader';ST.view='dashboard';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.about=false;render();}
+  else if(act==='home'){ST.role='leader';ST.view='dashboard';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.about=false;render();}
   else if(act==='open'){ST.openStudentId=null;ST.openId=t.getAttribute('data-id');renderOverlay();}
   else if(act==='openstudent'){ST.openId=null;ST.openStudentId=t.getAttribute('data-id');renderOverlay();}
   else if(act==='closedrawer'){ST.openId=null;renderOverlay();}
   else if(act==='closestudent'){ST.openStudentId=null;renderOverlay();}
   else if(act==='about'){ST.about=true;renderOverlay();}
+  else if(act==='checkinfo'){ST.readinessInfo=t.getAttribute('data-key');renderOverlay();}
+  else if(act==='closereadinessinfo'){ST.readinessInfo=null;renderOverlay();}
   else if(act==='aiinsight'){ST.aiInsight=t.getAttribute('data-key')||'overview';renderOverlay();}
   else if(act==='closeai'){ST.aiInsight=null;renderOverlay();}
   else if(act==='aigoto'){ST.aiInsight=null;ST.view=t.getAttribute('data-v')||'checks';render();}
@@ -1378,7 +1401,7 @@ document.addEventListener('click',function(e){
   else if(act==='closeabout'){ST.about=false;renderOverlay();}
   else if(act==='filter'){ST.filter=t.getAttribute('data-f');render();}
   else if(act==='tlby'){ST.tlBy=t.getAttribute('data-by');render();}
-  else if(act==='role'){ST.role=t.getAttribute('data-r');ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.about=false;ST.siteFocus=null;ST.view='dashboard';render();}
+  else if(act==='role'){ST.role=t.getAttribute('data-r');ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.about=false;ST.siteFocus=null;ST.view='dashboard';render();}
   else if(act==='reqoff'){
     var ty=document.getElementById('tof-type').value, sd=document.getElementById('tof-start').value, ed=document.getElementById('tof-end').value||sd;
     if(!sd){toast('Pick a start date.');return;}
@@ -1397,7 +1420,7 @@ document.addEventListener('click',function(e){
     toast(s==='Approved'?'Request approved \u2014 re-checking the schedule.':'Request marked '+s.toLowerCase()+'.');
     render();
   }
-  else if(act==='reset'){ST.data=seed();ST.view='dashboard';ST.openId=null;ST.openStudentId=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.tlBy='student';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';toast('Demo reset to starting data.');render();}
+  else if(act==='reset'){ST.data=seed();ST.view='dashboard';ST.openId=null;ST.openStudentId=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.tlBy='student';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';toast('Demo reset to starting data.');render();}
 });
 document.addEventListener('change',function(e){
   var t=e.target.closest('[data-act="reassign"]');
@@ -1411,7 +1434,7 @@ document.addEventListener('change',function(e){
   var ps=e.target.closest('[data-act="pickstudent"]'); if(ps){ST.asStudent=ps.value;render();return;}
   var ph=e.target.closest('[data-act="pickhospital"]'); if(ph){ST.asHospital=ph.value;render();return;}
 });
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(ST.openId){ST.openId=null;renderOverlay();}else if(ST.openStudentId){ST.openStudentId=null;renderOverlay();}else if(ST.aiInsight){ST.aiInsight=null;renderOverlay();}else if(ST.kpiDeep){ST.kpiDeep=null;renderOverlay();}else if(ST.kpi!==null){ST.kpi=null;renderOverlay();}else if(ST.about){ST.about=false;renderOverlay();}}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(ST.openId){ST.openId=null;renderOverlay();}else if(ST.openStudentId){ST.openStudentId=null;renderOverlay();}else if(ST.aiInsight){ST.aiInsight=null;renderOverlay();}else if(ST.readinessInfo){ST.readinessInfo=null;renderOverlay();}else if(ST.kpiDeep){ST.kpiDeep=null;renderOverlay();}else if(ST.kpi!==null){ST.kpi=null;renderOverlay();}else if(ST.about){ST.about=false;renderOverlay();}}});
 
 render();
 </script>
