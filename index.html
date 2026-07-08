@@ -222,7 +222,9 @@
   .cc-title p{margin:2px 0 0;color:var(--muted);font-size:12px;}
   .cc-tools{display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:flex-end;}
   .cc-kpis{display:grid;grid-template-columns:repeat(6,minmax(125px,1fr));gap:10px;}
-  .cc-kpi{background:#fff;border:1px solid var(--hair);border-radius:12px;padding:12px 13px;display:flex;gap:10px;align-items:center;min-height:78px;box-shadow:0 3px 12px rgba(16,35,31,.035);}
+  .cc-kpi{background:#fff;border:1px solid var(--hair);border-radius:12px;padding:12px 13px;display:flex;gap:10px;align-items:center;min-height:78px;box-shadow:0 3px 12px rgba(16,35,31,.035);width:100%;text-align:left;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;}
+  .cc-kpi:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(16,35,31,.09);border-color:#cbd5d2;}
+  .cc-kpi:after{content:"›";margin-left:auto;color:var(--muted2);font-size:20px;}
   .cc-kpi-ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex:0 0 auto;}
   .cc-kpi .lab{font-size:11px;font-weight:600;color:#334155;white-space:nowrap;}
   .cc-kpi .num{font-size:24px;font-weight:700;line-height:1.05;margin-top:2px;}
@@ -514,7 +516,7 @@ function bankFor(studentId){
 function badgeSt(s,sm){var c=STATUS[s]||STATUS['Not Checked'];return '<span class="badge-st'+(sm?' sm':'')+'" style="color:'+c.text+';background:'+c.bg+'"><span class="dot" style="background:'+c.dot+'"></span>'+s+'</span>';}
 function sevBadge(s){var c=SEV[s]||SEV.Low;return '<span class="sev" style="color:'+c.text+';background:'+c.bg+'">'+s+'</span>';}
 
-var ST={data:seed(),view:'dashboard',openId:null,siteFocus:null,reviewed:[],filter:'All',about:false,tlBy:'student',role:'leader',asStudent:'s5',asHospital:'site4'};
+var ST={data:seed(),view:'dashboard',openId:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,tlBy:'student',role:'leader',asStudent:'s5',asHospital:'site4'};
 
 function openChecks(){var all=generateChecks(ST.data),rv=ST.reviewed;return all.filter(function(c){return rv.indexOf(c.key)<0;});}
 function checksFor(id){return openChecks().filter(function(c){return c.assignmentId===id;});}
@@ -567,7 +569,7 @@ function viewDashboard(){
     ['users','#ECFDF3','#10B981','Students on rotation','42','Junior + senior'],
     ['checkc','#ECFEF8','#14B8A6','Sites ready','5 / 7','2 require review']
   ];
-  var kpiHtml=kpis.map(function(k){return '<div class="cc-kpi"><span class="cc-kpi-ic" style="background:'+k[1]+';color:'+k[2]+'">'+ic(k[0],21)+'</span><div><div class="lab">'+k[3]+'</div><div class="num">'+k[4]+'</div><div class="delta">'+k[5]+'</div></div></div>';}).join('');
+  var kpiHtml=kpis.map(function(k,i){return '<button class="cc-kpi" data-act="kpi" data-k="'+i+'"><span class="cc-kpi-ic" style="background:'+k[1]+';color:'+k[2]+'">'+ic(k[0],21)+'</span><div><div class="lab">'+k[3]+'</div><div class="num">'+k[4]+'</div><div class="delta">'+k[5]+'</div></div></button>';}).join('');
   var alerts=[
     ['Highland Park — Jul 8','Junior placed at senior-only site','Level mismatch','#FEF2F2','#DC2626'],
     ["Children's Rotation — Jul 7",'Class day overlaps clinical assignment','Calendar conflict','#FFF7ED','#D97706'],
@@ -932,6 +934,22 @@ function renderOverlay(){
           (x.notes?'<div class="note" style="border-top:1px solid var(--hair);padding-top:12px">'+esc(x.notes)+'</div>':'')+
         '</div></aside>';
     }
+  } else if(ST.kpi!==null){
+    var kd=[
+      {title:'Open assignments',icon:'calendar',tone:'#1683E8',summary:'Five assignments are active in the selected week. Two require operator action before the schedule is ready to publish.',items:['Daniel Brooks — reassign from a senior-only site','Sarah Collins — resolve the Jul 7 calendar overlap','Priya Shah — clear and ready for the current rotation'],view:'assignments',cta:'Open assignments'},
+      {title:'Coverage gaps',icon:'alert',tone:'#F97316',summary:'Three uncovered shift segments remain across the weekly schedule.',items:['Highland Park Hospital — Wed PM','Children’s Rotation — Tue AM','Highland Park Hospital — Fri PM'],view:'timeline',cta:'Review weekly coverage'},
+      {title:'Readiness issues',icon:'shield',tone:'#EF4444',summary:'Four readiness reasons are currently open. Each includes the underlying reason and a recommended next action.',items:['1 level mismatch','1 school-calendar conflict','2 approved time-off overlaps'],view:'checks',cta:'Review readiness issues'},
+      {title:'Pending approvals',icon:'inbox',tone:'#8B5CF6',summary:'Two time-off requests are awaiting confirmation and tracking.',items:['Priya Shah — study day, Jul 10','Daniel Brooks — professional meeting, Jul 20–21'],view:'requests',cta:'Track approvals'},
+      {title:'Students on rotation',icon:'users',tone:'#10B981',summary:'Forty-two junior and senior students are scheduled across the program this week.',items:['25 senior students','17 junior students','Five students represented in this demo view'],view:'students',cta:'View students'},
+      {title:'Sites ready',icon:'checkc',tone:'#14B8A6',summary:'Five of seven clinical sites are ready. Two still need review before schedule distribution.',items:['5 sites clear','1 site has a level mismatch','1 site has a calendar or coverage conflict'],view:'sites',cta:'View clinical sites'}
+    ][ST.kpi];
+    html='<div class="modal-wrap"><div class="scrim" data-act="closekpi" style="position:absolute"></div><div class="modal">'+
+      '<button class="close" data-act="closekpi">'+ic('x',18)+'</button>'+
+      '<div style="display:flex;align-items:center;gap:10px;color:'+kd.tone+'"><span class="cc-kpi-ic" style="background:'+kd.tone+'18;color:'+kd.tone+'">'+ic(kd.icon,21)+'</span><span style="font-weight:700">Command-center detail</span></div>'+
+      '<h1 style="font-size:22px;margin-top:12px">'+kd.title+'</h1><p style="font-size:13.5px;color:#475569;margin-top:8px">'+kd.summary+'</p>'+
+      '<div class="rowlist" style="margin-top:18px">'+kd.items.map(function(x){return '<div class="row"><span style="color:'+kd.tone+'">'+ic('checkc',15)+'</span><div class="grow" style="font-size:13px">'+x+'</div></div>';}).join('')+'</div>'+
+      '<button class="gate-cta on" data-act="kpigoto" data-v="'+kd.view+'" style="margin-top:18px">'+kd.cta+' '+ic('arrowr',14,'#fff')+'</button>'+
+    '</div></div>';
   } else if(ST.about){
     var inScope=['Track students, sites & assignments','Time-off requests + day-off banks','School calendar blocks','Distance & specialty (OB/PED/CV/REG) tags','Six readiness checks','Manager & site-specific views'];
     var roadmap=['Student demographics & mobile contact details','Automated site dissemination & packets','Case tracking & anesthesia hour minimums','Evaluations & student progression','Credentialing & sensitive data','Adapt to other clinical programs (PA, NP, PT\u2026)'];
@@ -976,11 +994,6 @@ function nav(){
 }
 function render(){
   var app=document.getElementById('app');
-  var roleSeg='<div class="seg" role="tablist">'+
-    [['leader','Program leader','shield'],['student','Resident','cap'],['hospital','Hospital','building']].map(function(rr){
-      return '<button class="'+(ST.role===rr[0]?'on':'')+'" data-act="role" data-r="'+rr[0]+'"><span class="sgi">'+ic(rr[2],15)+'</span>'+rr[1]+'</button>';
-    }).join('')+'</div>';
-
   var ctx;
   if(ST.role==='leader'){
     ctx='<span class="ctx mono">Nurse Anesthesia Residency \u00b7 17 clinical sites \u00b7 3 cohorts</span>';
@@ -991,7 +1004,7 @@ function render(){
   }
 
   var header='<header class="top"><div class="top-in"><div class="brand"><span class="logo">'+ic('logo',18,'#fff',2.4)+'</span><div><b>Arc</b><small>Schedule Readiness Assistant</small></div></div>'+
-    roleSeg+ctx+
+    ctx+
     '<div class="top-actions"><span class="chip-demo">Demo data</span>'+
       '<button class="tbtn" data-act="about">'+ic('info',15)+' About</button>'+
       '<button class="tbtn" data-act="reset">'+ic('reset',15)+' Reset</button></div>'+
@@ -1017,6 +1030,9 @@ document.addEventListener('click',function(e){
   else if(act==='open'){ST.openId=t.getAttribute('data-id');renderOverlay();}
   else if(act==='closedrawer'){ST.openId=null;renderOverlay();}
   else if(act==='about'){ST.about=true;renderOverlay();}
+  else if(act==='kpi'){ST.kpi=parseInt(t.getAttribute('data-k'),10);renderOverlay();}
+  else if(act==='closekpi'){ST.kpi=null;renderOverlay();}
+  else if(act==='kpigoto'){ST.kpi=null;ST.view=t.getAttribute('data-v');render();}
   else if(act==='closeabout'){ST.about=false;renderOverlay();}
   else if(act==='filter'){ST.filter=t.getAttribute('data-f');render();}
   else if(act==='tlby'){ST.tlBy=t.getAttribute('data-by');render();}
