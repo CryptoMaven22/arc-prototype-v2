@@ -615,7 +615,7 @@ function pendingReq(){return ST.data.requests.filter(function(r){return r.status
 function secHead(title,hint,cnt){return '<div class="sec-head"><div class="ttl"><h2>'+esc(title)+'</h2>'+(cnt!=null?'<span class="cnt mono">'+cnt+'</span>':'')+'</div>'+(hint?'<p class="hint">'+esc(hint)+'</p>':'')+'</div>';}
 function emptyState(t,b){return '<div class="empty"><span class="ec">'+ic('checkc',22)+'</span><div style="font-weight:600;font-size:14px">'+esc(t)+'</div><div style="font-size:13px;color:var(--muted);margin-top:2px">'+esc(b)+'</div></div>';}
 function legend(){
-  var items=CHECK_TYPES.map(function(c){return '<button class="lg-item" data-act="checkinfo" data-key="'+esc(c.type)+'"><span class="li-ic">'+ic(c.icon,16)+'</span><div><div class="li-t">'+esc(c.type)+'</div><div class="li-b">'+esc(c.blurb)+'</div><span class="li-more">Click for definition and examples</span></div></button>';}).join('');
+  var items=CHECK_TYPES.map(function(c){return '<button class="lg-item" data-act="checkinfo" data-key="'+esc(c.type)+'" aria-label="Open definition for '+esc(c.type)+'"><span class="li-ic">'+ic(c.icon,16)+'</span><div style="flex:1"><div class="li-t">'+esc(c.type)+'</div><div class="li-b">'+esc(c.blurb)+'</div><span class="li-more">View simple definition</span></div><span style="color:var(--teal);margin-left:auto;margin-top:8px">'+ic('arrowr',14,'var(--teal)')+'</span></button>';}).join('');
   return '<div class="legend"><div class="lh">'+ic('spark',14,'var(--teal)')+' What the readiness engine checks</div><div class="legend-grid">'+items+'</div></div>';
 }
 
@@ -1093,22 +1093,20 @@ function renderOverlay(){
     '</div></div>';
   } else if(ST.readinessInfo){
     var defs={
-      'Time-Off Conflict':{icon:'clock',tone:'#B45309',bg:'#FFFBEB',summary:'A time-off conflict appears when approved time off overlaps a student\'s scheduled clinical assignment.',definition:'Arc checks approved ATO, DNP, meeting, or study-day requests against the assignment date range. If any approved day falls inside the clinical week, the assignment is flagged for review.',examples:['A student has approved ATO on Jul 3 while assigned Jul 1–7.','A DNP day lands on a scheduled Saturday clinical shift.'],actions:['Confirm coverage for the affected days.','Shorten or move the assignment if coverage cannot be maintained.']},
-      'School Calendar Conflict':{icon:'calendar',tone:'#0F766E',bg:'#ECFDF5',summary:'A school-calendar conflict appears when a class, research, exam, or no-clinical block overlaps a clinical assignment.',definition:'Arc compares school calendar blocks to the assignment schedule. If a student is expected to be in class or unavailable for clinical time, the record is flagged.',examples:['Class Day on Jul 2 overlaps a pediatric rotation.','An exam block lands during an OB assignment week.'],actions:['Remove the clinical day that overlaps the school block.','Reassign or shift the placement to a clean date range.']},
-      'Level Mismatch':{icon:'grad',tone:'#B91C1C',bg:'#FEF2F2',summary:'A level mismatch appears when the student\'s level does not meet the site\'s rule.',definition:'Arc evaluates whether the assignment site is junior-eligible, senior-only, or otherwise limited by level. If the student does not match that rule, the assignment is flagged.',examples:['A junior student is placed at a senior-only hospital.','A site requires advanced students but the current assignment is below that level.'],actions:['Move the student to a junior-eligible site.','Replace the slot with a student whose level matches the site rule.']},
-      'Specialty Mismatch':{icon:'layers',tone:'#0F766E',bg:'#F0FDFA',summary:'A specialty mismatch appears when the rotation type is not tagged as allowed at that site.',definition:'Arc compares the assignment\'s rotation or specialty tag with the site\'s supported specialties. If the site is not configured for that specialty, the assignment is flagged.',examples:['A pediatric rotation is placed at a site not tagged for Peds.','An OB rotation is assigned to a general-only site.'],actions:['Choose a site that supports the rotation specialty.','Retag or correct the assignment if the rotation type was entered incorrectly.']},
-      'Site Capacity':{icon:'building',tone:'#0F766E',bg:'#F0FDFA',summary:'A site-capacity issue appears when more students are scheduled than the site allows that week.',definition:'Arc can compare the number of assigned students to the site\'s configured capacity threshold. If scheduled demand exceeds the limit, the site is flagged.',examples:['Three students are placed at a site with capacity for two.','A coordinator approved only one OB slot, but two students are assigned.'],actions:['Move one or more students to a different site.','Hold the extra assignment until capacity is confirmed.']},
-      'Missing Data':{icon:'alert',tone:'#92400E',bg:'#FEF3C7',summary:'Missing data appears when a required scheduling field is blank or incomplete.',definition:'Arc checks whether the assignment has the fields needed for readiness review, such as student, site, dates, rotation, or other required values. If something essential is missing, it cannot clear the record.',examples:['Rotation type is blank on the assignment.','The site is selected, but the date range is missing.'],actions:['Complete the missing field before publishing.','Re-run readiness once the required data is in place.']}
+      'Time-Off Conflict':{icon:'clock',tone:'#B45309',bg:'#FFFBEB',definition:'Approved time off overlaps a scheduled clinical assignment.'},
+      'School Calendar Conflict':{icon:'calendar',tone:'#0F766E',bg:'#ECFDF5',definition:'A class, exam, research day, or no-clinical block overlaps a clinical assignment.'},
+      'Level Mismatch':{icon:'grad',tone:'#B91C1C',bg:'#FEF2F2',definition:'The student’s training level does not meet the site’s eligibility rule.'},
+      'Specialty Mismatch':{icon:'layers',tone:'#0F766E',bg:'#F0FDFA',definition:'The assigned rotation type is not supported or approved at the selected site.'},
+      'Site Capacity':{icon:'building',tone:'#0F766E',bg:'#F0FDFA',definition:'More students are scheduled at the site than its weekly capacity allows.'},
+      'Missing Data':{icon:'alert',tone:'#92400E',bg:'#FEF3C7',definition:'A required scheduling field is blank, so Arc cannot complete the readiness check.'}
     };
-    var d=defs[ST.readinessInfo]||{icon:'spark',tone:'var(--teal)',bg:'#F0FDFA',summary:'Readiness rule detail.',definition:'This rule helps explain why an item may need review before schedule release.',examples:['Prototype readiness example.'],actions:['Review the flagged record.']};
-    html='<div class="modal-wrap"><div class="scrim" data-act="closereadinessinfo" style="position:absolute"></div><div class="modal" style="max-width:720px">'+
-      '<button class="close" data-act="closereadinessinfo">'+ic('x',18)+'</button>'+
-      '<div style="display:flex;align-items:center;gap:10px;color:'+d.tone+'"><span class="cc-kpi-ic" style="background:'+d.bg+';color:'+d.tone+'">'+ic(d.icon,20,d.tone)+'</span><span style="font-weight:700">Readiness rule detail</span></div>'+
-      '<h1 style="font-size:22px;margin-top:12px">'+esc(ST.readinessInfo)+'</h1><p style="font-size:13.5px;color:#475569;margin-top:8px">'+esc(d.summary)+'</p>'+
-      '<section style="margin-top:18px"><div class="sec-head"><div class="ttl"><h2>Definition</h2></div></div><div class="card" style="padding:14px;font-size:13px;color:#475569">'+esc(d.definition)+'</div></section>'+
-      '<section style="margin-top:18px"><div class="sec-head"><div class="ttl"><h2>Examples</h2></div></div><div class="rowlist">'+d.examples.map(function(x){return '<div class="row"><span style="color:'+d.tone+'">'+ic('checkc',14,d.tone)+'</span><div class="grow" style="font-size:13px">'+esc(x)+'</div></div>';}).join('')+'</div></section>'+
-      '<section style="margin-top:18px"><div class="sec-head"><div class="ttl"><h2>What Ryan would typically do</h2></div></div><div class="rowlist">'+d.actions.map(function(x){return '<div class="row"><span style="color:var(--teal)">'+ic('arrowr',14,'var(--teal)')+'</span><div class="grow" style="font-size:13px">'+esc(x)+'</div></div>';}).join('')+'</div></section>'+
-      '<div style="display:flex;justify-content:flex-end;gap:10px;align-items:center;margin-top:18px"><button class="mini" data-act="closereadinessinfo">Close</button></div>'+
+    var d=defs[ST.readinessInfo]||{icon:'spark',tone:'var(--teal)',bg:'#F0FDFA',definition:'This readiness rule identifies a condition that requires review before schedule release.'};
+    html='<div class="modal-wrap"><div class="scrim" data-act="closereadinessinfo" style="position:absolute"></div><div class="modal" style="max-width:520px">'+
+      '<button class="close" data-act="closereadinessinfo">'+ic('x',18)+'</button>'+ 
+      '<div style="display:flex;align-items:center;gap:10px;color:'+d.tone+'"><span class="cc-kpi-ic" style="background:'+d.bg+';color:'+d.tone+'">'+ic(d.icon,20,d.tone)+'</span><span style="font-weight:700">Readiness definition</span></div>'+ 
+      '<h1 style="font-size:22px;margin-top:14px">'+esc(ST.readinessInfo)+'</h1>'+ 
+      '<div class="card" style="padding:16px;margin-top:16px;border:1px solid '+d.tone+'33;background:'+d.bg+'"><div style="font-size:14px;line-height:1.55;color:#334155">'+esc(d.definition)+'</div></div>'+ 
+      '<div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="mini" data-act="closereadinessinfo">Close</button></div>'+ 
     '</div></div>';
   } else if(ST.openStudentId){
     var st=ST.data.students.filter(function(s){return s.id===ST.openStudentId;})[0];
@@ -1490,7 +1488,7 @@ function render(){
 
   var body;
   if(ST.role==='leader'){
-    body='<div class="shell"><nav class="rail">'+nav()+'<div class="rail-foot">Reviews junior and senior assignments against approved time off, calendar blocks, and site rules before schedules reach clinical coordinators.</div></nav>'+
+    body='<div class="shell"><nav class="rail">'+nav()+'</nav>'+
       '<main>'+(VIEWS[ST.view]||viewDashboard)()+'</main></div>';
   } else {
     var content=ST.role==='student'?viewStudentPortal():viewHospitalFeed();
