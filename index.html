@@ -602,12 +602,12 @@ function viewDashboard(){
     }
   });
   var kpis=[
-    ['calendar','#EAF4FF','#1683E8','Open assignments','5','2 need action'],
-    ['alert','#FFF7ED','#F97316','Coverage gaps','3','1 added this week'],
-    ['shield','#FEF2F2','#EF4444','Readiness issues',String(oc.length),'Reasons identified'],
-    ['inbox','#F5F3FF','#8B5CF6','Pending approvals',String(pr.length),'Time-off tracking']
+    ['shield','#FEF2F2','#EF4444','Readiness issues',String(oc.length),'Reasons identified',2],
+    ['alert','#FFF7ED','#F97316','Coverage gaps','3','1 added this week',1],
+    ['inbox','#F5F3FF','#8B5CF6','Pending approvals',String(pr.length),'Time-off tracking',3],
+    ['calendar','#EAF4FF','#1683E8','Open assignments','5','2 need action',0]
   ];
-  var kpiHtml=kpis.map(function(k,i){return '<button class="cc-kpi" data-act="kpi" data-k="'+i+'"><span class="cc-kpi-ic" style="background:'+k[1]+';color:'+k[2]+'">'+ic(k[0],21)+'</span><div><div class="lab">'+k[3]+'</div><div class="num">'+k[4]+'</div><div class="delta">'+k[5]+'</div></div></button>';}).join('');
+  var kpiHtml=kpis.map(function(k){return '<button class="cc-kpi" data-act="kpi" data-k="'+k[6]+'"><span class="cc-kpi-ic" style="background:'+k[1]+';color:'+k[2]+'">'+ic(k[0],21)+'</span><div><div class="lab">'+k[3]+'</div><div class="num">'+k[4]+'</div><div class="delta">'+k[5]+'</div></div></button>';}).join('');
   var alerts=[
     ['Highland Park — Jul 8','Junior placed at senior-only site','Level mismatch','#FEF2F2','#DC2626'],
     ["Children's Rotation — Jul 7",'Class day overlaps clinical assignment','Calendar conflict','#FFF7ED','#D97706'],
