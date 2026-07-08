@@ -29,7 +29,7 @@
   *:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:4px;}
 
   .top{position:sticky;top:0;z-index:30;border-bottom:1px solid var(--hair);background:rgba(255,255,255,.9);backdrop-filter:blur(6px);}
-  .top-in{display:flex;align-items:center;gap:14px;padding:0 20px;height:72px;}
+  .top-in{display:flex;align-items:center;gap:14px;padding:0 20px;height:88px;}
   .brand{display:flex;align-items:center;gap:12px;flex-shrink:0;min-width:max-content;}
   .logo{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--teal);}
   .brand b{font-weight:700;letter-spacing:-.01em;font-size:15px;}
@@ -43,7 +43,7 @@
   .tbtn:hover{background:var(--paper);}
 
   .shell{display:flex;}
-  .rail{width:236px;flex-shrink:0;border-right:1px solid var(--hair);background:#fff;padding:16px 12px;display:flex;flex-direction:column;gap:2px;min-height:calc(100vh - 72px);}
+  .rail{width:236px;flex-shrink:0;border-right:1px solid var(--hair);background:#fff;padding:16px 12px;display:flex;flex-direction:column;gap:2px;min-height:calc(100vh - 88px);}
   .nav{display:flex;align-items:center;gap:10px;border-radius:9px;padding:9px 11px;font-size:13.5px;color:var(--muted);text-align:left;width:100%;}
   .nav:hover{background:var(--paper);}
   .nav.active{background:var(--teal-soft);color:var(--teal-deep);font-weight:600;}
@@ -211,7 +211,7 @@
   .attention-note{border-left:3px solid #DC2626;padding-left:10px;}
   .mini,.tbtn,.gate-cta,.fchip{transition:background .16s ease,border-color .16s ease,box-shadow .16s ease,transform .16s ease;}
   .mini:hover,.tbtn:hover,.gate-cta.on:hover{transform:translateY(-1px);}
-  .brand-wordmark{display:block;height:56px;width:auto;border-radius:8px;background:transparent;padding:0;box-shadow:none;object-fit:contain;}
+  .brand-wordmark{display:block;height:68px;width:auto;border-radius:8px;background:transparent;padding:0;box-shadow:none;object-fit:contain;}
   .kpi-drill-card{width:100%;text-align:left;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;}
   .kpi-drill-card:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(16,35,31,.06);border-color:#cbd5d2;}
   .kpi-next-card{width:100%;text-align:left;border:1px dashed #cbd5d2;border-radius:14px;padding:14px 16px;background:#FCFEFD;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease,background .16s ease;}
@@ -244,7 +244,7 @@
   /* Arc OV Iteration 02 — command-center landing page */
   body{background:#F5F7F9;}
   main{max-width:none;width:100%;padding:16px 18px 22px;}
-  .shell{min-height:calc(100vh - 72px);}
+  .shell{min-height:calc(100vh - 88px);}
   .rail{position:sticky;top:56px;height:calc(100vh - 56px);min-height:0;}
   .cc{display:flex;flex-direction:column;gap:12px;min-width:0;}
   .cc-focus{border:3px solid #DC2626;border-radius:16px;padding:14px;background:linear-gradient(180deg,#FFFDFD 0%,#FFFFFF 100%);box-shadow:0 0 0 4px rgba(220,38,38,.055),0 10px 30px rgba(127,29,29,.10);display:flex;flex-direction:column;gap:12px;}
@@ -324,13 +324,14 @@
   .top{z-index:40;}
   .top-in{
     height:auto;
-    min-height:56px;
-    padding:8px 12px;
+    min-height:76px;
+    padding:6px 12px;
     gap:8px;
     overflow-x:auto;
     -webkit-overflow-scrolling:touch;
   }
   .brand{flex:0 0 auto;}
+  .brand-wordmark{height:62px;}
   .seg{
     flex:0 0 auto;
     overflow-x:auto;
