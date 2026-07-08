@@ -1041,12 +1041,19 @@ function renderOverlay(){
     var bg=cc.type==='conflict'?'#FEF2F2':(cc.type==='pto'?'#F5F3FF':(cc.type==='oncall'?'#FFF7ED':'#ECFDF3'));
     var statusLabel=cc.type==='conflict'?'Open coverage gap':(cc.type==='pto'?'Approved PTO':(cc.type==='oncall'?'On-call coverage':'Assigned'));
     var summary=cc.type==='conflict'?'This schedule block is open and does not currently have a named assignee.':(cc.type==='pto'?'This block is reserved for approved paid time off and is not a clinical assignment.':(cc.type==='oncall'?cc.name+' is the on-call clinician for this coverage block.':cc.name+' is assigned to '+cc.site+' for this schedule block.'));
+    var aiSummary=cc.type==='conflict'
+      ? 'AI flags this block as an active coverage risk: '+cc.site+' has an uncovered '+cc.rotation+' slot on '+cc.when+'. Recommended next move: assign backup coverage or route to on-call support before the shift locks.'
+      : (cc.type==='pto'
+        ? 'AI recognizes this block as approved PTO rather than a clinical placement. Coverage is protected only if the team has already accounted for the absence or reassigned the affected rotation time.'
+        : (cc.type==='oncall'
+          ? 'AI reads this as protected contingency coverage. '+cc.name+' is positioned as the backstop for '+cc.site+' on '+cc.when+', which gives the operator a flexible response option if another assignment drops.'
+          : 'AI reads this as stable scheduled coverage. '+cc.name+' is matched to '+cc.site+' for '+cc.rotation+' on '+cc.when+', with no immediate conflict signal detected in this block.'));
     html='<div class="modal-wrap"><div class="scrim" data-act="closecalendarcell" style="position:absolute"></div><div class="modal" style="max-width:650px">'+
       '<button class="close" data-act="closecalendarcell">'+ic('x',18)+'</button>'+
       '<div style="display:flex;align-items:center;gap:10px;color:'+tone+'"><span class="cc-kpi-ic" style="background:'+bg+';color:'+tone+'">'+ic(cc.type==='conflict'?'alert':(cc.type==='pto'?'calendar':(cc.type==='oncall'?'clock':'users')),20,tone)+'</span><span style="font-weight:700">Schedule block detail</span></div>'+
       '<h1 style="font-size:22px;margin-top:12px">'+esc(cc.name)+'</h1><p style="font-size:13.5px;color:#475569;margin-top:8px">'+esc(summary)+'</p>'+
       '<div class="grid2" style="margin-top:18px"><div class="kv"><div class="k">Site / row</div><div class="v" style="font-size:15px">'+esc(cc.site)+'</div></div><div class="kv"><div class="k">Rotation</div><div class="v" style="font-size:15px">'+esc(cc.rotation)+'</div></div><div class="kv"><div class="k">Schedule block</div><div class="v" style="font-size:15px">'+esc(cc.when)+'</div></div><div class="kv"><div class="k">Status</div><div class="v" style="font-size:15px;color:'+tone+'">'+esc(statusLabel)+'</div></div></div>'+
-      '<div class="card" style="padding:15px;margin-top:18px"><div class="lbl-mini">Matching content</div><div style="font-size:13px;color:#475569;margin-top:6px">This detail is generated from the exact name or status shown in the selected calendar cell, so it no longer opens an unrelated secondary contact.</div></div>'+
+      '<div class="card" style="padding:15px;margin-top:18px;border:1px solid #86EFAC;background:#F0FDF4;box-shadow:inset 0 0 0 1px rgba(34,197,94,.08)"><div class="lbl-mini" style="color:#15803D">AI Summary</div><div style="font-size:13px;color:#166534;margin-top:6px;line-height:1.55">'+esc(aiSummary)+'</div></div>'+
       '<div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="mini" data-act="closecalendarcell">Close</button></div>'+
     '</div></div>';
   } else if(ST.coverageSub){
