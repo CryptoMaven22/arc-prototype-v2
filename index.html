@@ -214,6 +214,17 @@
   .brand-wordmark{display:block;height:68px;width:auto;border-radius:8px;background:transparent;padding:0;box-shadow:none;object-fit:contain;}
   .kpi-drill-card{width:100%;text-align:left;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;}
   .kpi-drill-card:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(16,35,31,.06);border-color:#cbd5d2;}
+
+  .kpi-drill-card .k::after{content:'  • click for detail';font-weight:500;color:#94A3B8;text-transform:none;letter-spacing:0;}
+  .kpi-subpanel{border:1px solid var(--hair);border-radius:16px;background:#fff;padding:16px;margin-top:16px;box-shadow:0 10px 26px rgba(16,35,31,.05);}
+  .kpi-subpanel h3{font-size:16px;margin:0;color:var(--ink);}
+  .kpi-subpanel p{font-size:13px;color:#475569;line-height:1.45;margin:8px 0 0;}
+  .kpi-subpanel .subgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px;}
+  .kpi-subitem{border:1px solid var(--hair);border-radius:12px;padding:12px;background:var(--paper);}
+  .kpi-subitem b{display:block;font-size:12.5px;color:var(--ink);}
+  .kpi-subitem span{display:block;font-size:12px;color:var(--muted);margin-top:4px;line-height:1.35;}
+  .kpi-drill-card.active{box-shadow:0 0 0 2px rgba(15,110,86,.18),0 10px 24px rgba(16,35,31,.06);border-color:var(--teal);}
+
   .kpi-next-card{width:100%;text-align:left;border:1px dashed #cbd5d2;border-radius:14px;padding:14px 16px;background:#FCFEFD;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease,background .16s ease;}
   .kpi-next-card:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(16,35,31,.06);border-color:#9fb7b0;background:#fff;}
   .kpi-next-copy{display:flex;flex-direction:column;gap:4px;}
@@ -549,7 +560,7 @@ function bankFor(studentId){
 function badgeSt(s,sm){var c=STATUS[s]||STATUS['Not Checked'];return '<span class="badge-st'+(sm?' sm':'')+'" style="color:'+c.text+';background:'+c.bg+'"><span class="dot" style="background:'+c.dot+'"></span>'+s+'</span>';}
 function sevBadge(s){var c=SEV[s]||SEV.Low;return '<span class="sev" style="color:'+c.text+';background:'+c.bg+'">'+s+'</span>';}
 
-var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,tlBy:'student',role:'leader',asStudent:'s5',asHospital:'site4'};
+var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiInline:null,kpiDeep:null,tlBy:'student',role:'leader',asStudent:'s5',asHospital:'site4'};
 
 function openChecks(){var all=generateChecks(ST.data),rv=ST.reviewed;return all.filter(function(c){return rv.indexOf(c.key)<0;});}
 function checksFor(id){return openChecks().filter(function(c){return c.assignmentId===id;});}
@@ -1071,12 +1082,48 @@ function renderOverlay(){
     })();
     function statBox(val,label,sub,tone,key){
       if(key){
-        return '<button class="kv kpi-drill-card" data-act="kpideep" data-key="'+key+'" style="border-color:'+tone+'22"><div class="k">'+esc(label)+'</div><div class="v" style="font-size:24px;color:'+tone+'">'+esc(String(val))+'</div>'+(sub?'<div style="font-size:12px;color:var(--muted);margin-top:3px">'+esc(sub)+'</div>':'')+'</button>';
+        return '<button class="kv kpi-drill-card '+(ST.kpiInline===key?'active':'')+'" data-act="kpiinline" data-key="'+key+'" style="border-color:'+tone+'22"><div class="k">'+esc(label)+'</div><div class="v" style="font-size:24px;color:'+tone+'">'+esc(String(val))+'</div>'+(sub?'<div style="font-size:12px;color:var(--muted);margin-top:3px">'+esc(sub)+'</div>':'')+'</button>';
       }
       return '<div class="kv" style="border-color:'+tone+'22"><div class="k">'+esc(label)+'</div><div class="v" style="font-size:24px;color:'+tone+'">'+esc(String(val))+'</div>'+(sub?'<div style="font-size:12px;color:var(--muted);margin-top:3px">'+esc(sub)+'</div>':'')+'</div>';
     }
     function section(title,body,hint){
       return '<section style="margin-top:18px">'+secHead(title,hint||'')+body+'</section>';
+    }
+    function inlineDetail(){
+      if(!ST.kpiInline)return '';
+      var map={
+        'assignments-active':{t:'Active assignments',s:'These are the records currently in the selected schedule week.',a:['Emily Parker — Evanston Hospital — General','Marcus Hill — Highland Park Hospital — OB','Sarah Collins — Children’s Rotation Site — Peds','Daniel Brooks — Highland Park Hospital — OB'],n:'Use this to confirm what is actually in play before resolving readiness risk.'},
+        'assignments-ready':{t:'Ready assignments',s:'Assignments with no current readiness reasons attached.',a:['Priya Shah is clear for the active rotation.','No time-off overlap detected.','No site-level mismatch detected.','No calendar block is blocking the placement.'],n:'These are the records Ryan can leave alone while fixing the risky items.'},
+        'assignments-review':{t:'Need review assignments',s:'Assignments where Arc found at least one reason for human attention.',a:['Emily Parker — approved ATO overlap.','Marcus Hill — approved DNP overlap.','Sarah Collins — class-day conflict.','Daniel Brooks — junior placed at senior-only site.'],n:'This is the fastest path to the work Ryan needs to do first.'},
+        'assignments-reasons':{t:'Open readiness reasons',s:'The underlying reasons behind the review count.',a:['2 approved time-off overlaps.','1 school-calendar conflict.','1 site-level mismatch.','All include a recommended next action.'],n:'Reasons make the risk explainable instead of just showing a red number.'},
+
+        'coverage-open':{t:'Open coverage gaps',s:'Unfilled or fragile segments in the weekly coverage view.',a:['Highland Park — Wed PM gap.','Children’s Rotation Site — Tue AM gap.','Highland Park — Fri PM gap.','Each gap includes a suggested fill path.'],n:'This supports a coverage conversation without changing the main workflow.'},
+        'coverage-sites':{t:'Affected sites',s:'Where the coverage risk is concentrated.',a:['Highland Park has the highest concentration.','Children’s Rotation Site has a smaller but visible peds gap.','Two site coordinators would be impacted.','Site concentration helps prioritize outreach.'],n:'This converts coverage issues into site relationship risk.'},
+        'coverage-fills':{t:'Suggested fills',s:'Demo-safe candidate moves to close open gaps.',a:['Move OB-eligible senior into Highland Park PM slot.','Backfill peds with clear junior/senior depending on rule.','Avoid touching Priya Shah because she is already clear.','Confirm the change before publishing.'],n:'In production this could become an AI-assisted recommendation.'},
+        'coverage-pattern':{t:'Coverage pattern',s:'The visible pattern behind the gap count.',a:['Most gaps are PM-heavy.','Late-week coverage appears more fragile.','Highland Park is the recurring pressure point.','This could guide future staffing rules.'],n:'Patterns help Ryan see whether this is isolated or systemic.'},
+
+        'issues-open':{t:'Open readiness reasons',s:'Total unresolved reasons across the active schedule.',a:['Each reason has a type.','Each reason has severity.','Each reason has explanatory text.','Each reason has a next action.'],n:'This is the operational backbone of the Arc story.'},
+        'issues-high':{t:'High-severity issues',s:'The items Ryan should resolve before anything else.',a:['Junior-at-senior-only site.','Hard calendar conflict.','Approved time-off overlap during clinical week.','Risk is visible before the roster is shared.'],n:'This helps Ryan prioritize calmly.'},
+        'issues-hit':{t:'Assignments affected',s:'How many records are touched by the open readiness reasons.',a:['A single assignment can have multiple reasons.','Affected assignments are the real workload.','This separates volume from complexity.','Open the assignment drawer for the full reasoning.'],n:'This makes the issue count easier to operationalize.'},
+        'issues-types':{t:'Issue types',s:'The mix of problems currently driving the review queue.',a:['Time-off overlap.','School-calendar conflict.','Level mismatch.','Coverage implication.'],n:'This helps Ryan improve the process after the schedule is stabilized.'},
+
+        'approvals-pending':{t:'Pending approvals',s:'Requests that still need to be recorded, confirmed, or reviewed.',a:['Priya Shah — study day.','Daniel Brooks — professional meeting.','Pending requests stay visible until resolved.','Approved requests can feed readiness checks.'],n:'This preserves the paper-binder logic but makes it visible.'},
+        'approvals-requested':{t:'Requested items',s:'Newer requests that have entered the queue.',a:['Awaiting coordinator decision.','May not yet affect the schedule.','Needs acknowledgment or approval path.','Can become a readiness input later.'],n:'This is the front door for approval tracking.'},
+        'approvals-review':{t:'Needs review requests',s:'Requests that require judgment, not just tracking.',a:['Could affect clinical coverage.','Could conflict with academic requirements.','May require site communication.','Should not be auto-approved in the demo.'],n:'This is where Ryan’s decision-making remains central.'},
+        'approvals-impact':{t:'Schedule impact',s:'Approval items that would touch active assignments.',a:['Requests overlapping active clinical dates.','Could create a coverage gap.','Could change readiness status.','Should be handled before schedule release.'],n:'This is the most urgent part of the approval queue.'},
+
+        'students-total':{t:'Program total',s:'Program-level student scale for the week.',a:['42 total junior + senior students.','The demo roster is intentionally smaller.','The count helps the command center feel real.','Only demo-safe records are clickable.'],n:'Scale is shown without pretending the prototype has full production data.'},
+        'students-senior':{t:'Senior students',s:'Senior student count and why it matters operationally.',a:['25 seniors in the program-level view.','Seniors can be eligible for more specialized sites.','They are useful reassignment candidates.','Senior-only rules depend on this count.'],n:'This supports Ryan’s placement reasoning.'},
+        'students-junior':{t:'Junior students',s:'Junior student count and placement constraints.',a:['17 juniors in the program-level view.','Junior placements may be more constrained.','Junior-ineligible sites must be flagged.','This explains level-mismatch risk.'],n:'This turns level into an operational rule.'},
+        'students-demo':{t:'Demo records',s:'The actual student cards represented in the prototype.',a:['Emily Parker.','Marcus Hill.','Sarah Collins.','Daniel Brooks and Priya Shah.'],n:'These are demo-safe records used to prove the interaction model.'},
+
+        'sites-ready':{t:'Ready sites',s:'Clinical sites without unresolved reasons in the current review context.',a:['Ready means no open issues this week.','It does not mean permanently risk-free.','Ready sites can be left alone.','This helps focus attention on the exceptions.'],n:'This is the site-level version of schedule readiness.'},
+        'sites-review':{t:'Sites needing review',s:'Sites with unresolved assignment or coverage reasons.',a:['Highland Park requires attention.','Children’s Rotation Site requires attention.','Reasons roll up from student assignments.','Review before sharing site-facing information.'],n:'This connects internal schedule risk to coordinator-facing risk.'},
+        'sites-total':{t:'Total sites',s:'Clinical site network represented in the demo.',a:['Seven demo clinical sites.','Not every site is active this week.','Rules vary by level and specialty.','Site capacity is part of readiness.'],n:'This gives Ryan the network context.'},
+        'sites-active':{t:'Active sites this week',s:'Sites touched by current assignments.',a:['Active sites are the immediate focus.','They can be ready or need review.','Inactive sites remain in the network model.','This filters the site list to what matters now.'],n:'Useful for weekly schedule review.'}
+      };
+      var d=map[ST.kpiInline]; if(!d)return '';
+      return '<div class="kpi-subpanel"><h3>'+esc(d.t)+'</h3><p>'+esc(d.s)+'</p><div class="subgrid">'+d.a.map(function(x){return '<div class="kpi-subitem"><b>'+ic('checkc',13,'var(--teal)')+' Detail</b><span>'+esc(x)+'</span></div>';}).join('')+'</div><p style="border-top:1px solid var(--hair);padding-top:12px;margin-top:14px">'+esc(d.n)+'</p><button class="mini" data-act="kpideep" data-key="'+ST.kpiInline+'" style="margin-top:12px;color:var(--teal-deep);font-weight:600">'+ic('spark',13)+' Open full drilldown</button></div>';
     }
 
     var kd={title:'',icon:'calendar',tone:'var(--teal)',summary:'',stats:'',body:'',view:'dashboard',cta:'Open'};
@@ -1193,7 +1240,7 @@ function renderOverlay(){
       '<button class="close" data-act="closekpi">'+ic('x',18)+'</button>'+
       '<div style="display:flex;align-items:center;gap:10px;color:'+kd.tone+'"><span class="cc-kpi-ic" style="background:'+kd.tone+'18;color:'+kd.tone+'">'+ic(kd.icon,21)+'</span><span style="font-weight:700">Command-center detail</span></div>'+
       '<h1 style="font-size:22px;margin-top:12px">'+kd.title+'</h1><p style="font-size:13.5px;color:#475569;margin-top:8px">'+kd.summary+'</p>'+
-      '<div style="margin-top:18px">'+kd.stats+'</div>'+
+      '<div style="margin-top:18px">'+kd.stats+'</div>'+inlineDetail()+
       kd.body+
       '<section style="margin-top:18px">'+secHead('Explore one level deeper','Additional clickable detail for this KPI.')+'<button class="kpi-next-card" data-act="kpideep" data-key="'+defaultDeepKeys[ST.kpi]+'"><div class="kpi-next-copy"><span style="font-size:12px;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;font-weight:700">Deeper detail</span><span style="font-size:14px;font-weight:600;color:var(--ink)">Open a focused drilldown for '+kd.title.toLowerCase()+'</span><span style="font-size:12.5px;color:var(--muted)">This adds one more clickable layer with demo-safe operational context.</span></div><span class="cc-kpi-ic" style="background:'+kd.tone+'18;color:'+kd.tone+'">'+ic('spark',18)+'</span></button></section>'+
       '<div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="gate-cta on" data-act="kpigoto" data-v="'+kd.view+'">'+kd.cta+' '+ic('arrowr',14,'#fff')+'</button></div>'+
@@ -1273,21 +1320,22 @@ document.addEventListener('click',function(e){
   if(!t)return;
   var act=t.getAttribute('data-act');
   if(act==='goto'){ST.view=t.getAttribute('data-v');ST.siteFocus=null;render();}
-  else if(act==='home'){ST.role='leader';ST.view='dashboard';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiDeep=null;ST.about=false;render();}
+  else if(act==='home'){ST.role='leader';ST.view='dashboard';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiInline=null;ST.kpiDeep=null;ST.about=false;render();}
   else if(act==='open'){ST.openStudentId=null;ST.openId=t.getAttribute('data-id');renderOverlay();}
   else if(act==='openstudent'){ST.openId=null;ST.openStudentId=t.getAttribute('data-id');renderOverlay();}
   else if(act==='closedrawer'){ST.openId=null;renderOverlay();}
   else if(act==='closestudent'){ST.openStudentId=null;renderOverlay();}
   else if(act==='about'){ST.about=true;renderOverlay();}
-  else if(act==='kpi'){ST.kpi=parseInt(t.getAttribute('data-k'),10);ST.kpiDeep=null;renderOverlay();}
+  else if(act==='kpi'){ST.kpi=parseInt(t.getAttribute('data-k'),10);ST.kpiInline=null;ST.kpiDeep=null;renderOverlay();}
   else if(act==='kpideep'){ST.kpiDeep=t.getAttribute('data-key');renderOverlay();}
+  else if(act==='kpiinline'){ST.kpiInline=t.getAttribute('data-key');renderOverlay();}
   else if(act==='closekpideep'){ST.kpiDeep=null;renderOverlay();}
-  else if(act==='closekpi'){ST.kpiDeep=null;ST.kpi=null;renderOverlay();}
-  else if(act==='kpigoto'){ST.kpiDeep=null;ST.kpi=null;ST.view=t.getAttribute('data-v');render();}
+  else if(act==='closekpi'){ST.kpiInline=null;ST.kpiDeep=null;ST.kpi=null;renderOverlay();}
+  else if(act==='kpigoto'){ST.kpiInline=null;ST.kpiDeep=null;ST.kpi=null;ST.view=t.getAttribute('data-v');render();}
   else if(act==='closeabout'){ST.about=false;renderOverlay();}
   else if(act==='filter'){ST.filter=t.getAttribute('data-f');render();}
   else if(act==='tlby'){ST.tlBy=t.getAttribute('data-by');render();}
-  else if(act==='role'){ST.role=t.getAttribute('data-r');ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiDeep=null;ST.about=false;ST.siteFocus=null;ST.view='dashboard';render();}
+  else if(act==='role'){ST.role=t.getAttribute('data-r');ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiInline=null;ST.kpiDeep=null;ST.about=false;ST.siteFocus=null;ST.view='dashboard';render();}
   else if(act==='reqoff'){
     var ty=document.getElementById('tof-type').value, sd=document.getElementById('tof-start').value, ed=document.getElementById('tof-end').value||sd;
     if(!sd){toast('Pick a start date.');return;}
@@ -1306,7 +1354,7 @@ document.addEventListener('click',function(e){
     toast(s==='Approved'?'Request approved \u2014 re-checking the schedule.':'Request marked '+s.toLowerCase()+'.');
     render();
   }
-  else if(act==='reset'){ST.data=seed();ST.view='dashboard';ST.openId=null;ST.openStudentId=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.tlBy='student';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';toast('Demo reset to starting data.');render();}
+  else if(act==='reset'){ST.data=seed();ST.view='dashboard';ST.openId=null;ST.openStudentId=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiInline=null;ST.kpiDeep=null;ST.tlBy='student';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';toast('Demo reset to starting data.');render();}
 });
 document.addEventListener('change',function(e){
   var t=e.target.closest('[data-act="reassign"]');
@@ -1320,7 +1368,7 @@ document.addEventListener('change',function(e){
   var ps=e.target.closest('[data-act="pickstudent"]'); if(ps){ST.asStudent=ps.value;render();return;}
   var ph=e.target.closest('[data-act="pickhospital"]'); if(ph){ST.asHospital=ph.value;render();return;}
 });
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(ST.openId){ST.openId=null;renderOverlay();}else if(ST.openStudentId){ST.openStudentId=null;renderOverlay();}else if(ST.kpiDeep){ST.kpiDeep=null;renderOverlay();}else if(ST.kpi!==null){ST.kpi=null;renderOverlay();}else if(ST.about){ST.about=false;renderOverlay();}}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(ST.openId){ST.openId=null;renderOverlay();}else if(ST.openStudentId){ST.openStudentId=null;renderOverlay();}else if(ST.kpiDeep){ST.kpiDeep=null;renderOverlay();}else if(ST.kpiInline){ST.kpiInline=null;renderOverlay();}else if(ST.kpi!==null){ST.kpi=null;renderOverlay();}else if(ST.about){ST.about=false;renderOverlay();}}});
 
 render();
 </script>
