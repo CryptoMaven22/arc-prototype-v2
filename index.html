@@ -1,10 +1,11 @@
+
 <!DOCTYPE html>
 <!-- saved from url=(0047)file:///Users/mwl/Downloads/download%20(3).html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Align MVP — Schedule Readiness Assistant. Clickable prototype.">
-<title>Align — Schedule Readiness Assistant</title>
+<meta name="description" content="Arc — Schedule Readiness Assistant. Clickable prototype.">
+<title>Arc — Schedule Readiness Assistant</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=&#39;http://www.w3.org/2000/svg&#39; viewBox=&#39;0 0 100 100&#39;%3E%3Crect width=&#39;100&#39; height=&#39;100&#39; rx=&#39;22&#39; fill=&#39;%230E6E63&#39;/%3E%3Cpath d=&#39;M26 64 L44 30 L62 64 M34 52 H54&#39; stroke=&#39;white&#39; stroke-width=&#39;7&#39; fill=&#39;none&#39; stroke-linecap=&#39;round&#39; stroke-linejoin=&#39;round&#39;/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
@@ -189,6 +190,25 @@
   .tofield{border:1px solid var(--hair);border-radius:9px;padding:8px 9px;font-size:13px;font-family:inherit;color:var(--ink);background:#fff;}
   .tofield:focus{border-color:var(--teal);outline:none;}
   .codeblock{background:#0E2A27;color:#C7E6DF;border:1px solid #14403a;border-radius:12px;padding:13px 15px;font-size:12px;line-height:1.6;overflow-x:auto;}
+
+  /* Arc OV Iteration 01 — Ryan-driven visual polish */
+  .top{box-shadow:0 1px 0 rgba(16,35,31,.03);}
+  .top-in{max-width:1440px;margin:0 auto;}
+  .logo{box-shadow:0 6px 16px rgba(14,110,99,.22);}
+  .rail{box-shadow:inset -1px 0 0 rgba(16,35,31,.02);}
+  .nav{transition:background .16s ease,color .16s ease,transform .16s ease;}
+  .nav:hover{transform:translateX(1px);}
+  .card,.rowlist,.legend,.sitecard,.issue,.gate{box-shadow:0 1px 2px rgba(16,35,31,.035),0 8px 24px rgba(16,35,31,.025);}
+  .issue{transition:border-color .16s ease,box-shadow .16s ease,transform .16s ease;}
+  .issue:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(16,35,31,.07);}
+  .sitecard{transition:border-color .16s ease,box-shadow .16s ease,transform .16s ease;}
+  .sitecard:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(16,35,31,.07);}
+  .reason-label{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#B91C1C;margin-top:8px;}
+  .source-chip{display:inline-flex;align-items:center;gap:5px;border:1px solid #BFDBFE;background:#EFF6FF;color:#1D4ED8;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:600;}
+  .attention-note{border-left:3px solid #DC2626;padding-left:10px;}
+  .mini,.tbtn,.gate-cta,.fchip{transition:background .16s ease,border-color .16s ease,box-shadow .16s ease,transform .16s ease;}
+  .mini:hover,.tbtn:hover,.gate-cta.on:hover{transform:translateY(-1px);}
+
   @keyframes slide{from{transform:translateX(24px);opacity:0;}to{transform:translateX(0);opacity:1;}}
   @keyframes fade{from{opacity:0;}to{opacity:1;}}
   @keyframes pop{from{transform:scale(.97);opacity:.4;}to{transform:scale(1);opacity:1;}}
@@ -266,7 +286,7 @@
 </style>
 </head>
 <body>
-<div id="app"><header class="top"><div class="top-in"><div class="brand"><span class="logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19 12 5l7 14M8 14h8"></path></svg></span><div><b>Align</b><small>Schedule Readiness Assistant</small></div></div><div class="seg" role="tablist"><button class="on" data-act="role" data-r="leader"><span class="sgi"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg></span>Program leader</button><button class="" data-act="role" data-r="student"><span class="sgi"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg></span>Resident</button><button class="" data-act="role" data-r="hospital"><span class="sgi"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path><path d="M10 6h4M10 10h4M10 14h4M10 18h4"></path></svg></span>Hospital</button></div><span class="ctx mono">Nurse Anesthesia Residency · 17 clinical sites · 3 cohorts</span><div class="top-actions"><span class="chip-demo">Demo data</span><button class="tbtn" data-act="about"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg> About</button><button class="tbtn" data-act="reset"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg> Reset</button></div></div></header><div class="shell"><nav class="rail"><button class="nav active" data-act="goto" data-v="dashboard"><span class="nico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg></span><span class="lbl">Monday review</span></button><button class="nav" data-act="goto" data-v="assignments"><span class="nico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 9 5-9 5-9-5 9-5Z"></path><path d="m3 12 9 5 9-5"></path><path d="m3 17 9 5 9-5"></path></svg></span><span class="lbl">Assignments</span><span class="badge">4</span></button><button class="nav" data-act="goto" data-v="timeline"><span class="nico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg></span><span class="lbl">Calendar</span></button><button class="nav" data-act="goto" data-v="checks"><span class="nico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><path d="M12 9v4M12 17h.01"></path></svg></span><span class="lbl">Readiness checks</span><span class="badge">4</span></button><button class="nav" data-act="goto" data-v="requests"><span class="nico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"></path><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg></span><span class="lbl">Time-off requests</span><span class="badge">2</span></button><button class="nav" data-act="goto" data-v="calendar"><span class="nico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg></span><span class="lbl">School calendar</span></button><button class="nav" data-act="goto" data-v="sites"><span class="nico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path><path d="M10 6h4M10 10h4M10 14h4M10 18h4"></path></svg></span><span class="lbl">Clinical sites</span></button><button class="nav" data-act="goto" data-v="students"><span class="nico"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span><span class="lbl">Students</span></button><div class="rail-foot">Reviews assignments against requests, the school calendar, and site rules before schedules reach clinical coordinators.</div></nav><main><div class="stack"><div><div class="eyebrow">Monday review</div><h1 style="margin-top:2px">Is the schedule ready to send?</h1><p class="sub">One place to catch conflicts before clinical coordinators ever see them.</p></div><div class="gate" style="background:#FEF2F2;border-color:#FECACA"><div class="gate-row"><span class="gate-ic" style="color:#B91C1C"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><path d="M12 9v4M12 17h.01"></path></svg></span><div style="flex:1;min-width:0"><h3 style="color:#B91C1C">Hold — not ready to send</h3><p>2 assignments blocked. Resolve before sharing with clinical sites.</p></div><button class="gate-cta off" disabled=""><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 21.7a.5.5 0 0 0 .94-.02l6.5-19a.5.5 0 0 0-.64-.64l-19 6.5a.5.5 0 0 0-.02.94l7.93 3.18a2 2 0 0 1 1.11 1.11z"></path><path d="m21.85 2.15-10.94 10.94"></path></svg> Prepare for sites</button></div><div class="gate-stats"><div class="gstat"><div class="n mono" style="color:#16A34A">1</div><div class="l">Ready</div></div><div class="gstat"><div class="n mono" style="color:#D97706">2</div><div class="l">Needs review</div></div><div class="gstat"><div class="n mono" style="color:#DC2626">2</div><div class="l">Blocked</div></div></div></div><section><div class="sec-head"><div class="ttl"><h2>Open readiness issues</h2><span class="cnt mono">4</span></div><p class="hint">What's standing between this schedule and the clinical sites.</p></div><div style="display:flex;flex-direction:column;gap:10px"><div class="issue"><span style="margin-top:1px"><span class="sev" style="color:#B91C1C;background:#FEE2E2">High</span></span><div class="body"><div class="it-top"><span class="it-name">School Calendar Conflict</span><span style="color:#cbd5d2">·</span><button class="linkbtn" data-act="open" data-id="a3">Sarah Collins <span class="mono" style="font-size:11px;color:var(--muted2)">ASN-003</span></button></div><p class="desc">Class Day on Jul 2 (Cohort A) overlaps — student is in class, not clinical.</p><p class="act"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"></path></svg> Remove the clinical day on Jul 2.</p></div><div class="right"><button class="mini" data-act="open" data-id="a3">Open <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></button><button class="mini go" data-act="review" data-key="a3|School Calendar Conflict|blk-cb1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg> Reviewed</button></div></div><div class="issue"><span style="margin-top:1px"><span class="sev" style="color:#B91C1C;background:#FEE2E2">High</span></span><div class="body"><div class="it-top"><span class="it-name">Level Mismatch</span><span style="color:#cbd5d2">·</span><button class="linkbtn" data-act="open" data-id="a4">Daniel Brooks <span class="mono" style="font-size:11px;color:var(--muted2)">ASN-004</span></button></div><p class="desc">Junior student placed at Highland Park Hospital, which is Senior-only.</p><p class="act"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"></path></svg> Reassign Daniel to a Junior-eligible site.</p></div><div class="right"><button class="mini" data-act="open" data-id="a4">Open <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></button><button class="mini go" data-act="review" data-key="a4|Level Mismatch|level"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg> Reviewed</button></div></div><div class="issue"><span style="margin-top:1px"><span class="sev" style="color:#92400E;background:#FEF3C7">Medium</span></span><div class="body"><div class="it-top"><span class="it-name">Time-Off Conflict</span><span style="color:#cbd5d2">·</span><button class="linkbtn" data-act="open" data-id="a1">Emily Parker <span class="mono" style="font-size:11px;color:var(--muted2)">ASN-001</span></button></div><p class="desc">Approved ATO on Jul 3 overlaps the clinical week (Jul 1–7).</p><p class="act"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"></path></svg> Confirm coverage for those days, or shift the assignment.</p></div><div class="right"><button class="mini" data-act="open" data-id="a1">Open <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></button><button class="mini go" data-act="review" data-key="a1|Time-Off Conflict|req-rq1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg> Reviewed</button></div></div><div class="issue"><span style="margin-top:1px"><span class="sev" style="color:#92400E;background:#FEF3C7">Medium</span></span><div class="body"><div class="it-top"><span class="it-name">Time-Off Conflict</span><span style="color:#cbd5d2">·</span><button class="linkbtn" data-act="open" data-id="a2">Marcus Hill <span class="mono" style="font-size:11px;color:var(--muted2)">ASN-002</span></button></div><p class="desc">Approved DNP on Jul 6 overlaps the clinical week (Jul 1–7).</p><p class="act"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"></path></svg> Confirm coverage for those days, or shift the assignment.</p></div><div class="right"><button class="mini" data-act="open" data-id="a2">Open <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></button><button class="mini go" data-act="review" data-key="a2|Time-Off Conflict|req-rq2"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg> Reviewed</button></div></div></div></section><section><div class="sec-head"><div class="ttl"><h2>Requests needing a decision</h2><span class="cnt mono">2</span></div><p class="hint">Approve or deny before they become surprises.</p></div><div style="display:flex;flex-direction:column;gap:8px"><div class="row" style="border:1px solid var(--hair);border-radius:13px"><span class="avatar" style="width:30px;height:30px;font-size:11px">PS</span><div class="grow"><div style="font-size:13.5px;font-weight:500">Priya Shah <span style="color:var(--muted2);font-weight:400">·</span> STDY</div><div class="mono" style="font-size:12px;color:var(--muted)">Jul 10, 2026</div></div><span class="badge-st sm" style="color:#92400E;background:#FEF3C7">Needs Review</span><button class="linkbtn" data-act="goto" data-v="requests">Review</button></div><div class="row" style="border:1px solid var(--hair);border-radius:13px"><span class="avatar" style="width:30px;height:30px;font-size:11px">DB</span><div class="grow"><div style="font-size:13.5px;font-weight:500">Daniel Brooks <span style="color:var(--muted2);font-weight:400">·</span> MTG</div><div class="mono" style="font-size:12px;color:var(--muted)">Jul 20–21</div></div><span class="badge-st sm" style="color:#475569;background:#EAEEED">Requested</span><button class="linkbtn" data-act="goto" data-v="requests">Review</button></div></div></section><div class="legend"><div class="lh"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"></path></svg> What the readiness engine checks</div><div class="legend-grid"><div class="lg-item"><span class="li-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg></span><div><div class="li-t">Time-Off Conflict</div><div class="li-b">Approved time off overlaps a clinical week.</div></div></div><div class="lg-item"><span class="li-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg></span><div><div class="li-t">School Calendar Conflict</div><div class="li-b">A class, research, exam, or no-clinical block overlaps.</div></div></div><div class="lg-item"><span class="li-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg></span><div><div class="li-t">Level Mismatch</div><div class="li-b">Student level does not fit the site rule.</div></div></div><div class="lg-item"><span class="li-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 9 5-9 5-9-5 9-5Z"></path><path d="m3 12 9 5 9-5"></path><path d="m3 17 9 5 9-5"></path></svg></span><div><div class="li-t">Specialty Mismatch</div><div class="li-b">Rotation type is not tagged at the site.</div></div></div><div class="lg-item"><span class="li-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path><path d="M10 6h4M10 10h4M10 14h4M10 18h4"></path></svg></span><div><div class="li-t">Site Capacity</div><div class="li-b">More students than the site allows that week.</div></div></div><div class="lg-item"><span class="li-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><path d="M12 9v4M12 17h.01"></path></svg></span><div><div class="li-t">Missing Data</div><div class="li-b">A required scheduling field is blank.</div></div></div></div></div></div></main></div></div>
+<div id="app"></div>
 <div id="overlay"></div>
 <div id="toast"></div>
 
@@ -369,6 +389,7 @@ function generateChecks(state){
   function push(a,type,sev,sum,act,src){out.push({key:a.id+'|'+type+'|'+(src||''),assignmentId:a.id,aid:a.aid,type:type,severity:sev,summary:sum,action:act});}
   state.assignments.forEach(function(a){
     var st=stOf(a.studentId), si=siOf(a.siteId);
+    if(!st||['Junior','Senior'].indexOf(st.level)<0)return;
     if(!si||!a.start||!a.end||!a.rotation){push(a,'Missing Data','High','A required field (site, dates, or rotation) is blank.','Complete the assignment record before review.','missing');return;}
     if(si.levels.indexOf(st.level)<0)
       push(a,'Level Mismatch','High',st.level+' student placed at '+si.name+', which is '+si.levels.join('/')+'-only.','Reassign '+st.name.split(' ')[0]+' to a '+st.level+'-eligible site.','level');
@@ -397,7 +418,6 @@ function generateChecks(state){
 var STATUS={
   'Ready':{text:'#15803D',bg:'#DCFCE7',dot:'#16A34A'},
   'Needs Review':{text:'#92400E',bg:'#FEF3C7',dot:'#D97706'},
-  'Blocked':{text:'#B91C1C',bg:'#FEE2E2',dot:'#DC2626'},
   'Not Checked':{text:'#475569',bg:'#EAEEED',dot:'#94A3B8'}
 };
 var SEV={High:{text:'#B91C1C',bg:'#FEE2E2'},Medium:{text:'#92400E',bg:'#FEF3C7'},Low:{text:'#475569',bg:'#EAEEED'}};
@@ -427,13 +447,13 @@ var ST={data:seed(),view:'dashboard',openId:null,siteFocus:null,reviewed:[],filt
 
 function openChecks(){var all=generateChecks(ST.data),rv=ST.reviewed;return all.filter(function(c){return rv.indexOf(c.key)<0;});}
 function checksFor(id){return openChecks().filter(function(c){return c.assignmentId===id;});}
-function statusOf(id){var cs=checksFor(id);if(cs.some(function(c){return c.severity==='High';}))return 'Blocked';if(cs.length)return 'Needs Review';return 'Ready';}
+function statusOf(id){var cs=checksFor(id);if(cs.length)return 'Needs Review';return 'Ready';}
 function rows(){return ST.data.assignments.map(function(a){
   var st=ST.data.students.filter(function(s){return s.id===a.studentId;})[0];
   var si=ST.data.sites.filter(function(s){return s.id===a.siteId;})[0];
   var o={};for(var k in a)o[k]=a[k];o.student=st;o.site=si;o.status=statusOf(a.id);o.open=checksFor(a.id);return o;
 });}
-function counts(){var r=rows();return {ready:r.filter(function(x){return x.status==='Ready';}).length,review:r.filter(function(x){return x.status==='Needs Review';}).length,blocked:r.filter(function(x){return x.status==='Blocked';}).length};}
+function counts(){var r=rows();return {ready:r.filter(function(x){return x.status==='Ready';}).length,review:r.filter(function(x){return x.status==='Needs Review';}).length};}
 function pendingReq(){return ST.data.requests.filter(function(r){return r.status==='Requested'||r.status==='Needs Review';});}
 
 function secHead(title,hint,cnt){return '<div class="sec-head"><div class="ttl"><h2>'+esc(title)+'</h2>'+(cnt!=null?'<span class="cnt mono">'+cnt+'</span>':'')+'</div>'+(hint?'<p class="hint">'+esc(hint)+'</p>':'')+'</div>';}
@@ -445,15 +465,12 @@ function legend(){
 
 function viewDashboard(){
   var c=counts(), oc=openChecks(), pr=pendingReq(), r=rows();
-  var gate = c.blocked>0
-    ? {tone:'blocked',head:'Hold \u2014 not ready to send',sub:c.blocked+' assignment'+(c.blocked>1?'s':'')+' blocked. Resolve before sharing with clinical sites.'}
-    : c.review>0
-      ? {tone:'review',head:'Needs your review first',sub:c.review+' assignment'+(c.review>1?'s':'')+' need a decision before sending.'}
-      : pr.length>0
-        ? {tone:'review',head:'Schedule is clear',sub:pr.length+' request'+(pr.length>1?'s':'')+' still waiting on your decision.'}
-        : {tone:'ready',head:'Ready to send to clinical sites',sub:'All assignments cleared review. No open conflicts.'};
+  var gate = c.review>0
+    ? {tone:'review',head:'Attention required before sending',sub:c.review+' assignment'+(c.review>1?'s':'')+' need review. Resolve the reasons below before sharing with clinical sites.'}
+    : pr.length>0
+      ? {tone:'review',head:'Schedule checks are clear',sub:pr.length+' time-off request'+(pr.length>1?'s are':' is')+' still awaiting approval tracking.'}
+      : {tone:'ready',head:'Ready to send to clinical sites',sub:'All assignments cleared review. No open conflicts.'};
   var gc = gate.tone==='ready'?{bg:'#ECFDF3',bd:'#A7F3D0',col:'#15803D',i:'checkc'}
-        : gate.tone==='review'?{bg:'#FFFBEB',bd:'#FDE68A',col:'#B45309',i:'clock'}
         : {bg:'#FEF2F2',bd:'#FECACA',col:'#B91C1C',i:'alert'};
 
   var gateHtml='<div class="gate" style="background:'+gc.bg+';border-color:'+gc.bd+'">'+
@@ -464,7 +481,7 @@ function viewDashboard(){
       : '<button class="gate-cta off" disabled>'+ic('send',15)+' Prepare for sites</button>')+
     '</div>'+
     '<div class="gate-stats">'+
-      [['Ready',c.ready,'#16A34A'],['Needs review',c.review,'#D97706'],['Blocked',c.blocked,'#DC2626']].map(function(s){
+      [['Ready',c.ready,'#16A34A'],['Needs review',c.review,'#DC2626'],['Open reasons',oc.length,'#B91C1C']].map(function(s){
         return '<div class="gstat"><div class="n mono" style="color:'+s[2]+'">'+s[1]+'</div><div class="l">'+s[0]+'</div></div>';
       }).join('')+
     '</div></div>';
@@ -479,7 +496,7 @@ function viewDashboard(){
         '<span style="margin-top:1px">'+sevBadge(ch.severity)+'</span>'+
         '<div class="body"><div class="it-top"><span class="it-name">'+esc(ch.type)+'</span><span style="color:#cbd5d2">\u00b7</span>'+
           '<button class="linkbtn" data-act="open" data-id="'+row.id+'">'+esc(row.student.name)+' <span class="mono" style="font-size:11px;color:var(--muted2)">'+ch.aid+'</span></button></div>'+
-          '<p class="desc">'+esc(ch.summary)+'</p>'+
+          '<div class="reason-label">'+ic('alert',11,'#B91C1C')+' Reason for attention</div><p class="desc attention-note">'+esc(ch.summary)+'</p>'+
           '<p class="act">'+ic('arrowr',13,'var(--teal)')+' '+esc(ch.action)+'</p></div>'+
         '<div class="right"><button class="mini" data-act="open" data-id="'+row.id+'">Open '+ic('chevr',13)+'</button>'+
           '<button class="mini go" data-act="review" data-key="'+esc(ch.key)+'">'+ic('check',13)+' Reviewed</button></div>'+
@@ -489,14 +506,14 @@ function viewDashboard(){
 
   var reqHtml='';
   if(pr.length>0){
-    reqHtml='<section>'+secHead('Requests needing a decision','Approve or deny before they become surprises.',pr.length)+
+    reqHtml='<section>'+secHead('Time-off approval tracking','Track what has already been approved and what still needs confirmation.',pr.length)+
       '<div style="display:flex;flex-direction:column;gap:8px">'+
       pr.map(function(rq){var st=ST.data.students.filter(function(s){return s.id===rq.studentId;})[0];
         return '<div class="row" style="border:1px solid var(--hair);border-radius:13px">'+avatar(st.name,30)+
           '<div class="grow"><div style="font-size:13.5px;font-weight:500">'+esc(st.name)+' <span style="color:var(--muted2);font-weight:400">\u00b7</span> '+esc(rq.type)+'</div>'+
           '<div class="mono" style="font-size:12px;color:var(--muted)">'+(rq.start===rq.end?fmtFull(rq.start):fmtRange(rq.start,rq.end))+'</div></div>'+
           '<span class="badge-st sm" style="color:'+RQS[rq.status].text+';background:'+RQS[rq.status].bg+'">'+rq.status+'</span>'+
-          '<button class="linkbtn" data-act="goto" data-v="requests">Review</button></div>';
+          '<button class="linkbtn" data-act="goto" data-v="requests">Track approval</button></div>';
       }).join('')+'</div></section>';
   }
 
@@ -511,7 +528,7 @@ function viewDashboard(){
 
 function viewAssignments(){
   var r=rows();
-  var chips=['All','Blocked','Needs Review','Ready'];
+  var chips=['All','Needs Review','Ready'];
   var list=ST.filter==='All'?r:r.filter(function(x){return x.status===ST.filter;});
   var weeks=[];list.forEach(function(x){if(weeks.indexOf(x.start)<0)weeks.push(x.start);});weeks.sort();
   var chipHtml=chips.map(function(ch){
@@ -549,26 +566,25 @@ function viewChecks(){
           '<div style="display:flex;gap:6px"><button class="mini" data-act="open" data-id="'+row.id+'">Open assignment</button>'+
           '<button class="mini go" data-act="review" data-key="'+esc(ch.key)+'">'+ic('check',13)+' Mark reviewed</button></div></div></div>';
     }).join('');
-  return '<div class="stack"><div><h1>Readiness checks</h1><p class="sub">Every issue the readiness engine found, with a recommended action.</p></div>'+
+  return '<div class="stack"><div><h1>Readiness checks</h1><p class="sub">Junior and senior assignments only, with a clear reason and recommended action for every item needing attention.</p></div>'+
     '<div style="display:flex;flex-direction:column;gap:10px">'+body+'</div>'+legend()+'</div>';
 }
 
 function viewRequests(){
   var html=ST.data.requests.map(function(rq){
     var st=ST.data.students.filter(function(s){return s.id===rq.studentId;})[0];
-    var approveDis=rq.status==='Approved', denyDis=rq.status==='Denied';
+    var approved=rq.status==='Approved';
     return '<div class="row">'+avatar(st.name,32)+
       '<div class="grow"><div style="font-size:14px;font-weight:500">'+esc(st.name)+' <span class="mono" style="font-size:11px;color:var(--muted2);font-weight:400">'+rq.rid+'</span></div>'+
-      '<div style="font-size:12.5px;color:var(--muted)">'+esc(rq.type)+' <span style="color:#cbd5d2">\u00b7</span> <span class="mono">'+(rq.start===rq.end?fmtFull(rq.start):fmtRange(rq.start,rq.end))+'</span></div></div>'+
-      '<span class="badge-st sm" style="color:'+RQS[rq.status].text+';background:'+RQS[rq.status].bg+'">'+rq.status+'</span>'+
-      '<div style="display:flex;gap:6px">'+
-        '<button class="mini" data-act="req" data-id="'+rq.id+'" data-s="Approved" style="background:#DCFCE7;color:#15803D;border:none'+(approveDis?';opacity:.4':'')+'"'+(approveDis?' disabled':'')+'>'+ic('check',13)+' Approve</button>'+
-        '<button class="mini" data-act="req" data-id="'+rq.id+'" data-s="Denied" style="'+(denyDis?'opacity:.4':'')+'"'+(denyDis?' disabled':'')+'>Deny</button>'+
-      '</div></div>';
+      '<div style="font-size:12.5px;color:var(--muted)">'+esc(rq.type)+' <span style="color:#cbd5d2">\u00b7</span> <span class="mono">'+(rq.start===rq.end?fmtFull(rq.start):fmtRange(rq.start,rq.end))+'</span></div>'+
+      '<div style="font-size:12px;color:var(--muted2);margin-top:3px">'+esc(rq.notes||'')+'</div></div>'+
+      '<span class="badge-st sm" style="color:'+RQS[rq.status].text+';background:'+RQS[rq.status].bg+'">'+(approved?'Approved':'Awaiting confirmation')+'</span>'+
+      (!approved?'<button class="mini" data-act="req" data-id="'+rq.id+'" data-s="Approved" style="background:#DCFCE7;color:#15803D;border:none">'+ic('check',13)+' Mark approved</button>':'<span class="note" style="min-width:92px;text-align:right">Recorded</span>')+
+      '</div>';
   }).join('');
-  return '<div class="stack"><div><h1>Time-off requests</h1><p class="sub">Approving a request re-checks the schedule for new conflicts automatically.</p></div>'+
+  return '<div class="stack"><div><h1>Time-off approval tracking</h1><p class="sub">A simple record of requests Ryan has already approved and items still awaiting confirmation.</p></div>'+
     '<div class="rowlist">'+html+'</div>'+
-    '<p class="note">Try approving Priya Shah\u2019s study day (Jul 10) \u2014 it overlaps her clinical week, so a new conflict appears immediately.</p></div>';
+    '<p class="note">Approved time off automatically becomes part of the readiness review when it overlaps a clinical assignment.</p></div>';
 }
 
 function viewCalendar(){
@@ -581,7 +597,7 @@ function viewCalendar(){
       '<div style="font-size:12.5px;color:var(--muted);margin-top:4px">'+esc(b.cohort)+' \u00b7 '+(b.clinicalAllowed?'Clinical allowed':'No clinical')+'</div>'+
       '<div style="font-size:12.5px;color:var(--muted2);margin-top:4px">'+esc(b.notes)+'</div></div>';
   }).join('');
-  return '<div class="stack"><div><h1>School calendar blocks</h1><p class="sub">Class, research, conference, and exam days that should keep students out of clinical.</p></div><div class="grid2">'+html+'</div></div>';
+  return '<div class="stack"><div style="display:flex;align-items:flex-start;gap:14px;justify-content:space-between"><div><h1>School calendar blocks</h1><p class="sub">Class, research, conference, and exam days reflected from the program calendar.</p></div><span class="source-chip">'+ic('calendar',13)+' Google Calendar source</span></div><div class="grid2">'+html+'</div><p class="note">Prototype view: calendar blocks are represented here as synced source data; production integration remains subject to implementation.</p></div>';
 }
 
 function viewSites(){
@@ -589,7 +605,7 @@ function viewSites(){
   if(ST.siteFocus){
     var si=ST.data.sites.filter(function(s){return s.id===ST.siteFocus;})[0];
     var list=r.filter(function(x){return x.siteId===ST.siteFocus;});
-    var blocked=list.filter(function(x){return x.status==='Blocked';}).length;
+    var attention=list.filter(function(x){return x.status==='Needs Review';}).length;
     var kvs=[['Distance',si.miles+' mi'],['Capacity / day',si.cap],['Levels',si.levels.join(' \u00b7 ')],['Specialties',si.specialties.join(' \u00b7 ')]]
       .map(function(k){return '<div class="kv"><div class="k">'+k[0]+'</div><div class="v">'+esc(k[1])+'</div></div>';}).join('');
     var rl = list.length===0 ? '<div style="padding:16px;font-size:13px;color:var(--muted2)">No assignments at this site.</div>' :
@@ -598,7 +614,7 @@ function viewSites(){
       '<button class="linkbtn" data-act="sitefocus" data-id="" style="display:inline-flex;align-items:center;gap:4px">'+ic('back',14)+' All sites</button>'+
       '<div><h1>'+esc(si.name)+'</h1><p class="sub" style="display:flex;align-items:center;gap:6px">'+ic('pin',14)+' '+esc(si.city)+' \u00b7 '+si.miles+' mi from program \u00b7 Coordinator '+esc(si.coordinator)+'</p></div>'+
       '<div class="grid4">'+kvs+'</div>'+
-      '<div class="rowlist"><div style="padding:10px 16px;background:var(--paper);border-bottom:1px solid var(--hair);font-size:12px;font-weight:600;color:var(--muted);display:flex;justify-content:space-between"><span>What '+esc(si.coordinator)+' would receive</span>'+(blocked>0?'<span style="color:#B91C1C;font-weight:500">'+blocked+' blocked \u2014 not cleared to share</span>':'')+'</div>'+rl+'</div>'+
+      '<div class="rowlist"><div style="padding:10px 16px;background:var(--paper);border-bottom:1px solid var(--hair);font-size:12px;font-weight:600;color:var(--muted);display:flex;justify-content:space-between"><span>What '+esc(si.coordinator)+' would receive</span>'+(attention>0?'<span style="color:#B91C1C;font-weight:500">'+attention+' need review before sharing</span>':'')+'</div>'+rl+'</div>'+
       '<div class="dash"><button class="mini" disabled style="opacity:.6;cursor:not-allowed">'+ic('send',14)+' Send packet to site</button><span class="note">Automated dissemination is a roadmap item, not part of this MVP. For now the manager shares the cleared view manually.</span></div>'+
     '</div>';
   }
@@ -609,7 +625,7 @@ function viewSites(){
       '<div style="display:flex;align-items:center;gap:8px"><span style="display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:var(--teal-soft);color:var(--teal-deep)">'+ic('building',18)+'</span>'+
       '<div class="grow"><div style="font-weight:600;font-size:14px">'+esc(si.name)+'</div><div style="font-size:12px;color:var(--muted)">'+esc(si.city)+' \u00b7 '+si.miles+' mi \u00b7 '+esc(si.coordinator)+'</div></div>'+ic('chevr',16,'#cbd5d2')+'</div>'+
       '<div class="chips" style="margin-top:12px">'+pills+'</div>'+
-      '<div style="font-size:12px;color:var(--muted2);margin-top:10px">'+n+' assignment'+(n!==1?'s':'')+' this period</div></button>';
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px"><span style="font-size:12px;color:var(--muted2)">'+n+' assignment'+(n!==1?'s':'')+' this period</span><span class="linkbtn">View details '+ic('chevr',12)+'</span></div></button>';
   }).join('');
   return '<div class="stack"><div><h1>Clinical sites</h1><p class="sub">Distance, capacity, allowed levels, and specialty tags drive placement and the readiness checks.</p></div><div class="grid2">'+cards+'</div></div>';
 }
@@ -626,7 +642,7 @@ function viewStudents(){
       '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><div class="mono" style="font-size:12px;color:var(--muted2)">'+mine.length+' assignment'+(mine.length!==1?'s':'')+'</div>'+
       (issues>0?'<span class="badge-st sm" style="color:#92400E;background:#FEF3C7">'+issues+' issue'+(issues>1?'s':'')+'</span>':'')+'</div></div>';
   }).join('');
-  return '<div class="stack"><div><h1>Students</h1><p class="sub">Demo-safe roster with each student\u2019s time-off bank \u2014 the count the paper binder used to track. No DOB, address, or credentialing data in the MVP.</p></div><div class="rowlist">'+html+'</div>'+
+  return '<div class="stack"><div><h1>Students</h1><p class="sub">Demo-safe roster with each student\u2019s time-off bank \u2014 the count the paper binder used to track. Demographics and mobile phone numbers are intentionally reserved for a future iteration.</p></div><div class="rowlist">'+html+'</div>'+
     '<p class="note">Days remaining / allowance per category: ATO '+ALLOW.ATO+', DNP '+ALLOW.DNP+', MTG '+ALLOW.MTG+', STDY '+ALLOW.STDY+'. Balances update as requests are approved.</p></div>';
 }
 
@@ -694,7 +710,7 @@ function viewTimeline(){
     }).join('');
   }
   var legend='<div class="tllegend">'+
-    [['Ready','#16A34A','#DCFCE7'],['Needs review','#D97706','#FEF3C7'],['Blocked','#DC2626','#FEE2E2']].map(function(s){
+    [['Ready','#16A34A','#DCFCE7'],['Needs review','#DC2626','#FEE2E2']].map(function(s){
       return '<span class="lk"><span class="tlsw" style="background:'+s[2]+';border-color:'+s[1]+'"></span>'+s[0]+'</span>';}).join('')+
     '<span class="lk"><span class="tlpip" style="position:static;background:#DC2626;box-shadow:none"></span>conflict day</span>'+
     '<span class="lk"><span class="tlpip" style="position:static;background:#D97706;box-shadow:none"></span>review day</span>'+
@@ -707,7 +723,7 @@ function viewTimeline(){
     '</div>'+
     '<div class="tlscroll"><div class="tlinner">'+tlHeader()+tlSchoolLane()+rowsHtml+'</div></div>'+
     '<div style="display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)">'+
-      '<span>'+c.ready+' ready</span><span>'+c.review+' need review</span><span>'+c.blocked+' blocked</span>'+
+      '<span>'+c.ready+' ready</span><span>'+c.review+' need review</span><span>'+openChecks().length+' open reasons</span>'+
       '<span class="note" style="margin-left:auto">Tip: click any bar to open the assignment. Toggle to \u201cby clinical site\u201d to see each coordinator\u2019s week.</span>'+
     '</div>'+
   '</div>';
@@ -829,7 +845,7 @@ function renderOverlay(){
         : x.open.map(function(ch){var c=SEV[ch.severity];
             return '<div class="check" style="background:'+c.bg+'55">'+
               '<div style="display:flex;align-items:center;gap:8px">'+sevBadge(ch.severity)+'<span style="font-weight:600;font-size:13.5px">'+esc(ch.type)+'</span></div>'+
-              '<p class="desc" style="margin:6px 0 0">'+esc(ch.summary)+'</p>'+
+              '<div class="reason-label">'+ic('alert',11,'#B91C1C')+' Reason for attention</div><p class="desc attention-note" style="margin:5px 0 0">'+esc(ch.summary)+'</p>'+
               '<p class="act" style="margin:6px 0 0">'+ic('arrowr',13,'var(--teal)')+' '+esc(ch.action)+'</p>'+
               '<button class="mini" data-act="review" data-key="'+esc(ch.key)+'" style="margin-top:10px;color:var(--teal-deep);font-weight:500">'+ic('check',13)+' Mark reviewed</button></div>';
           }).join('');
@@ -851,15 +867,15 @@ function renderOverlay(){
     }
   } else if(ST.about){
     var inScope=['Track students, sites & assignments','Time-off requests + day-off banks','School calendar blocks','Distance & specialty (OB/PED/CV/REG) tags','Six readiness checks','Manager & site-specific views'];
-    var roadmap=['Student request portal & approvals','Automated site dissemination & packets','Case tracking & anesthesia hour minimums','Evaluations & student progression','Credentialing & sensitive data','Adapt to other clinical programs (PA, NP, PT\u2026)'];
+    var roadmap=['Student demographics & mobile contact details','Automated site dissemination & packets','Case tracking & anesthesia hour minimums','Evaluations & student progression','Credentialing & sensitive data','Adapt to other clinical programs (PA, NP, PT\u2026)'];
     html='<div class="modal-wrap"><div class="scrim" data-act="closeabout" style="position:absolute"></div><div class="modal">'+
       '<button class="close" data-act="closeabout">'+ic('x',18)+'</button>'+
       '<div style="display:flex;align-items:center;gap:8px;color:var(--teal-deep)">'+ic('shield',18)+'<span style="font-weight:700">About this prototype</span></div>'+
-      '<h1 style="font-size:20px;margin-top:8px">Align is a Schedule Readiness Assistant</h1>'+
-      '<p style="font-size:13.5px;color:#475569;margin-top:8px">It gives the clinical education manager one place to review assignments, requests, calendar blockers, and site constraints before schedules go to clinical sites \u2014 so a missed conflict never reaches a coordinator. Three roles share one flow: residents submit schedules and time-off, the program leader approves and assigns, and hospitals receive a feed of only the cleared placements. The MVP ships the program-leader workspace first; the resident and hospital roles follow.</p>'+
+      '<h1 style="font-size:20px;margin-top:8px">Arc is a Schedule Readiness Assistant</h1>'+
+      '<p style="font-size:13.5px;color:#475569;margin-top:8px">It gives the clinical education manager one place to review assignments, requests, calendar blockers, and site constraints before schedules go to clinical sites \u2014 so a missed conflict never reaches a coordinator. The program-leader workspace centers on schedule changes, readiness reasons, recommended next actions, and human review. Resident and hospital screens illustrate the broader command-center vision and should not be interpreted as fully production-integrated features.</p>'+
       '<div class="scope-grid"><div class="scope"><h4 style="color:#15803D">In this MVP</h4><ul>'+inScope.map(function(s){return '<li>'+ic('check',14,'var(--teal)')+esc(s)+'</li>';}).join('')+'</ul></div>'+
       '<div class="scope"><h4 style="color:var(--muted2)">Roadmap (later)</h4><ul>'+roadmap.map(function(s){return '<li style="color:var(--muted2)">'+ic('arrowr',13)+esc(s)+'</li>';}).join('')+'</ul></div></div>'+
-      '<p class="note" style="margin-top:18px">All names and records here are demo-safe. No real student data, DOB, address, or credentialing information is used.</p>'+
+      '<p class="note" style="margin-top:18px">All names and records here are demo-safe. No real student data is used. Demographics, phone numbers, addresses, and credentialing information are outside this iteration.</p>'+
     '</div></div>';
   }
   o.innerHTML=html;
@@ -878,7 +894,7 @@ function nav(){
   var c=counts(), oc=openChecks().length, pr=pendingReq().length;
   var items=[
     ['dashboard','Monday review','shield',null],
-    ['assignments','Assignments','layers',(c.blocked+c.review)||null],
+    ['assignments','Assignments','layers',c.review||null],
     ['timeline','Calendar','calendar',null],
     ['checks','Readiness checks','alert',oc||null],
     ['requests','Time-off requests','inbox',pr||null],
@@ -907,7 +923,7 @@ function render(){
     ctx='<select class="rolesel" data-act="pickhospital">'+ST.data.sites.map(function(s){return '<option value="'+s.id+'"'+(s.id===ST.asHospital?' selected':'')+'>'+esc(s.name)+'</option>';}).join('')+'</select>';
   }
 
-  var header='<header class="top"><div class="top-in"><div class="brand"><span class="logo">'+ic('logo',18,'#fff',2.4)+'</span><div><b>Align</b><small>Schedule Readiness Assistant</small></div></div>'+
+  var header='<header class="top"><div class="top-in"><div class="brand"><span class="logo">'+ic('logo',18,'#fff',2.4)+'</span><div><b>Arc</b><small>Schedule Readiness Assistant</small></div></div>'+
     roleSeg+ctx+
     '<div class="top-actions"><span class="chip-demo">Demo data</span>'+
       '<button class="tbtn" data-act="about">'+ic('info',15)+' About</button>'+
@@ -916,7 +932,7 @@ function render(){
 
   var body;
   if(ST.role==='leader'){
-    body='<div class="shell"><nav class="rail">'+nav()+'<div class="rail-foot">Reviews assignments against requests, the school calendar, and site rules before schedules reach clinical coordinators.</div></nav>'+
+    body='<div class="shell"><nav class="rail">'+nav()+'<div class="rail-foot">Reviews junior and senior assignments against approved time off, calendar blocks, and site rules before schedules reach clinical coordinators.</div></nav>'+
       '<main>'+(VIEWS[ST.view]||viewDashboard)()+'</main></div>';
   } else {
     var content=ST.role==='student'?viewStudentPortal():viewHospitalFeed();
@@ -977,3 +993,4 @@ render();
 
 
 </body></html>
+<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_j8KerFC7fxUFpEumNcvbdtxfsZjM" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
