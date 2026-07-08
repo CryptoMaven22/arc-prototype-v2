@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <!-- saved from url=(0047)file:///Users/mwl/Downloads/download%20(3).html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -208,6 +209,76 @@
   .attention-note{border-left:3px solid #DC2626;padding-left:10px;}
   .mini,.tbtn,.gate-cta,.fchip{transition:background .16s ease,border-color .16s ease,box-shadow .16s ease,transform .16s ease;}
   .mini:hover,.tbtn:hover,.gate-cta.on:hover{transform:translateY(-1px);}
+
+
+  /* Arc OV Iteration 02 — command-center landing page */
+  body{background:#F5F7F9;}
+  main{max-width:none;width:100%;padding:16px 18px 22px;}
+  .shell{min-height:calc(100vh - 56px);}
+  .rail{position:sticky;top:56px;height:calc(100vh - 56px);min-height:0;}
+  .cc{display:flex;flex-direction:column;gap:12px;min-width:0;}
+  .cc-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .cc-title h1{font-size:20px;}
+  .cc-title p{margin:2px 0 0;color:var(--muted);font-size:12px;}
+  .cc-tools{display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:flex-end;}
+  .cc-kpis{display:grid;grid-template-columns:repeat(6,minmax(125px,1fr));gap:10px;}
+  .cc-kpi{background:#fff;border:1px solid var(--hair);border-radius:12px;padding:12px 13px;display:flex;gap:10px;align-items:center;min-height:78px;box-shadow:0 3px 12px rgba(16,35,31,.035);}
+  .cc-kpi-ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex:0 0 auto;}
+  .cc-kpi .lab{font-size:11px;font-weight:600;color:#334155;white-space:nowrap;}
+  .cc-kpi .num{font-size:24px;font-weight:700;line-height:1.05;margin-top:2px;}
+  .cc-kpi .delta{font-size:9.5px;color:var(--muted2);margin-top:4px;}
+  .cc-grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(290px,1fr);gap:12px;align-items:start;}
+  .cc-left,.cc-right{display:flex;flex-direction:column;gap:12px;min-width:0;}
+  .cc-panel{background:#fff;border:1px solid var(--hair);border-radius:12px;box-shadow:0 3px 12px rgba(16,35,31,.035);overflow:hidden;}
+  .cc-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;border-bottom:1px solid var(--hair);}
+  .cc-panel-title{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;}
+  .cc-panel-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .cc-legend{display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:9.5px;color:var(--muted);}
+  .cc-legend span{display:inline-flex;align-items:center;gap:5px;}
+  .cc-swatch{width:9px;height:9px;border-radius:2px;display:inline-block;}
+  .week-wrap{overflow:auto;}
+  .week-grid{min-width:820px;display:grid;grid-template-columns:145px repeat(14,minmax(46px,1fr));font-size:9px;}
+  .wg-corner,.wg-day,.wg-site,.wg-cell{border-right:1px solid #E8ECEB;border-bottom:1px solid #E8ECEB;}
+  .wg-corner{padding:10px 11px;font-weight:700;color:#475569;background:#FAFBFC;}
+  .wg-day{padding:7px 2px;text-align:center;background:#FAFBFC;color:#64748B;line-height:1.25;}
+  .wg-day b{display:block;color:#334155;font-size:9.5px;}
+  .wg-site{padding:8px 10px;background:#fff;min-height:45px;display:flex;flex-direction:column;justify-content:center;}
+  .wg-site b{font-size:9.5px;color:#334155;}
+  .wg-site small{color:#94A3B8;margin-top:2px;}
+  .wg-cell{padding:4px;background:#fff;min-height:45px;display:flex;align-items:center;justify-content:center;}
+  .shift{width:100%;min-height:34px;border-radius:5px;padding:5px 3px;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:600;line-height:1.2;border:1px solid;}
+  .shift.assigned{background:#ECFDF3;border-color:#BBF7D0;color:#15803D;}
+  .shift.conflict{background:#FEF2F2;border-color:#FECACA;color:#DC2626;}
+  .shift.pto{background:#F5F3FF;border-color:#DDD6FE;color:#7C3AED;}
+  .shift.oncall{background:#FFF7ED;border-color:#FED7AA;color:#C2410C;}
+  .shift.unavail{background:#F1F5F9;border-color:#E2E8F0;color:#64748B;}
+  .cc-alert{display:flex;gap:8px;padding:9px 12px;border-bottom:1px solid #EEF1F0;align-items:flex-start;}
+  .cc-alert:last-child{border-bottom:none;}
+  .cc-alert .grow{min-width:0;}
+  .cc-alert b{font-size:10.5px;display:block;color:#334155;}
+  .cc-alert p{font-size:9.5px;color:var(--muted);margin:1px 0 0;}
+  .cc-tag{margin-left:auto;border-radius:4px;padding:3px 6px;font-size:8.5px;font-weight:600;white-space:nowrap;}
+  .cc-person{display:flex;align-items:center;gap:8px;padding:7px 12px;}
+  .cc-person .grow{min-width:0;}
+  .cc-person b{font-size:10px;display:block;}
+  .cc-person small{font-size:8.5px;color:var(--muted2);display:block;}
+  .cc-status{font-size:8.5px;font-weight:600;margin-left:auto;white-space:nowrap;}
+  .cc-bottom{display:grid;grid-template-columns:1.2fr 1.45fr 1fr .85fr;gap:10px;}
+  .mini-list{padding:5px 12px 10px;}
+  .mini-row{display:flex;align-items:center;gap:7px;padding:7px 0;border-bottom:1px solid #EEF1F0;font-size:9.5px;}
+  .mini-row:last-child{border-bottom:none;}
+  .mini-row .val{margin-left:auto;font-weight:700;white-space:nowrap;}
+  .mini-metrics{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--hair);}
+  .mini-metric{text-align:center;padding:9px 4px;border-right:1px solid var(--hair);}
+  .mini-metric:last-child{border-right:none;}
+  .mini-metric b{display:block;font-size:16px;}
+  .mini-metric small{font-size:8.5px;color:var(--muted);}
+  .ai-box{margin:8px 10px;padding:8px;border-radius:7px;background:#F8FAFC;border:1px solid #E2E8F0;font-size:9.5px;}
+  .donut{width:78px;height:78px;border-radius:50%;background:conic-gradient(#10B981 0 82%,#F59E0B 82% 89%,#EF4444 89% 100%);display:grid;place-items:center;margin:10px auto;}
+  .donut:after{content:'168';width:48px;height:48px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:13px;font-weight:700;color:#334155;}
+  .cc-link{font-size:9.5px;color:#2563EB;font-weight:600;}
+  @media (max-width:1180px){.cc-kpis{grid-template-columns:repeat(3,1fr)}.cc-grid{grid-template-columns:1fr}.cc-right{display:grid;grid-template-columns:1fr 1fr}.cc-bottom{grid-template-columns:1fr 1fr}}
+  @media (max-width:820px){.cc-toolbar{align-items:flex-start;flex-direction:column}.cc-tools{justify-content:flex-start}.cc-kpis{grid-template-columns:repeat(2,1fr)}.cc-right{display:flex}.cc-bottom{grid-template-columns:1fr}.rail{height:auto}.week-grid{min-width:760px}}
 
   @keyframes slide{from{transform:translateX(24px);opacity:0;}to{transform:translateX(0);opacity:1;}}
   @keyframes fade{from{opacity:0;}to{opacity:1;}}
@@ -464,65 +535,61 @@ function legend(){
 }
 
 function viewDashboard(){
-  var c=counts(), oc=openChecks(), pr=pendingReq(), r=rows();
-  var gate = c.review>0
-    ? {tone:'review',head:'Attention required before sending',sub:c.review+' assignment'+(c.review>1?'s':'')+' need review. Resolve the reasons below before sharing with clinical sites.'}
-    : pr.length>0
-      ? {tone:'review',head:'Schedule checks are clear',sub:pr.length+' time-off request'+(pr.length>1?'s are':' is')+' still awaiting approval tracking.'}
-      : {tone:'ready',head:'Ready to send to clinical sites',sub:'All assignments cleared review. No open conflicts.'};
-  var gc = gate.tone==='ready'?{bg:'#ECFDF3',bd:'#A7F3D0',col:'#15803D',i:'checkc'}
-        : {bg:'#FEF2F2',bd:'#FECACA',col:'#B91C1C',i:'alert'};
-
-  var gateHtml='<div class="gate" style="background:'+gc.bg+';border-color:'+gc.bd+'">'+
-    '<div class="gate-row"><span class="gate-ic" style="color:'+gc.col+'">'+ic(gc.i,26)+'</span>'+
-    '<div style="flex:1;min-width:0"><h3 style="color:'+gc.col+'">'+esc(gate.head)+'</h3><p>'+esc(gate.sub)+'</p></div>'+
-    (gate.tone==='ready'
-      ? '<button class="gate-cta on" data-act="goto" data-v="sites">'+ic('send',15,'#fff')+' Prepare for sites</button>'
-      : '<button class="gate-cta off" disabled>'+ic('send',15)+' Prepare for sites</button>')+
-    '</div>'+
-    '<div class="gate-stats">'+
-      [['Ready',c.ready,'#16A34A'],['Needs review',c.review,'#DC2626'],['Open reasons',oc.length,'#B91C1C']].map(function(s){
-        return '<div class="gstat"><div class="n mono" style="color:'+s[2]+'">'+s[1]+'</div><div class="l">'+s[0]+'</div></div>';
-      }).join('')+
-    '</div></div>';
-
-  var issuesHtml;
-  if(oc.length===0){issuesHtml=emptyState('No open issues','Every assignment has cleared the readiness checks.');}
-  else{
-    var sorted=oc.slice().sort(function(a,b){return (a.severity==='High'?0:1)-(b.severity==='High'?0:1);});
-    issuesHtml=sorted.map(function(ch){
-      var row=r.filter(function(x){return x.id===ch.assignmentId;})[0];
-      return '<div class="issue">'+
-        '<span style="margin-top:1px">'+sevBadge(ch.severity)+'</span>'+
-        '<div class="body"><div class="it-top"><span class="it-name">'+esc(ch.type)+'</span><span style="color:#cbd5d2">\u00b7</span>'+
-          '<button class="linkbtn" data-act="open" data-id="'+row.id+'">'+esc(row.student.name)+' <span class="mono" style="font-size:11px;color:var(--muted2)">'+ch.aid+'</span></button></div>'+
-          '<div class="reason-label">'+ic('alert',11,'#B91C1C')+' Reason for attention</div><p class="desc attention-note">'+esc(ch.summary)+'</p>'+
-          '<p class="act">'+ic('arrowr',13,'var(--teal)')+' '+esc(ch.action)+'</p></div>'+
-        '<div class="right"><button class="mini" data-act="open" data-id="'+row.id+'">Open '+ic('chevr',13)+'</button>'+
-          '<button class="mini go" data-act="review" data-key="'+esc(ch.key)+'">'+ic('check',13)+' Reviewed</button></div>'+
-        '</div>';
-    }).join('');
-  }
-
-  var reqHtml='';
-  if(pr.length>0){
-    reqHtml='<section>'+secHead('Time-off approval tracking','Track what has already been approved and what still needs confirmation.',pr.length)+
-      '<div style="display:flex;flex-direction:column;gap:8px">'+
-      pr.map(function(rq){var st=ST.data.students.filter(function(s){return s.id===rq.studentId;})[0];
-        return '<div class="row" style="border:1px solid var(--hair);border-radius:13px">'+avatar(st.name,30)+
-          '<div class="grow"><div style="font-size:13.5px;font-weight:500">'+esc(st.name)+' <span style="color:var(--muted2);font-weight:400">\u00b7</span> '+esc(rq.type)+'</div>'+
-          '<div class="mono" style="font-size:12px;color:var(--muted)">'+(rq.start===rq.end?fmtFull(rq.start):fmtRange(rq.start,rq.end))+'</div></div>'+
-          '<span class="badge-st sm" style="color:'+RQS[rq.status].text+';background:'+RQS[rq.status].bg+'">'+rq.status+'</span>'+
-          '<button class="linkbtn" data-act="goto" data-v="requests">Track approval</button></div>';
-      }).join('')+'</div></section>';
-  }
-
-  return '<div class="stack">'+
-    '<div><div class="eyebrow">Monday review</div><h1 style="margin-top:2px">Is the schedule ready to send?</h1><p class="sub">One place to catch conflicts before clinical coordinators ever see them.</p></div>'+
-    gateHtml+
-    '<section>'+secHead('Open readiness issues',"What's standing between this schedule and the clinical sites.",oc.length)+'<div style="display:flex;flex-direction:column;gap:10px">'+issuesHtml+'</div></section>'+
-    reqHtml+
-    legend()+
+  var c=counts(), oc=openChecks(), pr=pendingReq();
+  var names=['A. Patel','M. Chen','J. Smith','K. Lee','D. Brown','S. Davis','T. Wilson','R. Garcia','E. Johnson','L. Martinez','P. Nguyen','Dr. Carter','Dr. Allen','Dr. Blake'];
+  var sites=[
+    ['Evanston Hospital','General OR','assigned'],
+    ['Highland Park','OB','assigned'],
+    ["Children's Rotation",'Peds','conflict'],
+    ['Glenbrook Hospital','General OR','assigned'],
+    ["Skokie Women's Center",'OB / General','pto'],
+    ['Northwestern Cardiac','Cardiac','assigned'],
+    ['On-call coverage','System','oncall']
+  ];
+  var days=['Mon 7/6','Tue 7/7','Wed 7/8','Thu 7/9','Fri 7/10','Sat 7/11','Sun 7/12'];
+  var header='<div class="wg-corner">Site / Rotation</div>'+days.map(function(d){return '<div class="wg-day" style="grid-column:span 2"><b>'+d+'</b>AM &nbsp;&nbsp; PM</div>';}).join('');
+  var cells='';
+  sites.forEach(function(si,r){
+    cells+='<div class="wg-site"><b>'+si[0]+'</b><small>'+si[1]+'</small></div>';
+    for(var j=0;j<14;j++){
+      var type='assigned', text=names[(r*2+j)%names.length];
+      if((r===2&&(j===1||j===7))||(r===1&&j===9)){type='conflict';text='Open';}
+      if(r===4&&(j===5||j===11)){type='pto';text='PTO';}
+      if(r===6&&(j%3===1)){type='oncall';text='Dr. Carter';}
+      cells+='<div class="wg-cell"><button class="shift '+type+'" data-act="'+(type==='conflict'?'goto':'open')+'" '+(type==='conflict'?'data-v="checks"':'data-id="a'+((r%5)+1)+'"')+'>'+text+'</button></div>';
+    }
+  });
+  var kpis=[
+    ['calendar','#EAF4FF','#1683E8','Open assignments','5','2 need action'],
+    ['alert','#FFF7ED','#F97316','Coverage gaps','3','1 added this week'],
+    ['shield','#FEF2F2','#EF4444','Readiness issues',String(oc.length),'Reasons identified'],
+    ['inbox','#F5F3FF','#8B5CF6','Pending approvals',String(pr.length),'Time-off tracking'],
+    ['users','#ECFDF3','#10B981','Students on rotation','42','Junior + senior'],
+    ['checkc','#ECFEF8','#14B8A6','Sites ready','5 / 7','2 require review']
+  ];
+  var kpiHtml=kpis.map(function(k){return '<div class="cc-kpi"><span class="cc-kpi-ic" style="background:'+k[1]+';color:'+k[2]+'">'+ic(k[0],21)+'</span><div><div class="lab">'+k[3]+'</div><div class="num">'+k[4]+'</div><div class="delta">'+k[5]+'</div></div></div>';}).join('');
+  var alerts=[
+    ['Highland Park — Jul 8','Junior placed at senior-only site','Level mismatch','#FEF2F2','#DC2626'],
+    ["Children's Rotation — Jul 7",'Class day overlaps clinical assignment','Calendar conflict','#FFF7ED','#D97706'],
+    ['Evanston Hospital — Jul 6','Approved ATO overlaps rotation','Approved time off','#F5F3FF','#7C3AED'],
+    ['Glenbrook Hospital — Jul 10','Coordinator review recommended','Review needed','#EFF6FF','#2563EB']
+  ];
+  var alertHtml=alerts.map(function(a,i){return '<button class="cc-alert" data-act="'+(i<3?'open':'goto')+'" '+(i<3?'data-id="a'+(i+1)+'"':'data-v="checks"')+'><span style="color:'+a[4]+'">'+ic('alert',14)+'</span><span class="grow"><b>'+a[0]+'</b><p>'+a[1]+'</p></span><span class="cc-tag" style="background:'+a[3]+';color:'+a[4]+'">'+a[2]+'</span></button>';}).join('');
+  var people=['Emily Parker','Marcus Hill','Sarah Collins','Daniel Brooks','Priya Shah'];
+  var peopleHtml=people.map(function(n,i){var st=i===2?'Needs review':i===3?'Reassign':'Ready';var col=i===2?'#D97706':i===3?'#DC2626':'#16A34A';return '<button class="cc-person" data-act="open" data-id="a'+(i+1)+'">'+avatar(n,28)+'<span class="grow"><b>'+n+'</b><small>'+(i<3?'Senior':'Junior')+' · '+['General','OB','Peds','OB','General'][i]+'</small></span><span class="cc-status" style="color:'+col+'">'+st+'</span></button>';}).join('');
+  return '<div class="cc">'+
+    '<div class="cc-toolbar"><div class="cc-title"><h1>Schedule command center</h1><p>Weekly readiness, coverage, approvals, and next actions in one operational view.</p></div><div class="cc-tools"><button class="tbtn">'+ic('back',14)+' Jul 6–12, 2026</button><button class="tbtn">Today</button><button class="tbtn">All sites '+ic('chevr',13)+'</button></div></div>'+
+    '<div class="cc-kpis">'+kpiHtml+'</div>'+
+    '<div class="cc-grid"><div class="cc-left">'+
+      '<div class="cc-panel"><div class="cc-panel-head"><div class="cc-panel-title">'+ic('calendar',15,'#1683E8')+' Schedule & coverage</div><div class="cc-panel-tools"><div class="seg"><button class="on">Week</button><button>Day</button></div><div class="cc-legend"><span><i class="cc-swatch" style="background:#86EFAC"></i>Assigned</span><span><i class="cc-swatch" style="background:#FCA5A5"></i>Gap / conflict</span><span><i class="cc-swatch" style="background:#C4B5FD"></i>PTO</span><span><i class="cc-swatch" style="background:#FDBA74"></i>On call</span></div></div></div><div class="week-wrap"><div class="week-grid">'+header+cells+'</div></div></div>'+
+      '<div class="cc-bottom">'+
+        '<div class="cc-panel"><div class="cc-panel-head"><div class="cc-panel-title">'+ic('shield',14,'#EF4444')+' Rules & readiness</div><button class="cc-link" data-act="goto" data-v="checks">View details</button></div><div class="mini-list"><div class="mini-row">Duty-hour compliance<span class="val" style="color:#DC2626">3 issues</span></div><div class="mini-row">Rotation requirements<span class="val" style="color:#16A34A">On track</span></div><div class="mini-row">Site fit / level match<span class="val" style="color:#D97706">1 warning</span></div><div class="mini-row">Calendar conflicts<span class="val" style="color:#DC2626">1 issue</span></div></div></div>'+
+        '<div class="cc-panel"><div class="cc-panel-head"><div class="cc-panel-title">'+ic('inbox',14,'#2563EB')+' Notifications</div><button class="cc-link" data-act="goto" data-v="requests">View all</button></div><div class="mini-metrics"><div class="mini-metric"><b>24</b><small>Messages</small></div><div class="mini-metric"><b>11</b><small>Reminders</small></div><div class="mini-metric"><b>3</b><small>Escalations</small></div></div><div class="mini-list"><div class="mini-row"><span class="mono">9:15</span> Shift reminder sent</div><div class="mini-row"><span class="mono">8:02</span> PTO approval recorded</div><div class="mini-row"><span class="mono">Yesterday</span> Schedule published</div></div></div>'+
+        '<div class="cc-panel"><div class="cc-panel-head"><div class="cc-panel-title">'+ic('spark',14,'#7C3AED')+' AI insights</div><button class="cc-link" data-act="goto" data-v="checks">View all</button></div><div class="ai-box"><b>Suggested next action</b><div style="margin-top:3px;color:var(--muted)">Reassign Daniel to a junior-eligible site before publishing.</div></div><div class="ai-box"><b>Coverage risk</b><div style="margin-top:3px;color:var(--muted)">Moderate · two unresolved gaps this week.</div></div></div>'+
+        '<div class="cc-panel"><div class="cc-panel-head"><div class="cc-panel-title">Schedule summary</div></div><div class="donut"></div><div style="text-align:center;font-size:10px;color:var(--muted);padding-bottom:10px"><b style="font-size:18px;color:var(--ink)">82%</b><br>Fill rate</div></div>'+
+      '</div></div>'+
+      '<div class="cc-right"><div class="cc-panel"><div class="cc-panel-head"><div class="cc-panel-title">'+ic('alert',15,'#EF4444')+' Alerts & exceptions <span class="badge">'+oc.length+'</span></div><button class="cc-link" data-act="goto" data-v="checks">View all</button></div>'+alertHtml+'</div>'+
+      '<div class="cc-panel"><div class="cc-panel-head"><div class="cc-panel-title">'+ic('users',15,'#1683E8')+' People & availability</div><button class="cc-link" data-act="goto" data-v="students">View all</button></div>'+peopleHtml+'</div></div></div>'+
   '</div>';
 }
 
@@ -993,4 +1060,4 @@ render();
 
 
 </body></html>
-<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_j8KerFC7fxUFpEumNcvbdtxfsZjM" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
+<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_j8KerFC7fxUFpEumNcvbdtxfsZjM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_9wc6UCb5iUFkULU8WybcCj3BMUYb" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
