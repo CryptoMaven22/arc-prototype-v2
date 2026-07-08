@@ -210,6 +210,8 @@
   .mini,.tbtn,.gate-cta,.fchip{transition:background .16s ease,border-color .16s ease,box-shadow .16s ease,transform .16s ease;}
   .mini:hover,.tbtn:hover,.gate-cta.on:hover{transform:translateY(-1px);}
   .brand-wordmark{display:block;height:38px;width:auto;border-radius:10px;background:#000;padding:4px 8px;box-shadow:0 6px 18px rgba(0,0,0,.14);}
+  .kpi-drill-card{width:100%;text-align:left;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;}
+  .kpi-drill-card:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(16,35,31,.06);border-color:#cbd5d2;}
   .student-card{display:block;width:100%;text-align:left;background:#fff;}
   .student-card:hover{background:var(--paper);}
   .student-section-label{font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:.04em;font-weight:600;margin-top:8px;}
@@ -528,7 +530,7 @@ function bankFor(studentId){
 function badgeSt(s,sm){var c=STATUS[s]||STATUS['Not Checked'];return '<span class="badge-st'+(sm?' sm':'')+'" style="color:'+c.text+';background:'+c.bg+'"><span class="dot" style="background:'+c.dot+'"></span>'+s+'</span>';}
 function sevBadge(s){var c=SEV[s]||SEV.Low;return '<span class="sev" style="color:'+c.text+';background:'+c.bg+'">'+s+'</span>';}
 
-var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,tlBy:'student',role:'leader',asStudent:'s5',asHospital:'site4'};
+var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,tlBy:'student',role:'leader',asStudent:'s5',asHospital:'site4'};
 
 function openChecks(){var all=generateChecks(ST.data),rv=ST.reviewed;return all.filter(function(c){return rv.indexOf(c.key)<0;});}
 function checksFor(id){return openChecks().filter(function(c){return c.assignmentId===id;});}
@@ -991,6 +993,49 @@ function renderOverlay(){
           (x.notes?'<div class="note" style="border-top:1px solid var(--hair);padding-top:12px">'+esc(x.notes)+'</div>':'')+
         '</div></aside>';
     }
+  } else if(ST.kpiDeep!==null){
+    var dd=(function(){
+      var m={
+        '0|assignments-active':{tone:'#1683E8',title:'Active assignments',summary:'The current week includes five active demo assignments. This count helps Ryan verify the roster that is actually in motion before thinking about approvals or downstream communication.',bullets:['5 total assignments are visible in the current review week.','Each assignment ties a student, site, dates, and a rotation together.','Clicking through to assignments lets Ryan inspect readiness and reassign sites if needed.'],note:'Operationally, this is the roster Ryan is trying to clear before the schedule goes out.'},
+        '0|assignments-ready':{tone:'#16A34A',title:'Ready assignments',summary:'Ready assignments have no open readiness reasons. They are the stable portion of the schedule Ryan can feel confident about.',bullets:['These assignments passed the current readiness checks.','No time-off, calendar, or level mismatch issue is still open on them.','They are the best candidates to leave untouched while Ryan fixes the risky items.'],note:'This is the part of the week that can move forward with minimal intervention.'},
+        '0|assignments-review':{tone:'#DC2626',title:'Assignments needing review',summary:'These are the assignments that are holding up the schedule. They need a human decision before the roster should be shared.',bullets:['A review item means at least one readiness reason is still open.','Examples include level mismatch, calendar conflict, or approved time off overlap.','Ryan can open the assignment drawer to see the reason and next action.'],note:'This is the most actionable assignment count in the command center.'},
+        '0|assignments-reasons':{tone:'#B91C1C',title:'Open readiness reasons',summary:'Reasons are the underlying issues, not just the count of affected assignments. A single assignment can carry more than one reason.',bullets:['This separates surface workload from the actual problem mix.','Multiple reasons on one assignment often signal the most fragile placement.','The Readiness Issues view groups them by type and severity.'],note:'This helps Ryan understand complexity, not just volume.'},
+
+        '1|coverage-open':{tone:'#F97316',title:'Open coverage gaps',summary:'Coverage gaps represent visible holes in the weekly schedule view. They are the easiest visual signal that the schedule is not ready.',bullets:['The current prototype models three open gap segments.','Gaps are placed in the weekly view to mirror what an operator would notice first.','Each gap includes a suggested fill path in the command-center detail.'],note:'This is demo content meant to show what a more operational coverage layer could look like.'},
+        '1|coverage-sites':{tone:'#92400E',title:'Affected sites',summary:'Affected sites show where those open coverage segments are concentrated. This helps Ryan think in terms of coordinator impact, not just abstract gaps.',bullets:['Highland Park Hospital carries multiple open segments.','Children’s Rotation Site has a pediatric coverage need.','Site concentration matters because one unhappy coordinator can create outsized friction.'],note:'The goal is to show which clinical relationships may need the quickest attention.'},
+        '1|coverage-fills':{tone:'#0F6E56',title:'Suggested fills',summary:'Suggested fills are proposed operator moves to close the gaps quickly. These can be rough or demo-safe—they exist to demonstrate decision support.',bullets:['Promote an OB-eligible senior into the Highland Park gap.','Move a clear student into the pediatric slot if site rules allow.','Use reassignment to test the least disruptive move before publishing.'],note:'In production, these could be AI-assisted recommendations rather than static examples.'},
+        '1|coverage-pattern':{tone:'#64748B',title:'Coverage pattern',summary:'Patterns help Ryan understand whether the week is breaking down in a meaningful way—for example, PM-heavy or late-week strain.',bullets:['The example pattern here is PM-heavy.','A pattern view helps Ryan spot systemic fragility instead of isolated events.','Over time, this could surface recurring schedule bottlenecks by site or shift.'],note:'This is intentionally illustrative and can be refined later.'},
+
+        '2|issues-open':{tone:'#EF4444',title:'Open readiness reasons',summary:'This is the total number of reasons still standing between the current roster and a clean schedule. It is the core workload number for schedule review.',bullets:['It counts reasons, not just assignments.','Every reason carries an explanation and recommended next action.','This gives Ryan a quick pulse on how much unresolved risk remains.'],note:'This metric is the heartbeat of the readiness workflow.'},
+        '2|issues-high':{tone:'#B91C1C',title:'High severity issues',summary:'High severity issues are the reasons most likely to prevent safe or accurate scheduling if ignored.',bullets:['Level mismatches and hard calendar conflicts typically land here.','These are the first items Ryan should work through in review.','Reducing this number is more important than reducing low-level noise.'],note:'The severity layer helps Ryan prioritize calmly under pressure.'},
+        '2|issues-hit':{tone:'#92400E',title:'Assignments affected',summary:'This shows how many placements are touched by readiness problems. It is different from the raw reason count because one assignment may carry multiple issues.',bullets:['It translates abstract issue volume into a concrete roster impact.','A smaller set of affected assignments can still be complex if each has multiple reasons.','Ryan can use this to estimate how many records require a closer look.'],note:'This turns the issue count into a more operationally intuitive measure.'},
+        '2|issues-types':{tone:'#64748B',title:'Distinct issue types',summary:'Distinct issue types tell Ryan whether the week is dominated by one recurring problem or a broader mix of issues.',bullets:['Examples include time-off conflict, school calendar conflict, and level mismatch.','A mixed issue profile often means the operator must use multiple decision pathways.','A concentrated issue profile can point to a single broken process.'],note:'This is useful for improvement conversations after the schedule is stabilized.'},
+
+        '3|approvals-pending':{tone:'#8B5CF6',title:'Pending approvals',summary:'These requests still require confirmation, recording, or a judgment call before the approval picture is complete.',bullets:['The queue is intentionally simple and paper-binder-like.','Pending items give Ryan one place to remember what is still unresolved.','Once approved, these requests feed into readiness when they overlap assignments.'],note:'This preserves the spirit of the current workflow while making it visible.'},
+        '3|approvals-requested':{tone:'#64748B',title:'Requested items',summary:'Requested items are newer requests that have entered the queue but have not yet been acted on.',bullets:['These are waiting for a decision or acknowledgment.','They may or may not affect the current week.','The queue helps Ryan avoid losing track of incoming requests.'],note:'Think of this as the front edge of the approval workflow.'},
+        '3|approvals-review':{tone:'#92400E',title:'Needs review requests',summary:'Needs review requests require more judgment than a routine approval—often because of timing or operational impact.',bullets:['Study days or unusual requests often land here.','These may need Ryan to weigh educational needs against site commitments.','Flagging them separately lowers the chance of a casual miss.'],note:'This metric highlights where simple tracking becomes real decision-making.'},
+        '3|approvals-impact':{tone:'#DC2626',title:'Schedule impact',summary:'This count isolates pending requests that would touch active assignments if approved or confirmed.',bullets:['It narrows Ryan’s attention to the requests most likely to change the live schedule.','A request with schedule impact can ripple into coverage, readiness, and coordinator communication.','This is the most operationally important subset of the approval queue.'],note:'Useful when Ryan wants to triage requests by urgency rather than by arrival time.'},
+
+        '4|students-total':{tone:'#10B981',title:'Program total students',summary:'This program-level count is a headline number meant to orient Ryan, even though the prototype only includes a smaller demo-safe roster for interaction.',bullets:['42 represents the broader junior + senior population in the program week.','The command center keeps this visible so the demo feels grounded in real operational scale.','Only five student records are fully represented for prototype interaction.'],note:'This combines a realistic scale signal with a manageable demo footprint.'},
+        '4|students-senior':{tone:'#0F766E',title:'Senior student count',summary:'Senior students often carry the most complex placement possibilities because they can match into more specialized sites and services.',bullets:['The program-level example shows 25 seniors.','Senior-only sites make this count meaningful for reassignment conversations.','A senior-heavy week can create both flexibility and complexity.'],note:'This is demo content, but it mirrors the kind of operational rollup Ryan would likely care about.'},
+        '4|students-junior':{tone:'#0E7490',title:'Junior student count',summary:'Junior students often face tighter eligibility constraints, which makes their count relevant to readiness and reassignment options.',bullets:['The example shows 17 junior students in the wider program week.','Junior placements are more sensitive to level rules at clinical sites.','This can be a hidden source of friction if not visible in the command center.'],note:'The number is illustrative but the operational logic is real.'},
+        '4|students-demo':{tone:'#64748B',title:'Demo student records',summary:'These are the actual clickable student records represented in the prototype. They exist to show how a person-level drilldown could work without needing a full production dataset.',bullets:['Five demo-safe student records are included.','Each record can summarize assignments, potential flags, and time-off balances.','Clicking a student opens a deeper record layer.'],note:'This is the prototype subset, not the full population.'},
+
+        '5|sites-ready':{tone:'#14B8A6',title:'Ready clinical sites',summary:'A ready site has no open reasons hanging on its currently visible assignments. This is the portion of the network Ryan can feel best about.',bullets:['These sites are effectively clear in the current review context.','Ready does not mean the site is permanently risk-free; it means nothing is currently unresolved.','The count helps Ryan gauge how much of the network is stable this week.'],note:'This creates a site-based readiness lens alongside the assignment-based one.'},
+        '5|sites-review':{tone:'#DC2626',title:'Sites needing review',summary:'These sites still have one or more open reasons attached to assignments that affect them.',bullets:['A site can need review because even one visible assignment is still problematic.','This matters because site-level trust can be affected by a single bad schedule handoff.','Ryan can click through to inspect the site-specific detail.'],note:'This turns abstract readiness into a coordinator-facing perspective.'},
+        '5|sites-total':{tone:'#64748B',title:'Total sites in demo',summary:'The demo includes a set of clinical sites so readiness can be rolled up by location, coordinator, and rule context.',bullets:['Not every site has an active assignment in the current week.','The total gives structural context for the network Ryan manages.','It helps the viewer understand that site readiness is broader than the current roster snapshot.'],note:'This is a network-context number more than an action number.'},
+        '5|sites-active':{tone:'#0F766E',title:'Sites active this week',summary:'Active sites are the ones currently touched by the week’s assignments, making them the immediate focus for schedule review.',bullets:['These are the sites with direct exposure to the current schedule.','An active site can be ready or still need review.','This narrows Ryan’s attention to what matters in the current cycle.'],note:'This is the most operationally relevant site subset in a weekly review.'}
+      };
+      return m[(ST.kpi+'|'+ST.kpiDeep)] || {tone:'var(--teal)',title:'Detail',summary:'Additional detail.',bullets:['Demo content layer.'],note:'This is an additional prototype drilldown.'};
+    })();
+    html='<div class="modal-wrap"><div class="scrim" data-act="closekpideep" style="position:absolute"></div><div class="modal" style="max-width:680px">'+
+      '<button class="close" data-act="closekpideep">'+ic('x',18)+'</button>'+
+      '<div style="display:flex;align-items:center;gap:10px;color:'+dd.tone+'"><span class="cc-kpi-ic" style="background:'+dd.tone+'18;color:'+dd.tone+'">'+ic('spark',21)+'</span><span style="font-weight:700">Additional detail</span></div>'+
+      '<h1 style="font-size:22px;margin-top:12px">'+dd.title+'</h1><p style="font-size:13.5px;color:#475569;margin-top:8px">'+dd.summary+'</p>'+
+      '<div class="rowlist" style="margin-top:18px">'+dd.bullets.map(function(x){return '<div class="row"><span style="color:'+dd.tone+'">'+ic('checkc',15,dd.tone)+'</span><div class="grow" style="font-size:13px">'+x+'</div></div>';}).join('')+'</div>'+
+      '<div class="card" style="padding:16px;margin-top:18px"><div class="lbl-mini" style="margin-bottom:8px">Why this matters</div><div style="font-size:13px;color:#475569">'+dd.note+'</div></div>'+
+      '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:18px"><button class="mini" data-act="closekpideep">'+ic('back',13)+' Back</button><button class="gate-cta on" data-act="kpigoto" data-v="'+(['assignments','timeline','checks','requests','students','sites'][ST.kpi]||'dashboard')+'">Open related view '+ic('arrowr',14,'#fff')+'</button></div>'+
+    '</div></div>';
   } else if(ST.kpi!==null){
     var rws=rows(), oc=openChecks(), pr=pendingReq();
     var coverageGaps=[
@@ -1005,7 +1050,10 @@ function renderOverlay(){
         return {site:si, assignments:mine.length, reasons:reasons, status:reasons>0?'Needs Review':'Ready'};
       });
     })();
-    function statBox(val,label,sub,tone){
+    function statBox(val,label,sub,tone,key){
+      if(key){
+        return '<button class="kv kpi-drill-card" data-act="kpideep" data-key="'+key+'" style="border-color:'+tone+'22"><div class="k">'+esc(label)+'</div><div class="v" style="font-size:24px;color:'+tone+'">'+esc(String(val))+'</div>'+(sub?'<div style="font-size:12px;color:var(--muted);margin-top:3px">'+esc(sub)+'</div>':'')+'</button>';
+      }
       return '<div class="kv" style="border-color:'+tone+'22"><div class="k">'+esc(label)+'</div><div class="v" style="font-size:24px;color:'+tone+'">'+esc(String(val))+'</div>'+(sub?'<div style="font-size:12px;color:var(--muted);margin-top:3px">'+esc(sub)+'</div>':'')+'</div>';
     }
     function section(title,body,hint){
@@ -1020,10 +1068,10 @@ function renderOverlay(){
       kd.title='Open assignments'; kd.icon='calendar'; kd.tone='#1683E8'; kd.view='assignments'; kd.cta='Open assignments';
       kd.summary='All active demo assignments for the selected week, with status, issue count, and the fastest path to the record that needs attention.';
       kd.stats='<div class="grid4">'+
-        statBox(rws.length,'Active','Assignments in the schedule week',kd.tone)+
-        statBox(ready.length,'Ready','Clear to proceed', '#16A34A')+
-        statBox(needReview.length,'Need review','Assignments with open reasons', '#DC2626')+
-        statBox(oc.length,'Open reasons','Underlying readiness reasons', '#B91C1C')+
+        statBox(rws.length,'Active','Assignments in the schedule week',kd.tone,'assignments-active')+
+        statBox(ready.length,'Ready','Clear to proceed', '#16A34A','assignments-ready')+
+        statBox(needReview.length,'Need review','Assignments with open reasons', '#DC2626','assignments-review')+
+        statBox(oc.length,'Open reasons','Underlying readiness reasons', '#B91C1C','assignments-reasons')+
       '</div>';
       var priority = needReview.length ? '<div style="display:flex;flex-direction:column;gap:10px">'+needReview.map(function(x){
         var first=x.open[0];
@@ -1037,10 +1085,10 @@ function renderOverlay(){
       kd.title='Coverage gaps'; kd.icon='alert'; kd.tone='#F97316'; kd.view='timeline'; kd.cta='Review weekly coverage';
       kd.summary='Open coverage segments are presented with the likely reason and the next action that would resolve the gap with the least disruption.';
       kd.stats='<div class="grid4">'+
-        statBox(coverageGaps.length,'Open gaps','Shift segments still uncovered',kd.tone)+
-        statBox(2,'Affected sites','Sites impacted this week','#92400E')+
-        statBox(3,'Suggested fills','Potential reassignment moves','#0F6E56')+
-        statBox('PM-heavy','Pattern','Most gaps are late-week or PM','#64748B')+
+        statBox(coverageGaps.length,'Open gaps','Shift segments still uncovered',kd.tone,'coverage-open')+
+        statBox(2,'Affected sites','Sites impacted this week','#92400E','coverage-sites')+
+        statBox(3,'Suggested fills','Potential reassignment moves','#0F6E56','coverage-fills')+
+        statBox('PM-heavy','Pattern','Most gaps are late-week or PM','#64748B','coverage-pattern')+
       '</div>';
       var gapRows='<div style="display:flex;flex-direction:column;gap:10px">'+coverageGaps.map(function(g){
         return '<div class="card" style="padding:15px"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px"><div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="sev" style="color:#92400E;background:#FEF3C7;text-transform:none;letter-spacing:0">Open gap</span><span style="font-weight:600">'+esc(g.site)+'</span><span class="mono" style="font-size:11px;color:var(--muted2)">'+esc(g.when)+'</span></div><div style="font-size:13px;color:#475569;margin-top:6px">'+esc(g.detail)+'</div><div class="reason-label">'+ic('alert',11,'#B91C1C')+' Why it matters</div><p class="desc attention-note" style="margin:5px 0 0">'+esc(g.reason)+'</p><p class="act" style="margin:6px 0 0">'+ic('arrowr',13,'var(--teal)')+' '+esc(g.action)+'</p></div><button class="mini" data-act="kpigoto" data-v="timeline">Open coverage view</button></div></div>';
@@ -1057,10 +1105,10 @@ function renderOverlay(){
       var affectedAssignments=(function(){var m={};oc.forEach(function(c){m[c.assignmentId]=1;});return Object.keys(m).length;})();
       var byType={}; oc.forEach(function(c){byType[c.type]=(byType[c.type]||0)+1;});
       kd.stats='<div class="grid4">'+
-        statBox(oc.length,'Open reasons','Total readiness reasons',kd.tone)+
-        statBox(highCount,'High severity','Require immediate review','#B91C1C')+
-        statBox(affectedAssignments,'Assignments hit','Assignments affected','#92400E')+
-        statBox(Object.keys(byType).length,'Issue types','Distinct rule categories','#64748B')+
+        statBox(oc.length,'Open reasons','Total readiness reasons',kd.tone,'issues-open')+
+        statBox(highCount,'High severity','Require immediate review','#B91C1C','issues-high')+
+        statBox(affectedAssignments,'Assignments hit','Assignments affected','#92400E','issues-hit')+
+        statBox(Object.keys(byType).length,'Issue types','Distinct rule categories','#64748B','issues-types')+
       '</div>';
       var typeRows='<div class="rowlist">'+Object.keys(byType).map(function(k){
         return '<div class="row"><span style="color:'+kd.tone+'">'+ic('alert',15,kd.tone)+'</span><div class="grow"><div class="nm">'+esc(k)+'</div><div class="meta">'+byType[k]+' occurrence'+(byType[k]>1?'s':'')+'</div></div></div>';
@@ -1076,10 +1124,10 @@ function renderOverlay(){
       var awaitingReview=pr.filter(function(x){return x.status==='Needs Review';}).length;
       var requested=pr.filter(function(x){return x.status==='Requested';}).length;
       kd.stats='<div class="grid4">'+
-        statBox(pr.length,'Pending','Requests still awaiting action',kd.tone)+
-        statBox(requested,'Requested','New requests in queue','#64748B')+
-        statBox(awaitingReview,'Needs review','Require a judgment call','#92400E')+
-        statBox(pr.filter(function(rq){return rws.some(function(a){return a.studentId===rq.studentId&&overlaps(a.start,a.end,rq.start,rq.end);});}).length,'Schedule impact','Would touch an active assignment','#DC2626')+
+        statBox(pr.length,'Pending','Requests still awaiting action',kd.tone,'approvals-pending')+
+        statBox(requested,'Requested','New requests in queue','#64748B','approvals-requested')+
+        statBox(awaitingReview,'Needs review','Require a judgment call','#92400E','approvals-review')+
+        statBox(pr.filter(function(rq){return rws.some(function(a){return a.studentId===rq.studentId&&overlaps(a.start,a.end,rq.start,rq.end);});}).length,'Schedule impact','Would touch an active assignment','#DC2626','approvals-impact')+
       '</div>';
       var requestRows='<div class="rowlist">'+pr.map(function(rq){
         var st=ST.data.students.filter(function(s){return s.id===rq.studentId;})[0];
@@ -1093,10 +1141,10 @@ function renderOverlay(){
       var seniors=ST.data.students.filter(function(s){return s.level==='Senior';}).length;
       var juniors=ST.data.students.filter(function(s){return s.level==='Junior';}).length;
       kd.stats='<div class="grid4">'+
-        statBox(42,'Program total','Junior + senior students this week',kd.tone)+
-        statBox(25,'Senior','Program-level count','#0F766E')+
-        statBox(17,'Junior','Program-level count','#0E7490')+
-        statBox(ST.data.students.length,'Demo records','Clickable in this prototype','#64748B')+
+        statBox(42,'Program total','Junior + senior students this week',kd.tone,'students-total')+
+        statBox(25,'Senior','Program-level count','#0F766E','students-senior')+
+        statBox(17,'Junior','Program-level count','#0E7490','students-junior')+
+        statBox(ST.data.students.length,'Demo records','Clickable in this prototype','#64748B','students-demo')+
       '</div>';
       var studentRows='<div class="rowlist">'+ST.data.students.map(function(st){
         var mine=rws.filter(function(x){return x.studentId===st.id;});
@@ -1110,10 +1158,10 @@ function renderOverlay(){
       var readySites=siteInfo.filter(function(s){return s.status==='Ready';}).length;
       var reviewSites=siteInfo.filter(function(s){return s.status==='Needs Review';}).length;
       kd.stats='<div class="grid4">'+
-        statBox(readySites,'Ready','Sites currently clear',kd.tone)+
-        statBox(reviewSites,'Need review','Sites with open reasons','#DC2626')+
-        statBox(siteInfo.length,'Total sites','Included in this demo','#64748B')+
-        statBox(siteInfo.filter(function(s){return s.assignments>0;}).length,'Active this week','Sites with current assignments','#0F766E')+
+        statBox(readySites,'Ready','Sites currently clear',kd.tone,'sites-ready')+
+        statBox(reviewSites,'Need review','Sites with open reasons','#DC2626','sites-review')+
+        statBox(siteInfo.length,'Total sites','Included in this demo','#64748B','sites-total')+
+        statBox(siteInfo.filter(function(s){return s.assignments>0;}).length,'Active this week','Sites with current assignments','#0F766E','sites-active')+
       '</div>';
       var siteRows='<div class="rowlist">'+siteInfo.map(function(s){
         return '<button class="row clk" data-act="sitefromkpi" data-id="'+s.site.id+'"><span style="display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:'+(s.status==='Ready'?'#ECFDF3':'#FEF2F2')+';color:'+(s.status==='Ready'?'#10B981':'#DC2626')+'">'+ic('building',16,(s.status==='Ready'?'#10B981':'#DC2626'))+'</span><div class="grow"><div class="nm">'+esc(s.site.name)+'</div><div class="meta">Coordinator '+esc(s.site.coordinator)+' <span style="color:#cbd5d2">·</span> '+s.assignments+' assignment'+(s.assignments!==1?'s':'')+'</div></div>'+(s.status==='Ready'?'<span class="badge-st sm" style="color:#15803D;background:#DCFCE7">Ready</span>':'<span class="badge-st sm" style="color:#92400E;background:#FEF3C7">'+s.reasons+' reason'+(s.reasons>1?'s':'')+'</span>')+ic('chevr',16,'#cbd5d2')+'</button>';
@@ -1211,13 +1259,15 @@ document.addEventListener('click',function(e){
   else if(act==='closedrawer'){ST.openId=null;renderOverlay();}
   else if(act==='closestudent'){ST.openStudentId=null;renderOverlay();}
   else if(act==='about'){ST.about=true;renderOverlay();}
-  else if(act==='kpi'){ST.kpi=parseInt(t.getAttribute('data-k'),10);renderOverlay();}
-  else if(act==='closekpi'){ST.kpi=null;renderOverlay();}
-  else if(act==='kpigoto'){ST.kpi=null;ST.view=t.getAttribute('data-v');render();}
+  else if(act==='kpi'){ST.kpi=parseInt(t.getAttribute('data-k'),10);ST.kpiDeep=null;renderOverlay();}
+  else if(act==='kpideep'){ST.kpiDeep=t.getAttribute('data-key');renderOverlay();}
+  else if(act==='closekpideep'){ST.kpiDeep=null;renderOverlay();}
+  else if(act==='closekpi'){ST.kpiDeep=null;ST.kpi=null;renderOverlay();}
+  else if(act==='kpigoto'){ST.kpiDeep=null;ST.kpi=null;ST.view=t.getAttribute('data-v');render();}
   else if(act==='closeabout'){ST.about=false;renderOverlay();}
   else if(act==='filter'){ST.filter=t.getAttribute('data-f');render();}
   else if(act==='tlby'){ST.tlBy=t.getAttribute('data-by');render();}
-  else if(act==='role'){ST.role=t.getAttribute('data-r');ST.openId=null;ST.openStudentId=null;ST.about=false;ST.siteFocus=null;ST.view='dashboard';render();}
+  else if(act==='role'){ST.role=t.getAttribute('data-r');ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiDeep=null;ST.about=false;ST.siteFocus=null;ST.view='dashboard';render();}
   else if(act==='reqoff'){
     var ty=document.getElementById('tof-type').value, sd=document.getElementById('tof-start').value, ed=document.getElementById('tof-end').value||sd;
     if(!sd){toast('Pick a start date.');return;}
@@ -1236,7 +1286,7 @@ document.addEventListener('click',function(e){
     toast(s==='Approved'?'Request approved \u2014 re-checking the schedule.':'Request marked '+s.toLowerCase()+'.');
     render();
   }
-  else if(act==='reset'){ST.data=seed();ST.view='dashboard';ST.openId=null;ST.openStudentId=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.tlBy='student';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';toast('Demo reset to starting data.');render();}
+  else if(act==='reset'){ST.data=seed();ST.view='dashboard';ST.openId=null;ST.openStudentId=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.tlBy='student';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';toast('Demo reset to starting data.');render();}
 });
 document.addEventListener('change',function(e){
   var t=e.target.closest('[data-act="reassign"]');
@@ -1250,7 +1300,7 @@ document.addEventListener('change',function(e){
   var ps=e.target.closest('[data-act="pickstudent"]'); if(ps){ST.asStudent=ps.value;render();return;}
   var ph=e.target.closest('[data-act="pickhospital"]'); if(ph){ST.asHospital=ph.value;render();return;}
 });
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(ST.openId){ST.openId=null;renderOverlay();}else if(ST.openStudentId){ST.openStudentId=null;renderOverlay();}else if(ST.about){ST.about=false;renderOverlay();}}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(ST.openId){ST.openId=null;renderOverlay();}else if(ST.openStudentId){ST.openStudentId=null;renderOverlay();}else if(ST.kpiDeep){ST.kpiDeep=null;renderOverlay();}else if(ST.kpi!==null){ST.kpi=null;renderOverlay();}else if(ST.about){ST.about=false;renderOverlay();}}});
 
 render();
 </script>
