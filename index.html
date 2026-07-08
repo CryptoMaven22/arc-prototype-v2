@@ -227,6 +227,8 @@
   .shell{min-height:calc(100vh - 56px);}
   .rail{position:sticky;top:56px;height:calc(100vh - 56px);min-height:0;}
   .cc{display:flex;flex-direction:column;gap:12px;min-width:0;}
+  .cc-focus{border:3px solid #DC2626;border-radius:16px;padding:14px;background:linear-gradient(180deg,#FFFDFD 0%,#FFFFFF 100%);box-shadow:0 0 0 4px rgba(220,38,38,.055),0 10px 30px rgba(127,29,29,.10);display:flex;flex-direction:column;gap:12px;}
+  .cc-focus:hover{box-shadow:0 0 0 5px rgba(220,38,38,.07),0 14px 34px rgba(127,29,29,.13);}
   .cc-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;}
   .cc-title h1{font-size:20px;}
   .cc-title p{margin:2px 0 0;color:var(--muted);font-size:12px;}
@@ -590,8 +592,10 @@ function viewDashboard(){
   var people=['Emily Parker','Marcus Hill','Sarah Collins','Daniel Brooks','Priya Shah'];
   var peopleHtml=people.map(function(n,i){var st=i===2?'Needs review':i===3?'Reassign':'Ready';var col=i===2?'#D97706':i===3?'#DC2626':'#16A34A';return '<button class="cc-person" data-act="open" data-id="a'+(i+1)+'">'+avatar(n,28)+'<span class="grow"><b>'+n+'</b><small>'+(i<3?'Senior':'Junior')+' · '+['General','OB','Peds','OB','General'][i]+'</small></span><span class="cc-status" style="color:'+col+'">'+st+'</span></button>';}).join('');
   return '<div class="cc">'+
-    '<div class="cc-toolbar"><div class="cc-title"><h1>Schedule command center</h1><p>Weekly readiness, coverage, approvals, and next actions in one operational view.</p></div><div class="cc-tools"><button class="tbtn">'+ic('back',14)+' Jul 6–12, 2026</button><button class="tbtn">Today</button><button class="tbtn">All sites '+ic('chevr',13)+'</button></div></div>'+
-    '<div class="cc-kpis">'+kpiHtml+'</div>'+
+    '<div class="cc-focus">'+
+      '<div class="cc-toolbar"><div class="cc-title"><h1>Schedule command center</h1><p>Weekly readiness, coverage, approvals, and next actions in one operational view.</p></div><div class="cc-tools"><button class="tbtn">'+ic('back',14)+' Jul 6–12, 2026</button><button class="tbtn">Today</button><button class="tbtn">All sites '+ic('chevr',13)+'</button></div></div>'+
+      '<div class="cc-kpis">'+kpiHtml+'</div>'+
+    '</div>'+
     '<div class="cc-grid"><div class="cc-left">'+
       '<div class="cc-panel"><div class="cc-panel-head"><div class="cc-panel-title">'+ic('calendar',15,'#1683E8')+' Schedule & coverage</div><div class="cc-panel-tools"><div class="seg"><button class="on">Week</button><button>Day</button></div><div class="cc-legend"><span><i class="cc-swatch" style="background:#86EFAC"></i>Assigned</span><span><i class="cc-swatch" style="background:#FCA5A5"></i>Gap / conflict</span><span><i class="cc-swatch" style="background:#C4B5FD"></i>PTO</span><span><i class="cc-swatch" style="background:#FDBA74"></i>On call</span></div></div></div><div class="week-wrap"><div class="week-grid">'+header+cells+'</div></div></div>'+
       '<div class="cc-bottom">'+
