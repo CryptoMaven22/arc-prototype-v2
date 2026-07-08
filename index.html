@@ -570,7 +570,7 @@ function bankFor(studentId){
 function badgeSt(s,sm){var c=STATUS[s]||STATUS['Not Checked'];return '<span class="badge-st'+(sm?' sm':'')+'" style="color:'+c.text+';background:'+c.bg+'"><span class="dot" style="background:'+c.dot+'"></span>'+s+'</span>';}
 function sevBadge(s){var c=SEV[s]||SEV.Low;return '<span class="sev" style="color:'+c.text+';background:'+c.bg+'">'+s+'</span>';}
 
-var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,tlBy:'student',role:'leader',asStudent:'s5',asHospital:'site4'};
+var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,calendarCell:null,tlBy:'student',role:'leader',asStudent:'s5',asHospital:'site4'};
 
 function openChecks(){var all=generateChecks(ST.data),rv=ST.reviewed;return all.filter(function(c){return rv.indexOf(c.key)<0;});}
 function checksFor(id){return openChecks().filter(function(c){return c.assignmentId===id;});}
@@ -661,7 +661,8 @@ function viewCalendar2(){
       if((r===2&&(j===1||j===7))||(r===1&&j===9)){type='conflict';text='Open';}
       if(r===4&&(j===5||j===11)){type='pto';text='PTO';}
       if(r===6&&(j%3===1)){type='oncall';text='Dr. Carter';}
-      cells+='<div class="wg-cell"><button class="shift '+type+'" data-act="'+(type==='conflict'?'home':'open')+'" '+(type==='conflict'?'':'data-id="a'+((r%5)+1)+'"')+'>'+text+'</button></div>';
+      var dayLabel=days[Math.floor(j/2)]+' '+(j%2===0?'AM':'PM');
+      cells+='<div class="wg-cell"><button class="shift '+type+'" data-act="calendarcell" data-name="'+esc(text)+'" data-site="'+esc(si[0])+'" data-rotation="'+esc(si[1])+'" data-when="'+esc(dayLabel)+'" data-type="'+esc(type)+'">'+text+'</button></div>';
     }
   });
   return '<div class="stack"><div><h1>Calendar 2</h1><p class="sub">Weekly schedule and coverage view with assignments, open gaps, PTO, and on-call coverage.</p></div>'+
@@ -990,7 +991,21 @@ function viewHospitalFeed(){
 
 function renderOverlay(){
   var o=document.getElementById('overlay'); var html='';
-  if(ST.coverageSub){
+  if(ST.calendarCell){
+    var cc=ST.calendarCell;
+    var tone=cc.type==='conflict'?'#DC2626':(cc.type==='pto'?'#7C3AED':(cc.type==='oncall'?'#C2410C':'#15803D'));
+    var bg=cc.type==='conflict'?'#FEF2F2':(cc.type==='pto'?'#F5F3FF':(cc.type==='oncall'?'#FFF7ED':'#ECFDF3'));
+    var statusLabel=cc.type==='conflict'?'Open coverage gap':(cc.type==='pto'?'Approved PTO':(cc.type==='oncall'?'On-call coverage':'Assigned'));
+    var summary=cc.type==='conflict'?'This schedule block is open and does not currently have a named assignee.':(cc.type==='pto'?'This block is reserved for approved paid time off and is not a clinical assignment.':(cc.type==='oncall'?cc.name+' is the on-call clinician for this coverage block.':cc.name+' is assigned to '+cc.site+' for this schedule block.'));
+    html='<div class="modal-wrap"><div class="scrim" data-act="closecalendarcell" style="position:absolute"></div><div class="modal" style="max-width:650px">'+
+      '<button class="close" data-act="closecalendarcell">'+ic('x',18)+'</button>'+
+      '<div style="display:flex;align-items:center;gap:10px;color:'+tone+'"><span class="cc-kpi-ic" style="background:'+bg+';color:'+tone+'">'+ic(cc.type==='conflict'?'alert':(cc.type==='pto'?'calendar':(cc.type==='oncall'?'clock':'users')),20,tone)+'</span><span style="font-weight:700">Schedule block detail</span></div>'+
+      '<h1 style="font-size:22px;margin-top:12px">'+esc(cc.name)+'</h1><p style="font-size:13.5px;color:#475569;margin-top:8px">'+esc(summary)+'</p>'+
+      '<div class="grid2" style="margin-top:18px"><div class="kv"><div class="k">Site / row</div><div class="v" style="font-size:15px">'+esc(cc.site)+'</div></div><div class="kv"><div class="k">Rotation</div><div class="v" style="font-size:15px">'+esc(cc.rotation)+'</div></div><div class="kv"><div class="k">Schedule block</div><div class="v" style="font-size:15px">'+esc(cc.when)+'</div></div><div class="kv"><div class="k">Status</div><div class="v" style="font-size:15px;color:'+tone+'">'+esc(statusLabel)+'</div></div></div>'+
+      '<div class="card" style="padding:15px;margin-top:18px"><div class="lbl-mini">Matching content</div><div style="font-size:13px;color:#475569;margin-top:6px">This detail is generated from the exact name or status shown in the selected calendar cell, so it no longer opens an unrelated secondary contact.</div></div>'+
+      '<div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="mini" data-act="closecalendarcell">Close</button></div>'+
+    '</div></div>';
+  } else if(ST.coverageSub){
     var gapIndex=parseInt(ST.coverageView,10)||0;
     var coverageDemo=[
       {site:'Highland Park Hospital',when:'Wed PM',rotation:'OB',need:'Senior OB-eligible student',candidates:[['Priya Shah','Senior · OB eligible · 9 miles','Best fit'],['Emily Parker','Senior · General/OB · 12 miles','Available'],['Marcus Hill','Senior · OB · 14 miles','Check DNP conflict']]},
@@ -1431,12 +1446,14 @@ document.addEventListener('click',function(e){
   if(!t)return;
   var act=t.getAttribute('data-act');
   if(act==='goto'){ST.view=t.getAttribute('data-v');ST.siteFocus=null;render();}
-  else if(act==='home'){ST.role='leader';ST.view='dashboard';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.about=false;render();}
+  else if(act==='home'){ST.role='leader';ST.view='dashboard';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.calendarCell=null;ST.about=false;render();}
   else if(act==='open'){ST.openStudentId=null;ST.openId=t.getAttribute('data-id');renderOverlay();}
   else if(act==='openstudent'){ST.openId=null;ST.openStudentId=t.getAttribute('data-id');renderOverlay();}
   else if(act==='closedrawer'){ST.openId=null;renderOverlay();}
   else if(act==='closestudent'){ST.openStudentId=null;renderOverlay();}
   else if(act==='about'){ST.about=true;renderOverlay();}
+  else if(act==='calendarcell'){ST.calendarCell={name:t.getAttribute('data-name'),site:t.getAttribute('data-site'),rotation:t.getAttribute('data-rotation'),when:t.getAttribute('data-when'),type:t.getAttribute('data-type')};renderOverlay();}
+  else if(act==='closecalendarcell'){ST.calendarCell=null;renderOverlay();}
   else if(act==='coverageview'){ST.coverageView=t.getAttribute('data-gap');ST.coverageSub=false;renderOverlay();}
   else if(act==='closecoverageview'){ST.coverageView=null;ST.coverageSub=false;renderOverlay();}
   else if(act==='coveragesub'){ST.coverageSub=true;renderOverlay();}
@@ -1455,7 +1472,7 @@ document.addEventListener('click',function(e){
   else if(act==='closeabout'){ST.about=false;renderOverlay();}
   else if(act==='filter'){ST.filter=t.getAttribute('data-f');render();}
   else if(act==='tlby'){ST.tlBy=t.getAttribute('data-by');render();}
-  else if(act==='role'){ST.role=t.getAttribute('data-r');ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.about=false;ST.siteFocus=null;ST.view='dashboard';render();}
+  else if(act==='role'){ST.role=t.getAttribute('data-r');ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.calendarCell=null;ST.about=false;ST.siteFocus=null;ST.view='dashboard';render();}
   else if(act==='reqoff'){
     var ty=document.getElementById('tof-type').value, sd=document.getElementById('tof-start').value, ed=document.getElementById('tof-end').value||sd;
     if(!sd){toast('Pick a start date.');return;}
@@ -1474,7 +1491,7 @@ document.addEventListener('click',function(e){
     toast(s==='Approved'?'Request approved \u2014 re-checking the schedule.':'Request marked '+s.toLowerCase()+'.');
     render();
   }
-  else if(act==='reset'){ST.data=seed();ST.view='dashboard';ST.openId=null;ST.openStudentId=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.tlBy='student';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';toast('Demo reset to starting data.');render();}
+  else if(act==='reset'){ST.data=seed();ST.view='dashboard';ST.openId=null;ST.openStudentId=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.calendarCell=null;ST.tlBy='student';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';toast('Demo reset to starting data.');render();}
 });
 document.addEventListener('change',function(e){
   var t=e.target.closest('[data-act="reassign"]');
@@ -1488,7 +1505,7 @@ document.addEventListener('change',function(e){
   var ps=e.target.closest('[data-act="pickstudent"]'); if(ps){ST.asStudent=ps.value;render();return;}
   var ph=e.target.closest('[data-act="pickhospital"]'); if(ph){ST.asHospital=ph.value;render();return;}
 });
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(ST.openId){ST.openId=null;renderOverlay();}else if(ST.openStudentId){ST.openStudentId=null;renderOverlay();}else if(ST.aiInsight){ST.aiInsight=null;renderOverlay();}else if(ST.coverageSub){ST.coverageSub=false;renderOverlay();}else if(ST.coverageView!==null){ST.coverageView=null;renderOverlay();}else if(ST.readinessInfo){ST.readinessInfo=null;renderOverlay();}else if(ST.kpiDeep){ST.kpiDeep=null;renderOverlay();}else if(ST.kpi!==null){ST.kpi=null;renderOverlay();}else if(ST.about){ST.about=false;renderOverlay();}}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(ST.openId){ST.openId=null;renderOverlay();}else if(ST.openStudentId){ST.openStudentId=null;renderOverlay();}else if(ST.aiInsight){ST.aiInsight=null;renderOverlay();}else if(ST.calendarCell){ST.calendarCell=null;renderOverlay();}else if(ST.coverageSub){ST.coverageSub=false;renderOverlay();}else if(ST.coverageView!==null){ST.coverageView=null;renderOverlay();}else if(ST.readinessInfo){ST.readinessInfo=null;renderOverlay();}else if(ST.kpiDeep){ST.kpiDeep=null;renderOverlay();}else if(ST.kpi!==null){ST.kpi=null;renderOverlay();}else if(ST.about){ST.about=false;renderOverlay();}}});
 
 render();
 </script>
