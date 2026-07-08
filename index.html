@@ -596,7 +596,7 @@ function viewDashboard(){
       if((r===2&&(j===1||j===7))||(r===1&&j===9)){type='conflict';text='Open';}
       if(r===4&&(j===5||j===11)){type='pto';text='PTO';}
       if(r===6&&(j%3===1)){type='oncall';text='Dr. Carter';}
-      cells+='<div class="wg-cell"><button class="shift '+type+'" data-act="'+(type==='conflict'?'goto':'open')+'" '+(type==='conflict'?'data-v="checks"':'data-id="a'+((r%5)+1)+'"')+'>'+text+'</button></div>';
+      cells+='<div class="wg-cell"><button class="shift '+type+'" data-act="'+(type==='conflict'?'goto':'open')+'" '+(type==='conflict'?'data-v="dashboard"':'data-id="a'+((r%5)+1)+'"')+'>'+text+'</button></div>';
     }
   });
   var kpis=[
@@ -614,7 +614,7 @@ function viewDashboard(){
     ['Evanston Hospital — Jul 6','Approved ATO overlaps rotation','Approved time off','#F5F3FF','#7C3AED'],
     ['Glenbrook Hospital — Jul 10','Coordinator review recommended','Review needed','#EFF6FF','#2563EB']
   ];
-  var alertHtml=alerts.map(function(a,i){return '<button class="cc-alert" data-act="'+(i<3?'open':'goto')+'" '+(i<3?'data-id="a'+(i+1)+'"':'data-v="checks"')+'><span style="color:'+a[4]+'">'+ic('alert',14)+'</span><span class="grow"><b>'+a[0]+'</b><p>'+a[1]+'</p></span><span class="cc-tag" style="background:'+a[3]+';color:'+a[4]+'">'+a[2]+'</span></button>';}).join('');
+  var alertHtml=alerts.map(function(a,i){return '<button class="cc-alert" data-act="'+(i<3?'open':'goto')+'" '+(i<3?'data-id="a'+(i+1)+'"':'data-v="dashboard"')+'><span style="color:'+a[4]+'">'+ic('alert',14)+'</span><span class="grow"><b>'+a[0]+'</b><p>'+a[1]+'</p></span><span class="cc-tag" style="background:'+a[3]+';color:'+a[4]+'">'+a[2]+'</span></button>';}).join('');
   var people=['Emily Parker','Marcus Hill','Sarah Collins','Daniel Brooks','Priya Shah'];
   var peopleHtml=people.map(function(n,i){var st=i===2?'Needs review':i===3?'Reassign':'Ready';var col=i===2?'#D97706':i===3?'#DC2626':'#16A34A';return '<button class="cc-person" data-act="open" data-id="a'+(i+1)+'">'+avatar(n,28)+'<span class="grow"><b>'+n+'</b><small>'+(i<3?'Senior':'Junior')+' · '+['General','OB','Peds','OB','General'][i]+'</small></span><span class="cc-status" style="color:'+col+'">'+st+'</span></button>';}).join('');
   return '<div class="cc">'+
@@ -622,17 +622,36 @@ function viewDashboard(){
       '<div class="cc-toolbar"><div class="cc-title"><h1>Schedule command center</h1><p>Weekly readiness, coverage, approvals, and next actions in one operational view.</p></div><div class="cc-tools"><button class="tbtn">'+ic('back',14)+' Jul 6–12, 2026</button><button class="tbtn">Today</button><button class="tbtn">All sites '+ic('chevr',13)+'</button></div></div>'+
       '<div class="cc-kpis">'+kpiHtml+'</div>'+
     '</div>'+
-    '<div class="cc-grid"><div class="cc-left">'+
-      '<div class="cc-panel"><div class="cc-panel-head"><div class="cc-panel-title">'+ic('calendar',15,'#1683E8')+' Schedule & coverage</div><div class="cc-panel-tools"><div class="seg"><button class="on">Week</button><button>Day</button></div><div class="cc-legend"><span><i class="cc-swatch" style="background:#86EFAC"></i>Assigned</span><span><i class="cc-swatch" style="background:#FCA5A5"></i>Gap / conflict</span><span><i class="cc-swatch" style="background:#C4B5FD"></i>PTO</span><span><i class="cc-swatch" style="background:#FDBA74"></i>On call</span></div></div></div><div class="week-wrap"><div class="week-grid">'+header+cells+'</div></div></div>'+
-      '<div class="cc-bottom">'+
-        '<div class="cc-panel"><div class="cc-panel-head"><div class="cc-panel-title">'+ic('shield',14,'#EF4444')+' Rules & readiness</div><button class="cc-link" data-act="goto" data-v="checks">View details</button></div><div class="mini-list"><div class="mini-row">Duty-hour compliance<span class="val" style="color:#DC2626">3 issues</span></div><div class="mini-row">Rotation requirements<span class="val" style="color:#16A34A">On track</span></div><div class="mini-row">Site fit / level match<span class="val" style="color:#D97706">1 warning</span></div><div class="mini-row">Calendar conflicts<span class="val" style="color:#DC2626">1 issue</span></div></div></div>'+
-        '<div class="cc-panel"><div class="cc-panel-head"><div class="cc-panel-title">'+ic('inbox',14,'#2563EB')+' Notifications</div><button class="cc-link" data-act="goto" data-v="requests">View all</button></div><div class="mini-metrics"><div class="mini-metric"><b>24</b><small>Messages</small></div><div class="mini-metric"><b>11</b><small>Reminders</small></div><div class="mini-metric"><b>3</b><small>Escalations</small></div></div><div class="mini-list"><div class="mini-row"><span class="mono">9:15</span> Shift reminder sent</div><div class="mini-row"><span class="mono">8:02</span> PTO approval recorded</div><div class="mini-row"><span class="mono">Yesterday</span> Schedule published</div></div></div>'+
-        '<div class="cc-panel"><div class="cc-panel-head"><div class="cc-panel-title">'+ic('spark',14,'#7C3AED')+' AI insights</div><button class="cc-link" data-act="aiinsight" data-key="overview">View all</button></div><button class="ai-box ai-box-btn" data-act="aiinsight" data-key="next"><b>Suggested next action</b><div style="margin-top:3px;color:var(--muted)">Reassign Daniel to a junior-eligible site before publishing.</div></button><button class="ai-box ai-box-btn" data-act="aiinsight" data-key="risk"><b>Coverage risk</b><div style="margin-top:3px;color:var(--muted)">Moderate · two unresolved gaps this week.</div></button></div>'+
-        '<div class="cc-panel"><div class="cc-panel-head"><div class="cc-panel-title">Schedule summary</div></div><div class="donut"></div><div style="text-align:center;font-size:10px;color:var(--muted);padding-bottom:10px"><b style="font-size:18px;color:var(--ink)">82%</b><br>Fill rate</div></div>'+
-      '</div></div>'+
-      '<div class="cc-right"><div class="cc-panel"><div class="cc-panel-head"><div class="cc-panel-title">'+ic('alert',15,'#EF4444')+' Alerts & exceptions <span class="badge">'+oc.length+'</span></div><button class="cc-link" data-act="goto" data-v="checks">View all</button></div>'+alertHtml+'</div>'+
-      '<div class="cc-panel"><div class="cc-panel-head"><div class="cc-panel-title">'+ic('users',15,'#1683E8')+' People & availability</div><button class="cc-link" data-act="goto" data-v="students">View all</button></div>'+peopleHtml+'</div></div></div>'+
+    '<div style="margin-top:18px">'+viewChecks()+'</div>'+
   '</div>';
+}
+
+function viewCalendar2(){
+  var names=['A. Patel','M. Chen','J. Smith','K. Lee','D. Brown','S. Davis','T. Wilson','R. Garcia','E. Johnson','L. Martinez','P. Nguyen','Dr. Carter','Dr. Allen','Dr. Blake'];
+  var sites=[
+    ['Evanston Hospital','General OR','assigned'],
+    ['Highland Park','OB','assigned'],
+    ["Children's Rotation",'Peds','conflict'],
+    ['Glenbrook Hospital','General OR','assigned'],
+    ["Skokie Women's Center",'OB / General','pto'],
+    ['Northwestern Cardiac','Cardiac','assigned'],
+    ['On-call coverage','System','oncall']
+  ];
+  var days=['Mon 7/6','Tue 7/7','Wed 7/8','Thu 7/9','Fri 7/10','Sat 7/11','Sun 7/12'];
+  var header='<div class="wg-corner">Site / Rotation</div>'+days.map(function(d){return '<div class="wg-day" style="grid-column:span 2"><b>'+d+'</b>AM &nbsp;&nbsp; PM</div>';}).join('');
+  var cells='';
+  sites.forEach(function(si,r){
+    cells+='<div class="wg-site"><b>'+si[0]+'</b><small>'+si[1]+'</small></div>';
+    for(var j=0;j<14;j++){
+      var type='assigned', text=names[(r*2+j)%names.length];
+      if((r===2&&(j===1||j===7))||(r===1&&j===9)){type='conflict';text='Open';}
+      if(r===4&&(j===5||j===11)){type='pto';text='PTO';}
+      if(r===6&&(j%3===1)){type='oncall';text='Dr. Carter';}
+      cells+='<div class="wg-cell"><button class="shift '+type+'" data-act="'+(type==='conflict'?'home':'open')+'" '+(type==='conflict'?'':'data-id="a'+((r%5)+1)+'"')+'>'+text+'</button></div>';
+    }
+  });
+  return '<div class="stack"><div><h1>Calendar 2</h1><p class="sub">Weekly schedule and coverage view with assignments, open gaps, PTO, and on-call coverage.</p></div>'+
+    '<div class="cc-panel"><div class="cc-panel-head"><div class="cc-panel-title">'+ic('calendar',15,'#1683E8')+' Schedule & coverage</div><div class="cc-panel-tools"><div class="seg"><button class="on">Week</button><button>Day</button></div><div class="cc-legend"><span><i class="cc-swatch" style="background:#86EFAC"></i>Assigned</span><span><i class="cc-swatch" style="background:#FCA5A5"></i>Gap / conflict</span><span><i class="cc-swatch" style="background:#C4B5FD"></i>PTO</span><span><i class="cc-swatch" style="background:#FDBA74"></i>On call</span></div></div></div><div class="week-wrap"><div class="week-grid">'+header+cells+'</div></div></div></div>';
 }
 
 function viewAssignments(){
@@ -1047,7 +1066,7 @@ function renderOverlay(){
       '<h1 style="font-size:22px;margin-top:12px">'+ai.title+'</h1><p style="font-size:13.5px;color:#475569;margin-top:8px">'+ai.summary+'</p>'+
       '<div class="rowlist" style="margin-top:18px">'+ai.items.map(function(it){return '<div class="row" style="align-items:flex-start"><span style="color:'+ai.tone+';margin-top:2px">'+ic('spark',14,ai.tone)+'</span><div class="grow"><div style="font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:.05em;font-weight:700">'+it[0]+'</div><div style="font-size:13px;color:#334155;margin-top:4px;line-height:1.45">'+it[1]+'</div></div></div>';}).join('')+'</div>'+
       '<div class="card" style="padding:14px 16px;margin-top:18px;background:#FAF7FF;border-color:#DDD6FE"><div class="lbl-mini" style="color:#6D28D9;margin-bottom:5px">AI confidence</div><div style="font-size:12.5px;color:#475569">'+ai.confidence+'</div></div>'+
-      '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:18px"><button class="mini" data-act="closeai">Close</button><button class="gate-cta on" data-act="aigoto" data-v="checks">Review readiness checks '+ic('arrowr',14,'#fff')+'</button></div>'+
+      '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:18px"><button class="mini" data-act="closeai">Close</button><button class="gate-cta on" data-act="aigoto" data-v="dashboard">Review readiness checks '+ic('arrowr',14,'#fff')+'</button></div>'+
     '</div></div>';
   } else if(ST.kpiDeep!==null){
     var dd=(function(){
@@ -1291,13 +1310,13 @@ function toast(msg){
   toastTimer=setTimeout(function(){t.innerHTML='';},2600);
 }
 
-var VIEWS={dashboard:viewDashboard,assignments:viewAssignments,timeline:viewTimeline,checks:viewChecks,requests:viewRequests,calendar:viewCalendar,sites:viewSites,students:viewStudents};
+var VIEWS={dashboard:viewDashboard,assignments:viewAssignments,timeline:viewTimeline,calendar2:viewCalendar2,checks:viewChecks,requests:viewRequests,calendar:viewCalendar,sites:viewSites,students:viewStudents};
 function nav(){
   var c=counts(), oc=openChecks().length, pr=pendingReq().length;
   var items=[
     ['dashboard','Monday review','shield',null],
-    ['checks','Readiness checks','alert',oc||null],
     ['timeline','Calendar','calendar',null],
+    ['calendar2','Calendar 2','calendar',null],
     ['requests','Time-off requests','inbox',pr||null],
     ['sites','Clinical sites','building',null],
     ['students','Students','users',null]
