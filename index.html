@@ -992,20 +992,142 @@ function renderOverlay(){
         '</div></aside>';
     }
   } else if(ST.kpi!==null){
-    var kd=[
-      {title:'Open assignments',icon:'calendar',tone:'#1683E8',summary:'Five assignments are active in the selected week. Two require operator action before the schedule is ready to publish.',items:['Daniel Brooks — reassign from a senior-only site','Sarah Collins — resolve the Jul 7 calendar overlap','Priya Shah — clear and ready for the current rotation'],view:'assignments',cta:'Open assignments'},
-      {title:'Coverage gaps',icon:'alert',tone:'#F97316',summary:'Three uncovered shift segments remain across the weekly schedule.',items:['Highland Park Hospital — Wed PM','Children’s Rotation — Tue AM','Highland Park Hospital — Fri PM'],view:'timeline',cta:'Review weekly coverage'},
-      {title:'Readiness issues',icon:'shield',tone:'#EF4444',summary:'Four readiness reasons are currently open. Each includes the underlying reason and a recommended next action.',items:['1 level mismatch','1 school-calendar conflict','2 approved time-off overlaps'],view:'checks',cta:'Review readiness issues'},
-      {title:'Pending approvals',icon:'inbox',tone:'#8B5CF6',summary:'Two time-off requests are awaiting confirmation and tracking.',items:['Priya Shah — study day, Jul 10','Daniel Brooks — professional meeting, Jul 20–21'],view:'requests',cta:'Track approvals'},
-      {title:'Students on rotation',icon:'users',tone:'#10B981',summary:'Forty-two junior and senior students are scheduled across the program this week.',items:['25 senior students','17 junior students','Five students represented in this demo view'],view:'students',cta:'View students'},
-      {title:'Sites ready',icon:'checkc',tone:'#14B8A6',summary:'Five of seven clinical sites are ready. Two still need review before schedule distribution.',items:['5 sites clear','1 site has a level mismatch','1 site has a calendar or coverage conflict'],view:'sites',cta:'View clinical sites'}
-    ][ST.kpi];
-    html='<div class="modal-wrap"><div class="scrim" data-act="closekpi" style="position:absolute"></div><div class="modal">'+
+    var rws=rows(), oc=openChecks(), pr=pendingReq();
+    var coverageGaps=[
+      {site:'Highland Park Hospital', when:'Wed PM', detail:'OB coverage gap in the afternoon block.', reason:'Senior-only placement needs eligible backfill.', action:'Review OB-eligible seniors and reassign the least disruptive fit.'},
+      {site:'Children\'s Rotation Site', when:'Tue AM', detail:'Peds shift segment is still unfilled.', reason:'No confirmed student is attached to the block.', action:'Check peds-tagged capacity or move a clear student into the slot.'},
+      {site:'Highland Park Hospital', when:'Fri PM', detail:'End-of-week coverage remains open.', reason:'The current assignment mix leaves one PM segment uncovered.', action:'Use the reassignment workflow before the schedule is shared.'}
+    ];
+    var siteInfo=(function(){
+      return ST.data.sites.map(function(si){
+        var mine=rws.filter(function(x){return x.siteId===si.id;});
+        var reasons=mine.reduce(function(n,x){return n+x.open.length;},0);
+        return {site:si, assignments:mine.length, reasons:reasons, status:reasons>0?'Needs Review':'Ready'};
+      });
+    })();
+    function statBox(val,label,sub,tone){
+      return '<div class="kv" style="border-color:'+tone+'22"><div class="k">'+esc(label)+'</div><div class="v" style="font-size:24px;color:'+tone+'">'+esc(String(val))+'</div>'+(sub?'<div style="font-size:12px;color:var(--muted);margin-top:3px">'+esc(sub)+'</div>':'')+'</div>';
+    }
+    function section(title,body,hint){
+      return '<section style="margin-top:18px">'+secHead(title,hint||'')+body+'</section>';
+    }
+
+    var kd={title:'',icon:'calendar',tone:'var(--teal)',summary:'',stats:'',body:'',view:'dashboard',cta:'Open'};
+
+    if(ST.kpi===0){
+      var needReview=rws.filter(function(x){return x.status==='Needs Review';});
+      var ready=rws.filter(function(x){return x.status==='Ready';});
+      kd.title='Open assignments'; kd.icon='calendar'; kd.tone='#1683E8'; kd.view='assignments'; kd.cta='Open assignments';
+      kd.summary='All active demo assignments for the selected week, with status, issue count, and the fastest path to the record that needs attention.';
+      kd.stats='<div class="grid4">'+
+        statBox(rws.length,'Active','Assignments in the schedule week',kd.tone)+
+        statBox(ready.length,'Ready','Clear to proceed', '#16A34A')+
+        statBox(needReview.length,'Need review','Assignments with open reasons', '#DC2626')+
+        statBox(oc.length,'Open reasons','Underlying readiness reasons', '#B91C1C')+
+      '</div>';
+      var priority = needReview.length ? '<div style="display:flex;flex-direction:column;gap:10px">'+needReview.map(function(x){
+        var first=x.open[0];
+        return '<div class="card" style="padding:14px"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px"><div><div style="font-weight:600">'+esc(x.student.name)+' <span class="mono" style="font-size:11px;color:var(--muted2)">'+x.aid+'</span></div><div style="font-size:12.5px;color:var(--muted);margin-top:3px">'+esc(x.site.name)+' · '+fmtRange(x.start,x.end)+' · '+esc(x.rotation)+'</div><p class="desc attention-note" style="margin:8px 0 0">'+esc(first.summary)+'</p><p class="act" style="margin:6px 0 0">'+ic('arrowr',13,'var(--teal)')+' '+esc(first.action)+'</p></div><button class="mini" data-act="open" data-id="'+x.id+'">Open record</button></div></div>';
+      }).join('')+'</div>' : emptyState('All assignments are clear','Nothing currently needs operator review.');
+      var assignmentRows='<div class="rowlist">'+rws.map(function(x){
+        return '<button class="row clk" data-act="open" data-id="'+x.id+'">'+avatar(x.student.name,32)+'<div class="grow"><div class="nm">'+esc(x.student.name)+' <span class="mono" style="font-size:11px;color:var(--muted2)">'+x.aid+'</span></div><div class="meta">'+ic('building',13,'var(--muted2)')+' '+esc(x.site.name)+' <span style="color:#cbd5d2">·</span> '+specPill(x.rotation)+' <span class="mono">'+fmtRange(x.start,x.end)+'</span></div></div>'+badgeSt(x.status,true)+(x.open.length?'<span class="mono" style="font-size:11px;color:var(--muted2)">'+x.open.length+' issue'+(x.open.length>1?'s':'')+'</span>':'<span class="mono" style="font-size:11px;color:#16A34A">clear</span>')+ic('chevr',16,'#cbd5d2')+'</button>';
+      }).join('')+'</div>';
+      kd.body = section('Needs attention now', priority, 'The assignments most likely to hold up schedule release.') + section('Assignment roster', assignmentRows, 'Click any assignment to open its readiness drawer.');
+    } else if(ST.kpi===1){
+      kd.title='Coverage gaps'; kd.icon='alert'; kd.tone='#F97316'; kd.view='timeline'; kd.cta='Review weekly coverage';
+      kd.summary='Open coverage segments are presented with the likely reason and the next action that would resolve the gap with the least disruption.';
+      kd.stats='<div class="grid4">'+
+        statBox(coverageGaps.length,'Open gaps','Shift segments still uncovered',kd.tone)+
+        statBox(2,'Affected sites','Sites impacted this week','#92400E')+
+        statBox(3,'Suggested fills','Potential reassignment moves','#0F6E56')+
+        statBox('PM-heavy','Pattern','Most gaps are late-week or PM','#64748B')+
+      '</div>';
+      var gapRows='<div style="display:flex;flex-direction:column;gap:10px">'+coverageGaps.map(function(g){
+        return '<div class="card" style="padding:15px"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px"><div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="sev" style="color:#92400E;background:#FEF3C7;text-transform:none;letter-spacing:0">Open gap</span><span style="font-weight:600">'+esc(g.site)+'</span><span class="mono" style="font-size:11px;color:var(--muted2)">'+esc(g.when)+'</span></div><div style="font-size:13px;color:#475569;margin-top:6px">'+esc(g.detail)+'</div><div class="reason-label">'+ic('alert',11,'#B91C1C')+' Why it matters</div><p class="desc attention-note" style="margin:5px 0 0">'+esc(g.reason)+'</p><p class="act" style="margin:6px 0 0">'+ic('arrowr',13,'var(--teal)')+' '+esc(g.action)+'</p></div><button class="mini" data-act="kpigoto" data-v="timeline">Open coverage view</button></div></div>';
+      }).join('')+'</div>';
+      var siteSummary='<div class="rowlist">'+['Highland Park Hospital','Children\'s Rotation Site'].map(function(name){
+        var count=coverageGaps.filter(function(g){return g.site===name;}).length;
+        return '<div class="row"><span style="display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:#FFF7ED;color:#F97316">'+ic('building',16,'#F97316')+'</span><div class="grow"><div class="nm">'+esc(name)+'</div><div class="meta">'+count+' open segment'+(count>1?'s':'')+' in the current view</div></div><button class="mini" data-act="kpigoto" data-v="timeline">Inspect</button></div>';
+      }).join('')+'</div>';
+      kd.body = section('Open gaps', gapRows, 'Modeled coverage gaps in the command-center week.') + section('Where the gaps are concentrated', siteSummary, 'Useful for discussing operational load by site.');
+    } else if(ST.kpi===2){
+      kd.title='Readiness issues'; kd.icon='shield'; kd.tone='#EF4444'; kd.view='checks'; kd.cta='Review readiness issues';
+      kd.summary='Every issue includes the reason it needs attention and the recommended next action so the operator can move directly from problem to decision.';
+      var highCount=oc.filter(function(c){return c.severity==='High';}).length;
+      var affectedAssignments=(function(){var m={};oc.forEach(function(c){m[c.assignmentId]=1;});return Object.keys(m).length;})();
+      var byType={}; oc.forEach(function(c){byType[c.type]=(byType[c.type]||0)+1;});
+      kd.stats='<div class="grid4">'+
+        statBox(oc.length,'Open reasons','Total readiness reasons',kd.tone)+
+        statBox(highCount,'High severity','Require immediate review','#B91C1C')+
+        statBox(affectedAssignments,'Assignments hit','Assignments affected','#92400E')+
+        statBox(Object.keys(byType).length,'Issue types','Distinct rule categories','#64748B')+
+      '</div>';
+      var typeRows='<div class="rowlist">'+Object.keys(byType).map(function(k){
+        return '<div class="row"><span style="color:'+kd.tone+'">'+ic('alert',15,kd.tone)+'</span><div class="grow"><div class="nm">'+esc(k)+'</div><div class="meta">'+byType[k]+' occurrence'+(byType[k]>1?'s':'')+'</div></div></div>';
+      }).join('')+'</div>';
+      var issueCards='<div style="display:flex;flex-direction:column;gap:10px">'+oc.map(function(ch){
+        var row=rws.filter(function(x){return x.id===ch.assignmentId;})[0];
+        return '<div class="card" style="padding:15px"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px"><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+sevBadge(ch.severity)+'<span style="font-weight:600">'+esc(ch.type)+'</span><span class="mono" style="font-size:11px;color:var(--muted2)">'+esc(row.aid)+'</span></div><div style="font-size:12.5px;color:var(--muted);margin-top:4px">'+esc(row.student.name)+' · '+esc(row.site.name)+' · '+fmtRange(row.start,row.end)+'</div><div class="reason-label">'+ic('alert',11,'#B91C1C')+' Reason for attention</div><p class="desc attention-note" style="margin:5px 0 0">'+esc(ch.summary)+'</p><p class="act" style="margin:6px 0 0">'+ic('arrowr',13,'var(--teal)')+' '+esc(ch.action)+'</p></div><button class="mini" data-act="open" data-id="'+row.id+'">Open assignment</button></div></div>';
+      }).join('')+'</div>';
+      kd.body = section('Issue mix', typeRows, 'A quick read on what is driving review work.') + section('Current open issues', issueCards, 'Click through to the underlying assignment for deeper review.');
+    } else if(ST.kpi===3){
+      kd.title='Pending approvals'; kd.icon='inbox'; kd.tone='#8B5CF6'; kd.view='requests'; kd.cta='Track approvals';
+      kd.summary='A simple queue for time-off and study-day approvals, showing what is still waiting and whether it could affect the active schedule.';
+      var awaitingReview=pr.filter(function(x){return x.status==='Needs Review';}).length;
+      var requested=pr.filter(function(x){return x.status==='Requested';}).length;
+      kd.stats='<div class="grid4">'+
+        statBox(pr.length,'Pending','Requests still awaiting action',kd.tone)+
+        statBox(requested,'Requested','New requests in queue','#64748B')+
+        statBox(awaitingReview,'Needs review','Require a judgment call','#92400E')+
+        statBox(pr.filter(function(rq){return rws.some(function(a){return a.studentId===rq.studentId&&overlaps(a.start,a.end,rq.start,rq.end);});}).length,'Schedule impact','Would touch an active assignment','#DC2626')+
+      '</div>';
+      var requestRows='<div class="rowlist">'+pr.map(function(rq){
+        var st=ST.data.students.filter(function(s){return s.id===rq.studentId;})[0];
+        var impacted=rws.filter(function(a){return a.studentId===rq.studentId&&overlaps(a.start,a.end,rq.start,rq.end);});
+        return '<div class="row">'+avatar(st.name,32)+'<div class="grow"><div class="nm">'+esc(st.name)+' <span class="mono" style="font-size:11px;color:var(--muted2)">'+rq.rid+'</span></div><div class="meta">'+esc(TYPE_LABEL[rq.type]||rq.type)+' <span style="color:#cbd5d2">·</span> <span class="mono">'+(rq.start===rq.end?fmtFull(rq.start):fmtRange(rq.start,rq.end))+'</span></div>'+(impacted.length?'<div style="font-size:12px;color:#B91C1C;margin-top:4px">Touches '+impacted.length+' active assignment'+(impacted.length>1?'s':'')+'</div>':'<div style="font-size:12px;color:#15803D;margin-top:4px">No active-assignment overlap</div>')+'</div><span class="badge-st sm" style="color:'+RQS[rq.status].text+';background:'+RQS[rq.status].bg+'">'+rq.status+'</span><button class="mini" data-act="kpigoto" data-v="requests">Open tracking</button></div>';
+      }).join('')+'</div>';
+      kd.body = section('Approval queue', requestRows, 'What is still waiting to be recorded or confirmed.');
+    } else if(ST.kpi===4){
+      kd.title='Students on rotation'; kd.icon='users'; kd.tone='#10B981'; kd.view='students'; kd.cta='View students';
+      kd.summary='Program-level headline counts stay visible, while the demo roster below lets Ryan click into representative student records and see how assignments and flags roll up to the person level.';
+      var seniors=ST.data.students.filter(function(s){return s.level==='Senior';}).length;
+      var juniors=ST.data.students.filter(function(s){return s.level==='Junior';}).length;
+      kd.stats='<div class="grid4">'+
+        statBox(42,'Program total','Junior + senior students this week',kd.tone)+
+        statBox(25,'Senior','Program-level count','#0F766E')+
+        statBox(17,'Junior','Program-level count','#0E7490')+
+        statBox(ST.data.students.length,'Demo records','Clickable in this prototype','#64748B')+
+      '</div>';
+      var studentRows='<div class="rowlist">'+ST.data.students.map(function(st){
+        var mine=rws.filter(function(x){return x.studentId===st.id;});
+        var issues=mine.reduce(function(n,x){return n+x.open.length;},0);
+        return '<button class="row clk" data-act="openstudent" data-id="'+st.id+'">'+avatar(st.name,32)+'<div class="grow"><div class="nm">'+esc(st.name)+'</div><div class="meta">'+esc(st.cohort)+' <span style="color:#cbd5d2">·</span> '+esc(st.level)+' <span style="color:#cbd5d2">·</span> '+esc(st.region)+'</div></div><span class="mono" style="font-size:11px;color:var(--muted2)">'+mine.length+' assignment'+(mine.length!==1?'s':'')+'</span>'+(issues?'<span class="badge-st sm" style="color:#92400E;background:#FEF3C7">'+issues+' issue'+(issues>1?'s':'')+'</span>':'<span class="badge-st sm" style="color:#15803D;background:#DCFCE7">Clear</span>')+ic('chevr',16,'#cbd5d2')+'</button>';
+      }).join('')+'</div>';
+      kd.body = section('Demo roster', studentRows, 'Click a student to open the second layer of student detail.');
+    } else if(ST.kpi===5){
+      kd.title='Sites ready'; kd.icon='checkc'; kd.tone='#14B8A6'; kd.view='sites'; kd.cta='View clinical sites';
+      kd.summary='A readiness rollup by clinical site, combining whether each site currently has assignments and whether any of those assignments still carry open reasons.';
+      var readySites=siteInfo.filter(function(s){return s.status==='Ready';}).length;
+      var reviewSites=siteInfo.filter(function(s){return s.status==='Needs Review';}).length;
+      kd.stats='<div class="grid4">'+
+        statBox(readySites,'Ready','Sites currently clear',kd.tone)+
+        statBox(reviewSites,'Need review','Sites with open reasons','#DC2626')+
+        statBox(siteInfo.length,'Total sites','Included in this demo','#64748B')+
+        statBox(siteInfo.filter(function(s){return s.assignments>0;}).length,'Active this week','Sites with current assignments','#0F766E')+
+      '</div>';
+      var siteRows='<div class="rowlist">'+siteInfo.map(function(s){
+        return '<button class="row clk" data-act="sitefromkpi" data-id="'+s.site.id+'"><span style="display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:'+(s.status==='Ready'?'#ECFDF3':'#FEF2F2')+';color:'+(s.status==='Ready'?'#10B981':'#DC2626')+'">'+ic('building',16,(s.status==='Ready'?'#10B981':'#DC2626'))+'</span><div class="grow"><div class="nm">'+esc(s.site.name)+'</div><div class="meta">Coordinator '+esc(s.site.coordinator)+' <span style="color:#cbd5d2">·</span> '+s.assignments+' assignment'+(s.assignments!==1?'s':'')+'</div></div>'+(s.status==='Ready'?'<span class="badge-st sm" style="color:#15803D;background:#DCFCE7">Ready</span>':'<span class="badge-st sm" style="color:#92400E;background:#FEF3C7">'+s.reasons+' reason'+(s.reasons>1?'s':'')+'</span>')+ic('chevr',16,'#cbd5d2')+'</button>';
+      }).join('')+'</div>';
+      kd.body = section('Site readiness', siteRows, 'Click a site to jump into the detailed site view.');
+    }
+
+    html='<div class="modal-wrap"><div class="scrim" data-act="closekpi" style="position:absolute"></div><div class="modal" style="max-width:760px">'+
       '<button class="close" data-act="closekpi">'+ic('x',18)+'</button>'+
       '<div style="display:flex;align-items:center;gap:10px;color:'+kd.tone+'"><span class="cc-kpi-ic" style="background:'+kd.tone+'18;color:'+kd.tone+'">'+ic(kd.icon,21)+'</span><span style="font-weight:700">Command-center detail</span></div>'+
       '<h1 style="font-size:22px;margin-top:12px">'+kd.title+'</h1><p style="font-size:13.5px;color:#475569;margin-top:8px">'+kd.summary+'</p>'+
-      '<div class="rowlist" style="margin-top:18px">'+kd.items.map(function(x){return '<div class="row"><span style="color:'+kd.tone+'">'+ic('checkc',15)+'</span><div class="grow" style="font-size:13px">'+x+'</div></div>';}).join('')+'</div>'+
-      '<button class="gate-cta on" data-act="kpigoto" data-v="'+kd.view+'" style="margin-top:18px">'+kd.cta+' '+ic('arrowr',14,'#fff')+'</button>'+
+      '<div style="margin-top:18px">'+kd.stats+'</div>'+
+      kd.body+
+      '<div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="gate-cta on" data-act="kpigoto" data-v="'+kd.view+'">'+kd.cta+' '+ic('arrowr',14,'#fff')+'</button></div>'+
     '</div></div>';
   } else if(ST.about){
     var inScope=['Track students, sites & assignments','Time-off requests + day-off banks','School calendar blocks','Distance & specialty (OB/PED/CV/REG) tags','Six readiness checks','Manager & site-specific views'];
