@@ -1675,9 +1675,9 @@ function viewProductThesis(){
    ------------------------------------------------------------------ */
 function viewOperatorModel(){
   return '<div class="foundation-page">'+
-    '<div><span class="placement-note">'+ic('layers',13)+' Operating architecture · belongs between thesis and workspaces</span></div>'+
+    
     '<article class="operator-page-card">'+
-      '<header class="operator-page-head"><div><div class="eyebrow">How Arc operates</div><h1>Arc Operator and Decision Flow</h1><p>Octavia, Arc’s orchestrator, coordinates the complete scheduling-intelligence loop above Roxanne, Clara, Gloria, and Nadia.</p></div><div class="operator-principle">AI interprets. Rules verify. Humans decide. Arc reconciles.</div></header>'+
+      '<header class="operator-page-head"><div><div class="eyebrow">How Arc operates</div><h1>Arc Operator and Decision Flow</h1><p>Octavia, Arc’s orchestrator, coordinates the complete scheduling-intelligence loop above Roxanne, Clara, Gloria, and Nadia.</p></div></header>'+
       '<div class="operator-image-wrap"><button class="operator-image-button" data-act="openoperatormodel" aria-label="Open the complete Arc Operator and Decision Flow full screen"><img src="'+OPERATOR_MODEL_IMAGE+'" alt="Arc Operator and Decision Flow showing Octavia the Orchestrator above Roxanne Review, Clara Clarify, Gloria Guard, and Nadia Next Action"></button><p class="operator-zoom-note">Scaled to fit the page preview. Click the graphic to enlarge the full-resolution operator and decision flow.</p></div>'+
       '<div class="operator-reading-order"><div class="operator-role orchestrator"><b>Octavia · Orchestrator</b><span>Coordinates intent, routing, reasoning, outputs, and reconciliation across the full loop.</span></div><div class="operator-role"><b>Roxanne · Review</b><span>Assembles trusted scheduling context.</span></div><div class="operator-role"><b>Clara · Clarify</b><span>Structures changes and resolves missing detail.</span></div><div class="operator-role"><b>Gloria · Guard</b><span>Tests readiness, constraints, and policy risk.</span></div><div class="operator-role"><b>Nadia · Next Action</b><span>Recommends decisions and verifies closure.</span></div></div>'+
     '</article>'+
@@ -1688,8 +1688,7 @@ var VIEWS={thesis:viewProductThesis,operators:viewOperatorModel,dashboard:viewDa
 function nav(){
   var c=counts(), oc=openChecks().length, pr=pendingReq().length;
   var foundation=[
-    ['thesis','Product thesis','info',null],
-    ['operators','Operator model','layers',null]
+    ['thesis','Product thesis','info',null]
   ];
   var operations=[
     ['dashboard','Daily Review','shield',null],
@@ -1698,7 +1697,8 @@ function nav(){
     ['calendar2','Coverage map','calendar',null],
     ['requests','Time-off requests','inbox',pr||null],
     ['sites','Clinical sites','building',null],
-    ['students','Students','users',null]
+    ['students','Students','users',null],
+    ['operators','Operator model','layers',null]
   ];
   function navItems(items){return items.map(function(it){
     var active=ST.view===it[0];
