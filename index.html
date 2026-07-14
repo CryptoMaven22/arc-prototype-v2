@@ -526,6 +526,9 @@
   @media(max-width:1050px){.assignment-row{grid-template-columns:minmax(240px,1fr) minmax(220px,1fr)}.assignment-side{grid-column:1/-1;justify-content:flex-start;padding-left:45px}.assignment-meta{text-align:left}}
   @media(max-width:720px){.assignment-row{display:flex;flex-direction:column;align-items:stretch;gap:10px}.assignment-side{padding-left:0;justify-content:flex-start;flex-wrap:wrap}.assignment-issue,.assignment-action{white-space:normal}.week-head{align-items:flex-start;flex-direction:column;gap:3px}}
 
+  /* Clinical sites — restrained capacity enhancement */
+  .site-summary{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.site-summary .pill{padding:6px 10px;border-radius:999px;background:#fff;border:1px solid var(--hair);font-size:11.5px}.site-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.site-filter{border:1px solid var(--hair);background:#fff;color:var(--muted);border-radius:999px;padding:7px 12px;font-size:12px;font-weight:600}.site-filter.on{background:var(--ink);border-color:var(--ink);color:#fff}.site-util{margin-top:11px}.site-util-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11.5px;color:var(--muted)}.site-util-head b{color:#334155;font-weight:600}.site-bar{height:5px;background:#EEF2F1;border-radius:999px;overflow:hidden;margin-top:6px}.site-bar span{display:block;height:100%;border-radius:999px;background:var(--teal)}.site-bar.warn span{background:#F59E0B}.site-bar.full span{background:#DC2626}.site-state{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:10.5px;font-weight:700}.site-state.available{background:#DCFCE7;color:#15803D}.site-state.near{background:#FEF3C7;color:#92400E}.site-state.full{background:#FEE2E2;color:#B91C1C}.site-state.restricted{background:#EEF2FF;color:#4338CA}
+
 </style>
 </head>
 <body>
@@ -691,7 +694,7 @@ function bankFor(studentId){
 function badgeSt(s,sm){var c=STATUS[s]||STATUS['Not Checked'];return '<span class="badge-st'+(sm?' sm':'')+'" style="color:'+c.text+';background:'+c.bg+'"><span class="dot" style="background:'+c.dot+'"></span>'+s+'</span>';}
 function sevBadge(s){var c=SEV[s]||SEV.Low;return '<span class="sev" style="color:'+c.text+';background:'+c.bg+'">'+s+'</span>';}
 
-var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',role:'leader',asStudent:'s5',asHospital:'site4'};
+var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4'};
 
 function openChecks(){var all=generateChecks(ST.data),rv=ST.reviewed;return all.filter(function(c){return rv.indexOf(c.key)<0;});}
 function checksFor(id){return openChecks().filter(function(c){return c.assignmentId===id;});}
@@ -861,16 +864,35 @@ function viewSites(){
       '<div class="dash"><button class="mini" disabled style="opacity:.6;cursor:not-allowed">'+ic('send',14)+' Send packet to site</button><span class="note">Automated dissemination is a roadmap item, not part of this MVP. For now the manager shares the cleared view manually.</span></div>'+
     '</div>';
   }
-  var cards=ST.data.sites.map(function(si){
+  var totalSlots=ST.data.sites.reduce(function(n,si){return n+si.cap;},0);
+  var totalAssignments=r.length;
+  var siteStats=ST.data.sites.map(function(si){
     var n=r.filter(function(x){return x.siteId===si.id;}).length;
-    var pills='<span class="pill">cap '+si.cap+'/day</span>'+si.levels.map(function(l){return '<span class="pill">'+esc(l)+'</span>';}).join('')+si.specialties.map(function(s){return specPill(s);}).join('');
+    var pct=Math.min(100,Math.round((n/si.cap)*100));
+    var open=Math.max(0,si.cap-n);
+    var status=n>=si.cap?'full':(pct>=75?'near':'available');
+    var specialtyRestricted=si.specialties.length===1 || (si.levels.length===1);
+    return {site:si,n:n,pct:pct,open:open,status:status,specialtyRestricted:specialtyRestricted};
+  });
+  var nearCount=siteStats.filter(function(x){return x.status==='near'||x.status==='full';}).length;
+  var visible=siteStats.filter(function(x){
+    if(ST.siteFilter==='available')return x.open>0;
+    if(ST.siteFilter==='specialty')return x.specialtyRestricted;
+    return true;
+  });
+  var cards=visible.map(function(x){
+    var si=x.site,n=x.n;
+    var pills='<span class="pill">cap '+si.cap+'/day</span>'+si.levels.map(function(l){return '<span class="pill">'+esc(l)+'</span>';}).join('')+si.specialties.map(function(sp){return specPill(sp);}).join('');
+    var label=x.status==='full'?'Full':(x.status==='near'?'Near capacity':(x.specialtyRestricted?'Specialty restricted':'Available'));
+    var stateClass=x.status==='full'?'full':(x.status==='near'?'near':(x.specialtyRestricted?'restricted':'available'));
     return '<button class="sitecard" data-act="sitefocus" data-id="'+si.id+'">'+
       '<div style="display:flex;align-items:center;gap:8px"><span style="display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:var(--teal-soft);color:var(--teal-deep)">'+ic('building',18)+'</span>'+
-      '<div class="grow"><div style="font-weight:600;font-size:14px">'+esc(si.name)+'</div><div style="font-size:12px;color:var(--muted)">'+esc(si.city)+' \u00b7 '+si.miles+' mi \u00b7 '+esc(si.coordinator)+'</div></div>'+ic('chevr',16,'#cbd5d2')+'</div>'+
+      '<div class="grow"><div style="font-weight:600;font-size:14px">'+esc(si.name)+'</div><div style="font-size:12px;color:var(--muted)">'+esc(si.city)+' \u00b7 '+si.miles+' mi \u00b7 '+esc(si.coordinator)+'</div></div><span class="site-state '+stateClass+'">'+label+'</span>'+ic('chevr',16,'#cbd5d2')+'</div>'+
       '<div class="chips" style="margin-top:12px">'+pills+'</div>'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px"><span style="font-size:12px;color:var(--muted2)">'+n+' assignment'+(n!==1?'s':'')+' this period</span><span class="linkbtn">View details '+ic('chevr',12)+'</span></div></button>';
+      '<div class="site-util"><div class="site-util-head"><b>'+n+' of '+si.cap+' slots used</b><span>'+x.pct+'% utilized</span></div><div class="site-bar '+(x.status==='full'?'full':(x.status==='near'?'warn':''))+'"><span style="width:'+x.pct+'%"></span></div></div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px"><span style="font-size:12px;color:var(--muted2)">'+n+' active assignment'+(n!==1?'s':'')+' \u00b7 '+x.open+' open slot'+(x.open!==1?'s':'')+'</span><span class="linkbtn">View details '+ic('chevr',12)+'</span></div></button>';
   }).join('');
-  return '<div class="stack"><div><h1>Clinical sites</h1><p class="sub">Distance, capacity, allowed levels, and specialty tags drive placement and the readiness checks.</p></div><div class="grid2">'+cards+'</div></div>';
+  return '<div class="stack"><div><h1>Clinical sites</h1><p class="sub">Distance, capacity, allowed levels, and specialty tags drive placement and the readiness checks.</p><div class="site-summary"><span class="pill">'+ST.data.sites.length+' clinical sites</span><span class="pill">'+totalSlots+' total daily slots</span><span class="pill">'+totalAssignments+' active assignments</span><span class="pill">'+nearCount+' site'+(nearCount!==1?'s':'')+' near capacity</span></div><div class="site-controls"><button class="site-filter '+(ST.siteFilter==='all'?'on':'')+'" data-act="sitefilter" data-f="all">All sites</button><button class="site-filter '+(ST.siteFilter==='available'?'on':'')+'" data-act="sitefilter" data-f="available">Available capacity</button><button class="site-filter '+(ST.siteFilter==='specialty'?'on':'')+'" data-act="sitefilter" data-f="specialty">Specialty match</button></div></div><div class="grid2">'+cards+'</div></div>';
 }
 
 function viewStudents(){
@@ -1614,6 +1636,7 @@ document.addEventListener('click',function(e){
     toast('Time-off request submitted for program review.');
     render();
   }
+  else if(act==='sitefilter'){ST.siteFilter=t.getAttribute('data-f')||'all';render();}
   else if(act==='sitefocus'){var id=t.getAttribute('data-id');ST.siteFocus=id||null;render();}
   else if(act==='review'){var k=t.getAttribute('data-key');if(ST.reviewed.indexOf(k)<0)ST.reviewed.push(k);toast('Issue cleared. Readiness updated.');render();}
   else if(act==='req'){
@@ -1623,7 +1646,7 @@ document.addEventListener('click',function(e){
     toast(s==='Approved'?'Request approved \u2014 re-checking the schedule.':'Request marked '+s.toLowerCase()+'.');
     render();
   }
-  else if(act==='reset'){ST.data=seed();ST.view='dashboard';ST.openId=null;ST.openStudentId=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.tlBy='student';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';toast('Demo reset to starting data.');render();}
+  else if(act==='reset'){ST.data=seed();ST.view='dashboard';ST.openId=null;ST.openStudentId=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';toast('Demo reset to starting data.');render();}
 });
 document.addEventListener('change',function(e){
   var t=e.target.closest('[data-act="reassign"]');
