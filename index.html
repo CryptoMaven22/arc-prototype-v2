@@ -767,7 +767,7 @@ function viewCalendar2(){
       cells+='<div class="wg-cell"><button class="shift '+type+'" data-act="calendarcell" data-name="'+esc(text)+'" data-site="'+esc(si[0])+'" data-rotation="'+esc(si[1])+'" data-when="'+esc(dayLabel)+'" data-type="'+esc(type)+'">'+text+'</button></div>';
     }
   });
-  return '<div class="stack"><div><h1>Calendar Test</h1><p class="sub">Weekly schedule and coverage view with assignments, open gaps, PTO, and on-call coverage.</p></div>'+
+  return '<div class="stack"><div><h1>Schedule &amp; coverage</h1><p class="sub">Weekly schedule and coverage view with assignments, open gaps, PTO, and on-call coverage.</p></div>'+
     '<div class="cc-panel"><div class="cc-panel-head"><div class="cc-panel-title">'+ic('calendar',15,'#1683E8')+' Schedule & coverage</div><div class="cc-panel-tools"><div class="seg"><button class="on">Week</button><button>Day</button></div><div class="cc-legend"><span><i class="cc-swatch" style="background:#86EFAC"></i>Assigned</span><span><i class="cc-swatch" style="background:#FCA5A5"></i>Gap / conflict</span><span><i class="cc-swatch" style="background:#C4B5FD"></i>PTO</span><span><i class="cc-swatch" style="background:#FDBA74"></i>On call</span></div></div></div><div class="week-wrap"><div class="week-grid">'+header+cells+'</div></div></div></div>';
 }
 
@@ -1551,7 +1551,7 @@ function nav(){
     ['dashboard','Daily Review','shield',null],
     ['assignments','Assignments','layers',c.review||null],
     ['timeline','Calendar','calendar',null],
-    ['calendar2','Calendar Test','calendar',null],
+    ['calendar2','Coverage map','calendar',null],
     ['requests','Time-off requests','inbox',pr||null],
     ['sites','Clinical sites','building',null],
     ['students','Students','users',null]
