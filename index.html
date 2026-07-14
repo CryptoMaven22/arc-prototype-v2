@@ -345,6 +345,13 @@
   .tlcell.today{background:#F7FBFA;box-shadow:inset 2px 0 0 rgba(14,110,99,.24);}
   .today-tag{display:inline-flex;align-items:center;border-radius:999px;background:var(--teal-soft);color:var(--teal-deep);font-size:10px;font-weight:700;padding:2px 6px;margin-left:5px;vertical-align:middle;}
 
+  .coverage-summary{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  .coverage-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--hair);background:#fff;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:600;color:#475569;box-shadow:0 1px 2px rgba(16,35,31,.025);}
+  .coverage-chip strong{font-size:12px;color:var(--ink);}
+  .coverage-gap-label{display:inline-flex;align-items:center;justify-content:center;gap:4px;}
+  .coverage-toggle{border:1px solid var(--hair);border-radius:9px;background:#fff;padding:6px 10px;font-size:11px;font-weight:600;color:var(--muted);display:inline-flex;align-items:center;gap:6px;}
+  .coverage-toggle.on{background:#FEF2F2;color:#B91C1C;border-color:#FECACA;}
+  .coverage-toggle:hover{background:#F8FAFC;}
   @keyframes slide{from{transform:translateX(24px);opacity:0;}to{transform:translateX(0);opacity:1;}}
   @keyframes fade{from{opacity:0;}to{opacity:1;}}
   @keyframes pop{from{transform:scale(.97);opacity:.4;}to{transform:scale(1);opacity:1;}}
@@ -717,7 +724,7 @@ function bankFor(studentId){
 function badgeSt(s,sm){var c=STATUS[s]||STATUS['Not Checked'];return '<span class="badge-st'+(sm?' sm':'')+'" style="color:'+c.text+';background:'+c.bg+'"><span class="dot" style="background:'+c.dot+'"></span>'+s+'</span>';}
 function sevBadge(s){var c=SEV[s]||SEV.Low;return '<span class="sev" style="color:'+c.text+';background:'+c.bg+'">'+s+'</span>';}
 
-var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4'};
+var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4'};
 
 function openChecks(){var all=generateChecks(ST.data),rv=ST.reviewed;return all.filter(function(c){return rv.indexOf(c.key)<0;});}
 function checksFor(id){return openChecks().filter(function(c){return c.assignmentId===id;});}
@@ -783,15 +790,18 @@ function viewCalendar2(){
     cells+='<div class="wg-site"><b>'+si[0]+'</b><small>'+si[1]+'</small></div>';
     for(var j=0;j<14;j++){
       var type='assigned', text=names[(r*2+j)%names.length];
-      if((r===2&&(j===1||j===7))||(r===1&&j===9)){type='conflict';text='Open';}
+      if((r===2&&(j===1||j===7))||(r===1&&j===9)){type='conflict';text='Coverage gap';}
       if(r===4&&(j===5||j===11)){type='pto';text='PTO';}
       if(r===6&&(j%3===1)){type='oncall';text='Dr. Carter';}
       var dayLabel=days[Math.floor(j/2)]+' '+(j%2===0?'AM':'PM');
-      cells+='<div class="wg-cell"><button class="shift '+type+'" data-act="calendarcell" data-name="'+esc(text)+'" data-site="'+esc(si[0])+'" data-rotation="'+esc(si[1])+'" data-when="'+esc(dayLabel)+'" data-type="'+esc(type)+'">'+text+'</button></div>';
+      var hide=ST.coverageGapOnly&&type!=='conflict';
+      var label=type==='conflict'?'<span class="coverage-gap-label">'+ic('alert',11,'#DC2626')+' Coverage gap</span>':text;
+      cells+='<div class="wg-cell"><button class="shift '+type+'" style="'+(hide?'opacity:.12;pointer-events:none;':'')+'" data-act="calendarcell" data-name="'+esc(text)+'" data-site="'+esc(si[0])+'" data-rotation="'+esc(si[1])+'" data-when="'+esc(dayLabel)+'" data-type="'+esc(type)+'">'+label+'</button></div>';
     }
   });
-  return '<div class="stack"><div><h1>Schedule &amp; coverage</h1><p class="sub">Weekly schedule and coverage view with assignments, open gaps, PTO, and on-call coverage.</p></div>'+
-    '<div class="cc-panel"><div class="cc-panel-head"><div class="cc-panel-title">'+ic('calendar',15,'#1683E8')+' Schedule & coverage</div><div class="cc-panel-tools"><div class="seg"><button class="on">Week</button><button>Day</button></div><div class="cc-legend"><span><i class="cc-swatch" style="background:#86EFAC"></i>Assigned</span><span><i class="cc-swatch" style="background:#FCA5A5"></i>Gap / conflict</span><span><i class="cc-swatch" style="background:#C4B5FD"></i>PTO</span><span><i class="cc-swatch" style="background:#FDBA74"></i>On call</span></div></div></div><div class="week-wrap"><div class="week-grid">'+header+cells+'</div></div></div></div>';
+  var summary='<div class="coverage-summary"><span class="coverage-chip"><strong>88</strong> covered shifts</span><span class="coverage-chip" style="color:#B91C1C"><strong style="color:#B91C1C">3</strong> open gaps</span><span class="coverage-chip" style="color:#6D28D9"><strong style="color:#6D28D9">2</strong> PTO blocks</span><span class="coverage-chip" style="color:#C2410C"><strong style="color:#C2410C">5</strong> on-call shifts</span></div>';
+  return '<div class="stack"><div><h1>Schedule &amp; coverage</h1><p class="sub">Weekly schedule and coverage view with assignments, open gaps, PTO, and on-call coverage.</p>'+summary+'</div>'+ 
+    '<div class="cc-panel"><div class="cc-panel-head"><div class="cc-panel-title">'+ic('calendar',15,'#1683E8')+' Schedule & coverage</div><div class="cc-panel-tools"><button class="coverage-toggle'+(ST.coverageGapOnly?' on':'')+'" data-act="coveragetoggle">'+ic('alert',13,ST.coverageGapOnly?'#B91C1C':'#64748B')+' Show gaps only</button><div class="seg"><button class="on">Week</button><button>Day</button></div><div class="cc-legend"><span><i class="cc-swatch" style="background:#86EFAC"></i>Assigned</span><span><i class="cc-swatch" style="background:#FCA5A5"></i>Gap / conflict</span><span><i class="cc-swatch" style="background:#C4B5FD"></i>PTO</span><span><i class="cc-swatch" style="background:#FDBA74"></i>On call</span></div></div></div><div class="week-wrap"><div class="week-grid">'+header+cells+'</div></div></div></div>';
 }
 
 function viewAssignments(){
@@ -1634,7 +1644,7 @@ document.addEventListener('click',function(e){
   if(!t)return;
   var act=t.getAttribute('data-act');
   if(act==='goto'){ST.view=t.getAttribute('data-v');ST.siteFocus=null;render();}
-  else if(act==='home'){ST.role='leader';ST.view='dashboard';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;render();}
+  else if(act==='home'){ST.role='leader';ST.view='dashboard';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;render();}
   else if(act==='open'){ST.openStudentId=null;ST.openId=t.getAttribute('data-id');renderOverlay();}
   else if(act==='openstudent'){ST.openId=null;ST.openStudentId=t.getAttribute('data-id');renderOverlay();}
   else if(act==='closedrawer'){ST.openId=null;renderOverlay();}
@@ -1644,6 +1654,7 @@ document.addEventListener('click',function(e){
   else if(act==='demostage'){ST.demoStage=parseInt(t.getAttribute('data-stage'),10)||1;renderOverlay();}
   else if(act==='closedemocard'){ST.demoCard=null;ST.demoStage=1;renderOverlay();}
   else if(act==='demoaction'){toast((t.getAttribute('data-label')||'Action')+' recorded in demo.');}
+  else if(act==='coveragetoggle'){ST.coverageGapOnly=!ST.coverageGapOnly;render();}
   else if(act==='calendarcell'){ST.calendarCell={name:t.getAttribute('data-name'),site:t.getAttribute('data-site'),rotation:t.getAttribute('data-rotation'),when:t.getAttribute('data-when'),type:t.getAttribute('data-type')};renderOverlay();}
   else if(act==='closecalendarcell'){ST.calendarCell=null;renderOverlay();}
   else if(act==='coverageview'){ST.coverageView=t.getAttribute('data-gap');ST.coverageSub=false;renderOverlay();}
@@ -1664,7 +1675,7 @@ document.addEventListener('click',function(e){
   else if(act==='closeabout'){ST.about=false;renderOverlay();}
   else if(act==='filter'){ST.filter=t.getAttribute('data-f');render();}
   else if(act==='tlby'){ST.tlBy=t.getAttribute('data-by');render();}
-  else if(act==='role'){ST.role=t.getAttribute('data-r');ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.calendarCell=null;ST.about=false;ST.siteFocus=null;ST.view='dashboard';render();}
+  else if(act==='role'){ST.role=t.getAttribute('data-r');ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.about=false;ST.siteFocus=null;ST.view='dashboard';render();}
   else if(act==='reqoff'){
     var ty=document.getElementById('tof-type').value, sd=document.getElementById('tof-start').value, ed=document.getElementById('tof-end').value||sd;
     if(!sd){toast('Pick a start date.');return;}
@@ -1684,7 +1695,7 @@ document.addEventListener('click',function(e){
     toast(s==='Approved'?'Request approved \u2014 re-checking the schedule.':'Request marked '+s.toLowerCase()+'.');
     render();
   }
-  else if(act==='reset'){ST.data=seed();ST.view='dashboard';ST.openId=null;ST.openStudentId=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';toast('Demo reset to starting data.');render();}
+  else if(act==='reset'){ST.data=seed();ST.view='dashboard';ST.openId=null;ST.openStudentId=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';toast('Demo reset to starting data.');render();}
 });
 document.addEventListener('change',function(e){
   var t=e.target.closest('[data-act="reassign"]');
