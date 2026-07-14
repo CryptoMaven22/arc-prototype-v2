@@ -1688,7 +1688,8 @@ var VIEWS={thesis:viewProductThesis,operators:viewOperatorModel,dashboard:viewDa
 function nav(){
   var c=counts(), oc=openChecks().length, pr=pendingReq().length;
   var foundation=[
-    ['thesis','Product thesis','info',null]
+    ['thesis','Product thesis','info',null],
+    ['operators','Operator model','layers',null]
   ];
   var operations=[
     ['dashboard','Daily Review','shield',null],
@@ -1697,14 +1698,13 @@ function nav(){
     ['calendar2','Coverage map','calendar',null],
     ['requests','Time-off requests','inbox',pr||null],
     ['sites','Clinical sites','building',null],
-    ['students','Students','users',null],
-    ['operators','Operator model','layers',null]
+    ['students','Students','users',null]
   ];
   function navItems(items){return items.map(function(it){
     var active=ST.view===it[0];
     return '<button class="nav'+(active?' active':'')+'" data-act="goto" data-v="'+it[0]+'"><span class="nico">'+ic(it[2],17)+'</span><span class="lbl">'+it[1]+'</span>'+(it[3]?'<span class="badge">'+it[3]+'</span>':'')+'</button>';
   }).join('');}
-  return '<div class="nav-group">Product foundation</div>'+navItems(foundation)+'<div class="nav-group">Operating views</div>'+navItems(operations);
+  return '<div class="nav-group">Operating views</div>'+navItems(operations)+'<div class="nav-group">Product foundation</div>'+navItems(foundation);
 }
 function render(){
   var app=document.getElementById('app');
