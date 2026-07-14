@@ -2,6 +2,7 @@
 
 
 
+
 <!DOCTYPE html>
 <!-- saved from url=(0047)file:///Users/mwl/Downloads/download%20(3).html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -460,6 +461,38 @@
     .atlas-footer .footer-right,.atlas-footer .footer-center{text-align:center;}
   }
 
+  /* Arc OV Iteration 03 — denser operational dashboard */
+  .ops-top{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(340px,1fr);gap:16px;align-items:stretch;}
+  .ops-top .cc-focus{width:100%;max-width:none;min-width:0;align-self:stretch;border:1px solid var(--hair);box-shadow:0 4px 18px rgba(16,35,31,.055);padding:18px;}
+  .ops-top .cc-kpis{gap:12px;}
+  .ops-top .cc-kpi{min-height:92px;padding:15px;}
+  .ops-top .cc-kpi-ic{width:42px;height:42px;}
+  .ops-top .cc-kpi .num{font-size:28px;}
+  .weekly-brief{background:#fff;border:1px solid var(--hair);border-radius:16px;padding:18px;box-shadow:0 4px 18px rgba(16,35,31,.055);display:flex;flex-direction:column;gap:15px;}
+  .brief-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px solid var(--hair);}
+  .brief-title{font-size:16px;font-weight:800;} .brief-sub{font-size:11.5px;color:var(--muted);margin-top:2px;}
+  .sync-pill{font-size:10.5px;font-weight:700;color:#0F766E;background:#ECFDF5;border:1px solid #A7F3D0;padding:5px 8px;border-radius:999px;white-space:nowrap;}
+  .brief-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+  .brief-stat{border:1px solid var(--hair);background:#FAFCFB;border-radius:10px;padding:10px 11px;}
+  .brief-stat b{display:block;font-size:20px;line-height:1.1;} .brief-stat span{font-size:10.5px;color:var(--muted);}
+  .brief-block{padding-top:2px;} .brief-label{font-size:10px;text-transform:uppercase;letter-spacing:.09em;font-weight:800;color:var(--muted2);margin-bottom:6px;}
+  .brief-risk{border-left:4px solid #DC2626;background:#FFF7F7;border-radius:0 10px 10px 0;padding:10px 12px;}
+  .brief-risk b{font-size:13px;display:block;} .brief-risk span{font-size:11.5px;color:#64748B;display:block;margin-top:3px;}
+  .brief-focus{margin:0;padding-left:18px;font-size:11.5px;color:#334155;line-height:1.75;}
+  .queue-summary{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:1px solid var(--hair);background:#fff;border-radius:12px;padding:10px 13px;margin:10px 0 14px;box-shadow:0 2px 10px rgba(16,35,31,.035);}
+  .queue-summary strong{font-size:12.5px;margin-right:4px;} .queue-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:5px 8px;border-radius:999px;}
+  .demo-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 10px;margin-top:12px;padding:10px;border-radius:10px;background:#F8FAFC;border:1px solid #E8ECEF;}
+  .demo-meta-item b{display:block;font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted2);margin-bottom:2px;} .demo-meta-item span{font-size:11px;color:#334155;font-weight:600;}
+  .demo-live{margin-top:10px;font-size:11px;color:var(--muted);font-weight:600;}
+  .readiness-proof{border:1px solid var(--hair);background:#fff;border-radius:14px;padding:16px;box-shadow:0 3px 14px rgba(16,35,31,.04);}
+  .proof-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px;} .proof-head h2{font-size:16px;} .proof-head p{font-size:11.5px;color:var(--muted);margin:3px 0 0;}
+  .proof-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;} .proof-tile{border:1px solid var(--hair);border-radius:11px;padding:12px;background:#FCFEFD;display:flex;gap:10px;align-items:center;}
+  .proof-icon{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:var(--teal-soft);color:var(--teal);flex:0 0 auto;} .proof-name{font-size:11px;color:var(--muted);font-weight:600;} .proof-result{font-size:13px;font-weight:800;margin-top:2px;}
+  .ops-lower{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:14px;} .ops-panel{background:#fff;border:1px solid var(--hair);border-radius:14px;padding:15px;box-shadow:0 3px 14px rgba(16,35,31,.04);}
+  .ops-panel h2{font-size:14px;margin-bottom:3px;} .ops-panel>p{font-size:11px;color:var(--muted);margin:0 0 11px;} .ops-line{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid #EEF1F0;font-size:11px;} .ops-line:first-of-type{border-top:none;} .ops-line b{margin-left:auto;font-size:12px;}
+  @media(max-width:1100px){.ops-top{grid-template-columns:1fr}.proof-grid{grid-template-columns:repeat(2,1fr)}.ops-lower{grid-template-columns:1fr 1fr}}
+  @media(max-width:760px){.brief-stats,.proof-grid,.ops-lower{grid-template-columns:1fr}.demo-meta{grid-template-columns:1fr}.queue-summary{align-items:flex-start}.ops-top .cc-kpis{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -641,59 +674,36 @@ function pendingReq(){return ST.data.requests.filter(function(r){return r.status
 function secHead(title,hint,cnt){return '<div class="sec-head"><div class="ttl"><h2>'+esc(title)+'</h2>'+(cnt!=null?'<span class="cnt mono">'+cnt+'</span>':'')+'</div>'+(hint?'<p class="hint">'+esc(hint)+'</p>':'')+'</div>';}
 function emptyState(t,b){return '<div class="empty"><span class="ec">'+ic('checkc',22)+'</span><div style="font-weight:600;font-size:14px">'+esc(t)+'</div><div style="font-size:13px;color:var(--muted);margin-top:2px">'+esc(b)+'</div></div>';}
 function legend(){
-  var items=CHECK_TYPES.map(function(c){return '<button class="lg-item" data-act="checkinfo" data-key="'+esc(c.type)+'" aria-label="Open definition for '+esc(c.type)+'"><span class="li-ic">'+ic(c.icon,16)+'</span><div style="flex:1"><div class="li-t">'+esc(c.type)+'</div><div class="li-b">'+esc(c.blurb)+'</div><span class="li-more">View simple definition</span></div><span style="color:var(--teal);margin-left:auto;margin-top:8px">'+ic('arrowr',14,'var(--teal)')+'</span></button>';}).join('');
-  return '<div class="legend"><div class="lh">'+ic('spark',14,'var(--teal)')+' What the readiness engine checks</div><div class="legend-grid">'+items+'</div></div>';
+  var results=[
+    ['Time-Off Conflict','clock','1 detected','#DC2626'],
+    ['School Calendar Conflict','calendar','None','#16A34A'],
+    ['Level Mismatch','cap','None','#16A34A'],
+    ['Specialty Mismatch','layers','1 pending','#D97706'],
+    ['Site Capacity','building','2 nearing limit','#D97706'],
+    ['Missing Data','alert','1 request','#2563EB']
+  ];
+  var items=results.map(function(c){return '<button class="proof-tile" data-act="checkinfo" data-key="'+esc(c[0])+'"><span class="proof-icon">'+ic(c[1],16)+'</span><span><span class="proof-name">'+esc(c[0])+'</span><span class="proof-result" style="color:'+c[3]+'">'+esc(c[2])+'</span></span></button>';}).join('');
+  return '<div class="readiness-proof"><div class="proof-head"><div><h2>Readiness engine activity</h2><p>Operational proof of the checks Arc ran across this week’s schedule.</p></div><span class="sync-pill">168 checks performed</span></div><div class="proof-grid">'+items+'</div></div>';
 }
 
 function viewDashboard(){
   var c=counts(), oc=openChecks(), pr=pendingReq();
-  var names=['A. Patel','M. Chen','J. Smith','K. Lee','D. Brown','S. Davis','T. Wilson','R. Garcia','E. Johnson','L. Martinez','P. Nguyen','Dr. Carter','Dr. Allen','Dr. Blake'];
-  var sites=[
-    ['Evanston Hospital','General OR','assigned'],
-    ['Highland Park','OB','assigned'],
-    ["Children's Rotation",'Peds','conflict'],
-    ['Glenbrook Hospital','General OR','assigned'],
-    ["Skokie Women's Center",'OB / General','pto'],
-    ['Northwestern Cardiac','Cardiac','assigned'],
-    ['On-call coverage','System','oncall']
-  ];
-  var days=['Mon 7/6','Tue 7/7','Wed 7/8','Thu 7/9','Fri 7/10','Sat 7/11','Sun 7/12'];
-  var header='<div class="wg-corner">Site / Rotation</div>'+days.map(function(d){return '<div class="wg-day" style="grid-column:span 2"><b>'+d+'</b>AM &nbsp;&nbsp; PM</div>';}).join('');
-  var cells='';
-  sites.forEach(function(si,r){
-    cells+='<div class="wg-site"><b>'+si[0]+'</b><small>'+si[1]+'</small></div>';
-    for(var j=0;j<14;j++){
-      var type='assigned', text=names[(r*2+j)%names.length];
-      if((r===2&&(j===1||j===7))||(r===1&&j===9)){type='conflict';text='Open';}
-      if(r===4&&(j===5||j===11)){type='pto';text='PTO';}
-      if(r===6&&(j%3===1)){type='oncall';text='Dr. Carter';}
-      cells+='<div class="wg-cell"><button class="shift '+type+'" data-act="'+(type==='conflict'?'goto':'open')+'" '+(type==='conflict'?'data-v="dashboard"':'data-id="a'+((r%5)+1)+'"')+'>'+text+'</button></div>';
-    }
-  });
   var kpis=[
-    ['shield','#FEF2F2','#EF4444','Readiness issues',String(oc.length),'Reasons identified',2],
+    ['shield','#FEF2F2','#EF4444','Readiness issues','4','Reasons identified',2],
     ['alert','#FFF7ED','#F97316','Coverage gaps','3','1 added this week',1],
-    ['inbox','#F5F3FF','#8B5CF6','Pending approvals',String(pr.length),'Time-off tracking',3],
+    ['inbox','#F5F3FF','#8B5CF6','Pending approvals','2','Time-off tracking',3],
     ['calendar','#EAF4FF','#1683E8','Open assignments','5','2 need action',0]
   ];
-  var kpiHtml=kpis.map(function(k){return '<button class="cc-kpi" type="button" aria-label="Open '+k[3]+' detail" data-act="kpi" data-k="'+k[6]+'"><span class="cc-kpi-ic" style="background:'+k[1]+';color:'+k[2]+'">'+ic(k[0],21)+'</span><div><div class="lab">'+k[3]+'</div><div class="num">'+k[4]+'</div><div class="delta">'+k[5]+'</div></div></button>';}).join('');
-  var alerts=[
-    ['Highland Park — Jul 8','Junior placed at senior-only site','Level mismatch','#FEF2F2','#DC2626'],
-    ["Children's Rotation — Jul 7",'Class day overlaps clinical assignment','Calendar conflict','#FFF7ED','#D97706'],
-    ['Evanston Hospital — Jul 6','Approved ATO overlaps rotation','Approved time off','#F5F3FF','#7C3AED'],
-    ['Glenbrook Hospital — Jul 10','Coordinator review recommended','Review needed','#EFF6FF','#2563EB']
-  ];
-  var alertHtml=alerts.map(function(a,i){return '<button class="cc-alert" data-act="'+(i<3?'open':'goto')+'" '+(i<3?'data-id="a'+(i+1)+'"':'data-v="dashboard"')+'><span style="color:'+a[4]+'">'+ic('alert',14)+'</span><span class="grow"><b>'+a[0]+'</b><p>'+a[1]+'</p></span><span class="cc-tag" style="background:'+a[3]+';color:'+a[4]+'">'+a[2]+'</span></button>';}).join('');
-  var people=['Emily Parker','Marcus Hill','Sarah Collins','Daniel Brooks','Priya Shah'];
-  var peopleHtml=people.map(function(n,i){var st=i===2?'Needs review':i===3?'Reassign':'Ready';var col=i===2?'#D97706':i===3?'#DC2626':'#16A34A';return '<button class="cc-person" data-act="open" data-id="a'+(i+1)+'">'+avatar(n,28)+'<span class="grow"><b>'+n+'</b><small>'+(i<3?'Senior':'Junior')+' · '+['General','OB','Peds','OB','General'][i]+'</small></span><span class="cc-status" style="color:'+col+'">'+st+'</span></button>';}).join('');
-  return '<div class="cc">'+
-    '<div class="cc-focus">'+
-      '<div class="cc-toolbar"><div class="cc-title"><h1>Schedule command center</h1><p>Weekly readiness, coverage, approvals, and next actions in one operational view.</p></div><div class="cc-tools"><button class="tbtn">'+ic('back',14)+' Jul 6–12, 2026</button><button class="tbtn">Today</button><button class="tbtn">All sites '+ic('chevr',13)+'</button></div></div>'+
-      '<div class="cc-kpis">'+kpiHtml+'</div>'+
-    '</div>'+
-    '<div style="margin-top:18px">'+viewChecks()+'</div>'+
-    '<div style="margin-top:22px">'+legend()+'</div>'+
-  '</div>';
+  var kpiHtml=kpis.map(function(k){return '<button class="cc-kpi" type="button" aria-label="Open '+k[3]+' detail" data-act="kpi" data-k="'+k[6]+'"><span class="cc-kpi-ic" style="background:'+k[1]+';color:'+k[2]+'">'+ic(k[0],22)+'</span><div><div class="lab">'+k[3]+'</div><div class="num">'+k[4]+'</div><div class="delta">'+k[5]+'</div></div></button>';}).join('');
+  var brief='<aside class="weekly-brief"><div class="brief-head"><div><div class="brief-title">Weekly operating brief</div><div class="brief-sub">Jul 6–12, 2026 · All clinical sites</div></div><span class="sync-pill">Synced 8 min ago</span></div>'+
+    '<div class="brief-stats"><div class="brief-stat"><b>42</b><span>scheduled assignments</span></div><div class="brief-stat"><b>4</b><span>readiness issues</span></div><div class="brief-stat"><b>3</b><span>coverage gaps</span></div><div class="brief-stat"><b>2</b><span>approvals pending</span></div></div>'+
+    '<div class="brief-block"><div class="brief-label">Highest-risk issue</div><div class="brief-risk"><b>Jordan Lee — ICU Rotation Move</b><span>Time-off conflict</span><span>No qualified ICU preceptor confirmed</span></div></div>'+
+    '<div class="brief-block"><div class="brief-label">Recommended focus</div><ol class="brief-focus"><li>Resolve ICU coverage first</li><li>Confirm Priya Shah’s preceptor</li><li>Approve Marcus Reed by end of day</li></ol></div></aside>';
+  var lower='<div class="ops-lower">'+
+    '<section class="ops-panel"><h2>Weekly capacity</h2><p>Assignment pressure across the network.</p><div class="ops-line"><span>Evanston Hospital</span><b>8 / 10</b></div><div class="ops-line"><span>Highland Park</span><b style="color:#D97706">9 / 10</b></div><div class="ops-line"><span>Children’s Rotation</span><b style="color:#DC2626">At limit</b></div></section>'+
+    '<section class="ops-panel"><h2>System activity</h2><p>What Arc processed this week.</p><div class="ops-line"><span>Checks performed</span><b>168</b></div><div class="ops-line"><span>Conflicts detected</span><b>4</b></div><div class="ops-line"><span>Automatically cleared</span><b>37</b></div></section>'+
+    '<section class="ops-panel"><h2>Recent decisions</h2><p>Latest human-reviewed outcomes.</p><div class="ops-line"><span>Approved</span><b style="color:#16A34A">6</b></div><div class="ops-line"><span>Returned for review</span><b style="color:#D97706">2</b></div><div class="ops-line"><span>Notifications sent</span><b>11</b></div></section></div>';
+  return '<div class="cc"><div class="ops-top"><div class="cc-focus"><div class="cc-toolbar"><div class="cc-title"><h1>Schedule command center</h1><p>Weekly readiness, coverage, approvals, and next actions in one operational view.</p></div><div class="cc-tools"><button class="tbtn">'+ic('back',14)+' Jul 6–12, 2026</button><button class="tbtn">Today</button><button class="tbtn">All sites '+ic('chevr',13)+'</button></div></div><div class="cc-kpis">'+kpiHtml+'</div></div>'+brief+'</div><div style="margin-top:18px">'+viewChecks()+'</div><div style="margin-top:18px">'+legend()+'</div><div style="margin-top:18px">'+lower+'</div></div>';
 }
 
 function viewCalendar2(){
@@ -754,17 +764,12 @@ function viewAssignments(){
 
 function viewChecks(){
   var cards=[
-    {id:'blocked',tone:'#DC2626',bg:'#FEE2E2',status:'Blocked',student:'Jordan Lee',request:'ICU Rotation Move',risk:'Requested dates overlap with an approved time-off block, and no qualified ICU preceptor is available.',next:'Request two alternate date ranges before changing the assignment.',time:'Urgent — response needed today',button:'Resolve Conflict'},
-    {id:'review',tone:'#D97706',bg:'#FEF3C7',status:'Needs Review',student:'Priya Shah',request:'OB Rotation Schedule Change',risk:'Site capacity appears available, but preceptor confirmation is still pending.',next:'Confirm preceptor availability before approving the move.',time:'Review within 24 hours',button:'Review Request'},
-    {id:'ready',tone:'#16A34A',bg:'#DCFCE7',status:'Ready',student:'Marcus Reed',request:'PACU Rotation Swap',risk:'No assignment, site-capacity, preceptor, or time-off conflicts were identified.',next:'Approve the request and notify the student and preceptor.',time:'Routine — approve by end of day',button:'Approve & Notify'}
+    {id:'blocked',tone:'#DC2626',bg:'#FEE2E2',status:'Blocked',student:'Jordan Lee',request:'ICU Rotation Move',risk:'Requested dates overlap with an approved time-off block, and no qualified ICU preceptor is available.',next:'Request two alternate date ranges before changing the assignment.',time:'Urgent — response needed today',button:'Resolve Conflict',submitted:'Jul 14 · 8:12 AM',site:'Northwestern Medical',week:'Jul 20–26',reviewer:'Ryan',score:'42/100',checked:'8 min ago'},
+    {id:'review',tone:'#D97706',bg:'#FEF3C7',status:'Needs Review',student:'Priya Shah',request:'OB Rotation Schedule Change',risk:'Site capacity appears available, but preceptor confirmation is still pending.',next:'Confirm preceptor availability before approving the move.',time:'Review within 24 hours',button:'Review Request',submitted:'Jul 14 · 9:05 AM',site:'Highland Park Hospital',week:'Jul 27–Aug 2',reviewer:'Ryan',score:'76/100',checked:'11 min ago'},
+    {id:'ready',tone:'#16A34A',bg:'#DCFCE7',status:'Ready',student:'Marcus Reed',request:'PACU Rotation Swap',risk:'No assignment, site-capacity, preceptor, or time-off conflicts were identified.',next:'Approve the request and notify the student and preceptor.',time:'Routine — approve by end of day',button:'Approve & Notify',submitted:'Jul 14 · 10:21 AM',site:'Evanston Hospital',week:'Aug 3–9',reviewer:'Ryan',score:'96/100',checked:'5 min ago'}
   ];
-  var html=cards.map(function(c){return '<article class="demo-work-card" style="--tone:'+c.tone+';--tonebg:'+c.bg+'">'+
-    '<span class="demo-status">'+c.status+'</span><h3>'+esc(c.student)+' — '+esc(c.request)+'</h3>'+
-    '<div class="demo-field"><b>Risk reason</b><p>'+esc(c.risk)+'</p></div>'+
-    '<div class="demo-field"><b>Recommended next action</b><p>'+esc(c.next)+'</p></div>'+
-    '<div class="demo-time">'+esc(c.time)+'</div>'+
-    '<button class="demo-owner" data-act="democard" data-id="'+c.id+'">'+esc(c.button)+'</button></article>';}).join('');
-  return '<div class="stack"><div><h1>Schedule-change command cards</h1><p class="sub">Three realistic requests show the full operating range: blocked, needs review, and ready for approval. Open any card to move from signal to detail to action.</p></div><div class="demo-card-grid">'+html+'</div><p class="note">This is where the work happens: understand the issue, inspect the context, and take action without leaving the operating view.</p></div>';
+  var html=cards.map(function(c){return '<article class="demo-work-card" style="--tone:'+c.tone+';--tonebg:'+c.bg+'"><span class="demo-status">'+c.status+'</span><h3>'+esc(c.student)+' — '+esc(c.request)+'</h3><div class="demo-meta"><div class="demo-meta-item"><b>Submitted</b><span>'+esc(c.submitted)+'</span></div><div class="demo-meta-item"><b>Clinical site</b><span>'+esc(c.site)+'</span></div><div class="demo-meta-item"><b>Rotation week</b><span>'+esc(c.week)+'</span></div><div class="demo-meta-item"><b>Assigned reviewer</b><span>'+esc(c.reviewer)+'</span></div></div><div class="demo-live">Readiness '+esc(c.score)+' · Last checked '+esc(c.checked)+' · Assigned to '+esc(c.reviewer)+'</div><div class="demo-field"><b>Risk reason</b><p>'+esc(c.risk)+'</p></div><div class="demo-field"><b>Recommended next action</b><p>'+esc(c.next)+'</p></div><div class="demo-time">'+esc(c.time)+'</div><button class="demo-owner" data-act="democard" data-id="'+c.id+'">'+esc(c.button)+'</button></article>';}).join('');
+  return '<div class="stack"><div><h1>Attention queue</h1><p class="sub">Active schedule changes ranked by readiness, urgency, and next action.</p></div><div class="queue-summary"><strong>3 active schedule changes</strong><span class="queue-chip" style="background:#FEE2E2;color:#B91C1C">1 blocked</span><span class="queue-chip" style="background:#FEF3C7;color:#92400E">1 awaiting review</span><span class="queue-chip" style="background:#DCFCE7;color:#15803D">1 ready</span></div><div class="demo-card-grid">'+html+'</div><p class="note">Understand the issue, inspect the operational context, and take action without leaving the viewer.</p></div>';
 }
 
 function viewRequests(){
@@ -1598,4 +1603,4 @@ render();
 
 
 </body></html>
-<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_j8KerFC7fxUFpEumNcvbdtxfsZjM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_9wc6UCb5iUFkULU8WybcCj3BMUYb" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_8W9LhvrV1Ah2xvdUjGbCNu51C3nX" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_EDM8u3Dhdi9VLXz9r4TjtXWSAYtP" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
+<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_j8KerFC7fxUFpEumNcvbdtxfsZjM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_9wc6UCb5iUFkULU8WybcCj3BMUYb" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_8W9LhvrV1Ah2xvdUjGbCNu51C3nX" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_EDM8u3Dhdi9VLXz9r4TjtXWSAYtP" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_DS7HH5uu35XUEFEJmVHXr1tNH6Uy" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
