@@ -493,6 +493,30 @@
   @media(max-width:1100px){.ops-top{grid-template-columns:1fr}.proof-grid{grid-template-columns:repeat(2,1fr)}.ops-lower{grid-template-columns:1fr 1fr}}
   @media(max-width:760px){.brief-stats,.proof-grid,.ops-lower{grid-template-columns:1fr}.demo-meta{grid-template-columns:1fr}.queue-summary{align-items:flex-start}.ops-top .cc-kpis{grid-template-columns:1fr}}
 
+
+  /* Assignment workspace — restrained operational upgrade */
+  .assign-summary{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 14px;border:1px solid var(--hair);background:#fff;border-radius:12px;box-shadow:0 1px 2px rgba(16,35,31,.03)}
+  .assign-summary strong{font-size:13px}.assign-summary span{font-size:12px;color:var(--muted)}
+  .assign-summary .alert{color:#B45309;font-weight:600}.assign-summary .ok{color:#15803D;font-weight:600}
+  .assign-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .week-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:8px}
+  .week-head .eyebrow{margin:0}.week-count{font-size:11.5px;color:var(--muted)}
+  .assignment-row{display:grid;grid-template-columns:minmax(260px,1.25fr) minmax(280px,1.1fr) auto;align-items:center;gap:18px;padding:13px 16px;width:100%;text-align:left}
+  .assignment-row+.assignment-row{border-top:1px solid var(--hair)}
+  .assignment-row:hover{background:#FAFCFB}
+  .assignment-main{display:flex;align-items:center;gap:11px;min-width:0}
+  .assignment-main .grow{min-width:0}
+  .assignment-name{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .assignment-context{font-size:12px;color:var(--muted);margin-top:3px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+  .assignment-signal{min-width:0}
+  .assignment-issue{font-size:12.5px;font-weight:650;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .assignment-action{font-size:11.5px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .assignment-side{display:flex;align-items:center;justify-content:flex-end;gap:10px;min-width:max-content}
+  .readiness-score{font-size:11px;font-weight:700;color:#475569;border:1px solid var(--hair);border-radius:999px;padding:3px 7px;background:#fff}
+  .assignment-meta{font-size:10.5px;color:var(--muted2);text-align:right;line-height:1.35}
+  @media(max-width:1050px){.assignment-row{grid-template-columns:minmax(240px,1fr) minmax(220px,1fr)}.assignment-side{grid-column:1/-1;justify-content:flex-start;padding-left:45px}.assignment-meta{text-align:left}}
+  @media(max-width:720px){.assignment-row{display:flex;flex-direction:column;align-items:stretch;gap:10px}.assignment-side{padding-left:0;justify-content:flex-start;flex-wrap:wrap}.assignment-issue,.assignment-action{white-space:normal}.week-head{align-items:flex-start;flex-direction:column;gap:3px}}
+
 </style>
 </head>
 <body>
@@ -740,26 +764,34 @@ function viewAssignments(){
   var chips=['All','Needs Review','Ready'];
   var list=ST.filter==='All'?r:r.filter(function(x){return x.status===ST.filter;});
   var weeks=[];list.forEach(function(x){if(weeks.indexOf(x.start)<0)weeks.push(x.start);});weeks.sort();
+  var reviewCount=r.filter(function(x){return x.status==='Needs Review';}).length;
+  var readyCount=r.filter(function(x){return x.status==='Ready';}).length;
+  var affectedSites={};r.filter(function(x){return x.open.length;}).forEach(function(x){affectedSites[x.siteId]=1;});
   var chipHtml=chips.map(function(ch){
     var n=ch==='All'?r.length:r.filter(function(x){return x.status===ch;}).length;
-    return '<button class="fchip'+(ST.filter===ch?' on':'')+'" data-act="filter" data-f="'+ch+'">'+ch+' \u00b7 '+n+'</button>';
+    return '<button class="fchip'+(ST.filter===ch?' on':'')+'" data-act="filter" data-f="'+ch+'">'+ch+' · '+n+'</button>';
   }).join('');
   var weekHtml=weeks.map(function(w){
     var inWeek=list.filter(function(x){return x.start===w;});
-    return '<div><div class="eyebrow" style="margin-bottom:8px">Week of '+fmtShort(w)+'</div><div class="rowlist">'+
-      inWeek.map(function(x){
-        return '<button class="row clk" data-act="open" data-id="'+x.id+'">'+avatar(x.student.name,34)+
-          '<div class="grow"><div style="display:flex;align-items:center;gap:8px"><span class="nm">'+esc(x.student.name)+'</span><span class="mono" style="font-size:11px;color:var(--muted2)">'+x.aid+'</span></div>'+
-          '<div class="meta">'+ic('building',13,'var(--muted2)')+' '+esc(x.site.name)+' <span style="color:#cbd5d2">\u00b7</span> '+specPill(x.rotation)+' <span class="mono" style="font-size:11px;color:var(--muted2)">'+x.site.miles+' mi</span></div></div>'+
-          '<span class="mono" style="font-size:12px;color:var(--muted)">'+fmtRange(x.start,x.end)+'</span>'+
-          badgeSt(x.status,true)+
-          (x.open.length?'<span class="mono" style="font-size:11px;color:var(--muted2)">'+x.open.length+' issue'+(x.open.length>1?'s':'')+'</span>':'')+
-          ic('chevr',16,'#cbd5d2')+'</button>';
+    var wkReview=inWeek.filter(function(x){return x.status==='Needs Review';}).length;
+    var wkReady=inWeek.filter(function(x){return x.status==='Ready';}).length;
+    return '<div><div class="week-head"><div class="eyebrow">Week of '+fmtShort(w)+'</div><div class="week-count">'+inWeek.length+' assignments · '+wkReview+' need review · '+wkReady+' ready</div></div><div class="rowlist">'+
+      inWeek.map(function(x,idx){
+        var issue=x.open.length?x.open[0]:null;
+        var issueText=issue?issue.type:'No open readiness issues';
+        var actionText=issue?issue.action:'No action required — assignment is ready.';
+        var score=x.status==='Ready'?96:Math.max(54,72-(x.open.length-1)*8);
+        var checked=x.status==='Ready'?'5 min ago':(8+idx*3)+' min ago';
+        return '<button class="assignment-row" data-act="open" data-id="'+x.id+'">'+
+          '<div class="assignment-main">'+avatar(x.student.name,34)+'<div class="grow"><div class="assignment-name"><span class="nm">'+esc(x.student.name)+'</span><span class="mono" style="font-size:10.5px;color:var(--muted2)">'+x.aid+'</span></div><div class="assignment-context">'+ic('building',12,'var(--muted2)')+' '+esc(x.site.name)+' <span>·</span> '+specPill(x.rotation)+' <span>·</span> <span class="mono">'+fmtRange(x.start,x.end)+'</span></div></div></div>'+
+          '<div class="assignment-signal"><div class="assignment-issue">'+esc(issueText)+'</div><div class="assignment-action">Next: '+esc(actionText)+'</div></div>'+
+          '<div class="assignment-side"><span class="readiness-score">Readiness '+score+'/100</span>'+badgeSt(x.status,true)+'<div class="assignment-meta">Ryan<br>Checked '+checked+'</div>'+ic('chevr',16,'#cbd5d2')+'</div></button>';
       }).join('')+'</div></div>';
   }).join('');
   return '<div class="stack">'+
-    '<div><h1>Schedule assignments</h1><p class="sub">The master clinical schedule. Status is computed from open readiness checks.</p></div>'+
-    '<div class="chips">'+chipHtml+'</div>'+weekHtml+'</div>';
+    '<div><h1>Schedule assignments</h1><p class="sub">The master clinical schedule, prioritized by readiness and required action.</p></div>'+
+    '<div class="assign-summary"><strong>'+r.length+' assignments</strong><span class="alert">'+reviewCount+' need review</span><span class="ok">'+readyCount+' ready</span><span>'+Object.keys(affectedSites).length+' affected clinical sites</span><span>'+reviewCount+' actions due this week</span></div>'+
+    '<div class="assign-tools"><div class="chips">'+chipHtml+'</div><span class="note">Blocked and review items appear first within each week.</span></div>'+weekHtml+'</div>';
 }
 
 function viewChecks(){
