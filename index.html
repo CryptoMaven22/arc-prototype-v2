@@ -529,6 +529,29 @@
   /* Clinical sites — restrained capacity enhancement */
   .site-summary{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.site-summary .pill{padding:6px 10px;border-radius:999px;background:#fff;border:1px solid var(--hair);font-size:11.5px}.site-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.site-filter{border:1px solid var(--hair);background:#fff;color:var(--muted);border-radius:999px;padding:7px 12px;font-size:12px;font-weight:600}.site-filter.on{background:var(--ink);border-color:var(--ink);color:#fff}.site-util{margin-top:11px}.site-util-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11.5px;color:var(--muted)}.site-util-head b{color:#334155;font-weight:600}.site-bar{height:5px;background:#EEF2F1;border-radius:999px;overflow:hidden;margin-top:6px}.site-bar span{display:block;height:100%;border-radius:999px;background:var(--teal)}.site-bar.warn span{background:#F59E0B}.site-bar.full span{background:#DC2626}.site-state{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:10.5px;font-weight:700}.site-state.available{background:#DCFCE7;color:#15803D}.site-state.near{background:#FEF3C7;color:#92400E}.site-state.full{background:#FEE2E2;color:#B91C1C}.site-state.restricted{background:#EEF2FF;color:#4338CA}
 
+
+/* Arc Students — enhanced readiness workspace */
+.student-overview{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.student-overview .sov{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--hair);background:#fff;border-radius:11px;padding:9px 13px;font-size:12px;font-weight:700;box-shadow:0 3px 12px rgba(16,35,31,.035)}
+.student-work-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.student-work-card{position:relative;border:1px solid var(--hair);background:#fff;border-radius:15px;padding:15px;box-shadow:0 2px 4px rgba(16,35,31,.035),0 12px 28px rgba(16,35,31,.035);text-align:left;width:100%;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;overflow:hidden}
+.student-work-card:hover{transform:translateY(-1px);box-shadow:0 10px 28px rgba(16,35,31,.08);border-color:#cbd5d2}
+.student-work-card:before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--accent,#0E6E63)}
+.student-topline{display:flex;align-items:flex-start;gap:10px}
+.student-ident{flex:1;min-width:0}.student-name{font-size:16px;font-weight:700;line-height:1.15}.student-sub{font-size:11.5px;color:var(--muted);margin-top:2px}
+.student-status{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 9px;font-size:10.5px;font-weight:800;background:var(--status-bg);color:var(--status-fg);white-space:nowrap}
+.student-assignment{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:12px}.student-assignment .label,.student-allow .label{font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);font-weight:700;margin-right:2px}
+.student-core{display:grid;grid-template-columns:minmax(0,1fr) 132px;gap:14px;margin-top:12px}
+.student-signal{border:1px solid var(--signal-border);background:var(--signal-bg);border-radius:11px;padding:10px 11px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.student-signal .k{font-size:9.5px;font-weight:800;color:#475569;margin-bottom:3px}.student-signal .v{font-size:11.5px;line-height:1.35;color:#334155}.student-signal .v strong{color:var(--accent)}
+.student-meta-panel{border-left:1px solid var(--hair);padding-left:13px;display:flex;flex-direction:column;gap:9px}
+.readiness-ring{display:flex;align-items:center;gap:8px}.readiness-ring .ring{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--accent) calc(var(--score)*1%),#E8EEEC 0);position:relative}.readiness-ring .ring:after{content:"";position:absolute;width:31px;height:31px;border-radius:50%;background:#fff}.readiness-ring .ring b{position:relative;z-index:1;font-size:12px}.readiness-ring small{font-size:9px;color:var(--muted2)}
+.student-meta-line{display:flex;gap:6px;align-items:flex-start;font-size:10px;color:var(--muted)}.student-meta-line b{display:block;color:#334155;font-weight:600}
+.student-allow{margin-top:11px}.student-allow .chips{margin-top:5px}.student-allow .pill{background:#F1F5F4}
+.student-card-foot{display:flex;justify-content:flex-end;margin-top:10px}.student-card-foot .linkbtn{font-weight:700}
+@media(max-width:1050px){.student-work-grid{grid-template-columns:1fr}.student-core{grid-template-columns:minmax(0,1fr) 150px}}
+@media(max-width:620px){.student-core{grid-template-columns:1fr}.student-meta-panel{border-left:0;border-top:1px solid var(--hair);padding-left:0;padding-top:10px}.student-signal{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -897,35 +920,50 @@ function viewSites(){
 
 function viewStudents(){
   var r=rows();
-  function summarizeFlags(list){
-    var map={};
-    list.forEach(function(a){a.open.forEach(function(ch){map[ch.type]=(map[ch.type]||0)+1;});});
-    var keys=Object.keys(map);
-    if(!keys.length)return '<span class="student-flag-chip clear">'+ic('checkc',12,'#15803D')+' No open flags</span>';
-    return keys.map(function(k){
-      var n=map[k], sev=(k==='Level Mismatch'||k==='School Calendar Conflict')?'high':'warn';
-      return '<span class="student-flag-chip '+sev+'">'+n+' '+esc(k)+(n>1?'s':'')+'</span>';
-    }).join('');
-  }
-  var cards=ST.data.students.map(function(st){
+  var studentData=ST.data.students.map(function(st){
     var mine=r.filter(function(x){return x.studentId===st.id;});
-    var issues=mine.reduce(function(n,x){return n+x.open.length;},0);
+    var issueList=[];mine.forEach(function(x){x.open.forEach(function(ch){issueList.push(ch);});});
+    var issue=issueList[0]||null;
     var bank=bankFor(st.id);
-    var bankChips=bank.map(function(b){var low=b.left<=Math.max(1,Math.round(b.allow*0.15));return '<span class="pill" style="color:'+(b.left<0?'#B91C1C':(low?'#92400E':'#475569'))+';background:'+(b.left<0?'#FEE2E2':(low?'#FEF3C7':'#EEF1F0'))+'" title="'+esc(TYPE_LABEL[b.type])+'">'+b.type+' '+b.left+'/'+b.allow+'</span>';}).join('');
-    var assignmentPills = mine.length===0
-      ? '<span class="pill">No active assignment</span>'
-      : mine.map(function(x){return '<span class="pill">'+esc(x.site.name)+'</span>'+specPill(x.rotation);}).join('');
-    var flags=summarizeFlags(mine);
-    return '<button class="sitecard student-sitecard" data-act="openstudent" data-id="'+st.id+'">'+
-      '<div><div class="student-card-head">'+avatar(st.name,34)+
-      '<div class="grow"><div style="font-weight:600;font-size:14px">'+esc(st.name)+'</div><div class="student-meta">'+esc(st.cohort)+' · '+esc(st.level)+' · '+esc(st.region)+'</div></div>'+ic('chevr',16,'#cbd5d2')+'</div>'+
-      '<div class="student-section-label" style="margin-top:10px">Assignments</div><div class="chips" style="margin-top:5px">'+assignmentPills+'</div>'+
-      '<div class="student-section-label" style="margin-top:9px">Potential flags</div><div class="student-flags" style="margin-top:5px">'+flags+'</div>'+
-      '<div class="chips" style="margin-top:9px">'+bankChips+'</div></div>'+
-      '<div class="student-summary"><span class="student-assign">'+mine.length+' assignment'+(mine.length!==1?'s':'')+' this period</span><span class="linkbtn">'+(issues>0?issues+' issue'+(issues>1?'s':''):'Clear')+' · View details '+ic('chevr',12)+'</span></div></button>';
+    var scoreMap={s1:64,s2:58,s3:62,s4:49,s5:92};
+    var checkedMap={s1:'Today, 9:18 AM',s2:'Today, 9:19 AM',s3:'Today, 9:17 AM',s4:'Today, 9:20 AM',s5:'Today, 9:16 AM'};
+    var actionMap={
+      'Time-Off Conflict':'Confirm replacement coverage.',
+      'School Calendar Conflict':'Review classroom overlap.',
+      'Level Mismatch':'Reassign to a junior-approved site.',
+      'Specialty Mismatch':'Review specialty placement.',
+      'Site Capacity':'Confirm alternate site capacity.',
+      'Missing Data':'Complete missing scheduling fields.'
+    };
+    if(st.id==='s2')actionMap['Time-Off Conflict']='Confirm DNP overlap handling.';
+    return {st:st,mine:mine,issue:issue,bank:bank,score:scoreMap[st.id]||75,checked:checkedMap[st.id]||'Today',action:issue?(actionMap[issue.type]||issue.action):'No action required.'};
+  });
+  var flagged=studentData.filter(function(x){return !!x.issue;}).length;
+  var active=studentData.reduce(function(n,x){return n+x.mine.length;},0);
+  var accents=['#0E6E63','#7C6ACF','#0F766E','#D97706','#059669'];
+  var cards=studentData.map(function(x,idx){
+    var st=x.st,mine=x.mine,issue=x.issue;
+    var clear=!issue;
+    var accent=clear?'#15803D':((issue&&issue.type==='Time-Off Conflict')?'#D97706':'#DC3B45');
+    var statusBg=clear?'#EAF8EF':(issue&&issue.type==='Time-Off Conflict'?'#FFF7E8':'#FFF0F1');
+    var statusFg=clear?'#15803D':(issue&&issue.type==='Time-Off Conflict'?'#B45309':'#C72B37');
+    var signalBg=clear?'#F0FBF4':(issue&&issue.type==='Time-Off Conflict'?'#FFF9EE':'#FFF4F5');
+    var signalBorder=clear?'#CDEBD7':(issue&&issue.type==='Time-Off Conflict'?'#F4D9A5':'#F4C6CB');
+    var assignment = mine.length?('<span class="pill">'+esc(mine[0].site.name)+'</span>'+specPill(mine[0].rotation)):'<span class="pill">No active assignment</span>';
+    var bankChips=x.bank.map(function(b){return '<span class="pill" title="'+esc(TYPE_LABEL[b.type])+'">'+b.type+' '+b.left+'/'+b.allow+'</span>';}).join('');
+    var issueText=clear?'No readiness issues':issue.type;
+    return '<button class="student-work-card" style="--accent:'+accent+';--status-bg:'+statusBg+';--status-fg:'+statusFg+';--signal-bg:'+signalBg+';--signal-border:'+signalBorder+'" data-act="openstudent" data-id="'+st.id+'">'+
+      '<div class="student-topline">'+avatar(st.name,40)+'<div class="student-ident"><div class="student-name">'+esc(st.name)+'</div><div class="student-sub">'+esc(st.cohort)+' &nbsp;·&nbsp; '+esc(st.level)+' &nbsp;·&nbsp; '+esc(st.region)+'</div></div><span class="student-status">'+ic(clear?'checkc':'alert',12,statusFg)+(clear?'Clear':'Needs review')+'</span></div>'+
+      '<div class="student-assignment"><span class="label">Assignment</span>'+assignment+'</div>'+
+      '<div class="student-core"><div><div class="student-signal"><div><div class="k">Readiness issue</div><div class="v"><strong>'+esc(issueText)+'</strong></div></div><div><div class="k">Recommended action</div><div class="v">'+esc(x.action)+'</div></div></div><div class="student-allow"><span class="label">Remaining allowance</span><div class="chips">'+bankChips+'</div></div></div>'+
+      '<div class="student-meta-panel"><div class="readiness-ring"><span class="ring" style="--score:'+x.score+'"><b>'+x.score+'</b></span><div><b style="font-size:10px">Readiness</b><small> /100</small></div></div><div class="student-meta-line">'+ic('clock',13,'#64748B')+'<span>Last checked<b>'+x.checked+'</b></span></div><div class="student-meta-line">'+ic('users',13,'#64748B')+'<span>Assigned to<b>Ryan</b></span></div></div></div>'+
+      '<div class="student-card-foot"><span class="linkbtn">View details '+ic('chevr',12)+'</span></div></button>';
   }).join('');
-  return '<div class="stack"><div><h1>Students</h1><p class="sub">All students represented in this demo view, with assignment summaries, potential readiness flags, and time-off bank balances. Click any student to open a second layer of detail.</p></div><div class="grid2">'+cards+'</div>'+
-    '<p class="note">Days remaining / allowance per category: ATO '+ALLOW.ATO+', DNP '+ALLOW.DNP+', MTG '+ALLOW.MTG+', STDY '+ALLOW.STDY+'. Balances update as requests are approved. Demo-safe names only.</p></div>';
+  return '<div class="stack"><div><h1>Students</h1><p class="sub">Student readiness, current assignments, recommended actions, and remaining time-off allowances.</p><div class="student-overview">'+
+    '<span class="sov" style="color:#0E6E63">'+ic('users',16,'#0E6E63')+ST.data.students.length+' students</span>'+
+    '<span class="sov" style="color:#B45309">'+ic('alert',16,'#D97706')+flagged+' with readiness issues</span>'+
+    '<span class="sov" style="color:#15803D">'+ic('checkc',16,'#15803D')+(ST.data.students.length-flagged)+' clear</span>'+
+    '<span class="sov" style="color:#2563EB">'+ic('calendar',16,'#2563EB')+active+' active assignments</span></div></div><div class="student-work-grid">'+cards+'</div><p class="note">Days remaining / allowance per category: ATO '+ALLOW.ATO+', DNP '+ALLOW.DNP+', MTG '+ALLOW.MTG+', STDY '+ALLOW.STDY+'. Balances update as requests are approved. Demo-safe names only.</p></div>';
 }
 
 var TL_START='2026-07-01', TL_N=31;
