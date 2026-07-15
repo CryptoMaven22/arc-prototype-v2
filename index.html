@@ -8,7 +8,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Arc — clinical education scheduling intelligence and reconciliation platform.">
-<title>Arc — Clinical Education Scheduling Intelligence &amp; Reconciliation</title>
+<title>Arc — Operations Review Start Verified | Arc — Clinical Education Scheduling Intelligence &amp; Reconciliation</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=&#39;http://www.w3.org/2000/svg&#39; viewBox=&#39;0 0 100 100&#39;%3E%3Crect width=&#39;100&#39; height=&#39;100&#39; rx=&#39;22&#39; fill=&#39;%230E6E63&#39;/%3E%3Cpath d=&#39;M26 64 L44 30 L62 64 M34 52 H54&#39; stroke=&#39;white&#39; stroke-width=&#39;7&#39; fill=&#39;none&#39; stroke-linecap=&#39;round&#39; stroke-linejoin=&#39;round&#39;/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com/">
 <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
@@ -825,7 +825,7 @@ function bankFor(studentId){
 function badgeSt(s,sm){var c=STATUS[s]||STATUS['Not Checked'];return '<span class="badge-st'+(sm?' sm':'')+'" style="color:'+c.text+';background:'+c.bg+'"><span class="dot" style="background:'+c.dot+'"></span>'+s+'</span>';}
 function sevBadge(s){var c=SEV[s]||SEV.Low;return '<span class="sev" style="color:'+c.text+';background:'+c.bg+'">'+s+'</span>';}
 
-var ST={data:seed(),view:'thesis',openId:null,openStudentId:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,operatorModelOpen:false,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4'};
+var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,operatorModelOpen:false,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4'};
 
 function openChecks(){var all=generateChecks(ST.data),rv=ST.reviewed;return all.filter(function(c){return rv.indexOf(c.key)<0;});}
 function checksFor(id){return openChecks().filter(function(c){return c.assignmentId===id;});}
@@ -2006,7 +2006,7 @@ document.addEventListener('click',function(e){
     toast(s==='Approved'?'Request approved \u2014 re-checking the schedule.':'Request marked '+s.toLowerCase()+'.');
     render();
   }
-  else if(act==='reset'){ST.data=seed();ST.view='thesis';ST.openId=null;ST.openStudentId=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';toast('Demo reset to starting data.');render();}
+  else if(act==='reset'){ST.data=seed();ST.view='dashboard';ST.openId=null;ST.openStudentId=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';toast('Demo reset to starting data.');render();}
 });
 document.addEventListener('change',function(e){
   var t=e.target.closest('[data-act="reassign"]');
@@ -2022,7 +2022,34 @@ document.addEventListener('change',function(e){
 });
 document.addEventListener('keydown',function(e){if(e.key==='Escape' && document.querySelector('#overlay .modal-wrap')){e.preventDefault();closeTopOverlay();}});
 
-render();
+// Verified startup: always open the file on Operations Review.
+function startArcOnOperationsReview(){
+  ST.view='dashboard';
+  ST.role='leader';
+  ST.siteFocus=null;
+  ST.openId=null;
+  ST.openStudentId=null;
+  ST.kpi=null;
+  ST.kpiDeep=null;
+  ST.aiInsight=null;
+  ST.readinessInfo=null;
+  ST.coverageView=null;
+  ST.coverageSub=false;
+  ST.coverageGapOnly=false;
+  ST.calendarCell=null;
+  ST.demoCard=null;
+  ST.demoStage=1;
+  ST.about=false;
+  render();
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',startArcOnOperationsReview,{once:true});
+}else{
+  startArcOnOperationsReview();
+}
+window.addEventListener('pageshow',function(event){
+  if(event.persisted)startArcOnOperationsReview();
+});
 </script>
 
 
