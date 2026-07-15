@@ -1896,7 +1896,9 @@ function render(){
 // Demo-critical click routing: handle the four primary cards and their second-level cards
 // in the capture phase so nested controls or overlay layering cannot swallow the interaction.
 document.addEventListener('click',function(e){
-  var second=e.target.closest('.second-level-card');
+  // Only intercept the demo-card progression control here. KPI second-level cards
+  // use data-act="kpideep" and must continue to the normal data-act router below.
+  var second=e.target.closest('.second-level-card[data-act="demostage"]');
   if(second){
     e.preventDefault();
     e.stopImmediatePropagation();
@@ -2002,4 +2004,4 @@ render();
 </script>
 
 
-</body></html><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_DrqaBVcwhsHGw3sDvmdgcG9CFvRg" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
+</body></html><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_DrqaBVcwhsHGw3sDvmdgcG9CFvRg" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_EC2cqYhKW5xRx1nvHkcVEWbc3T2u" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
