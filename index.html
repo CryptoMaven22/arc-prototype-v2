@@ -157,8 +157,10 @@
 
   .modal-wrap{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;isolation:isolate;}
   .modal{position:relative;z-index:2;width:100%;max-width:560px;background:#fff;border:1px solid var(--hair);border-radius:18px;padding:26px;max-height:88vh;overflow-y:auto;animation:pop .22s cubic-bezier(.22,.61,.36,1);pointer-events:auto;}
-  .modal .close{position:absolute;top:16px;right:16px;color:var(--muted2);}
-  .modal .close:hover{color:var(--ink);}
+  .modal .close{position:absolute;top:12px;right:12px;z-index:20;width:38px;height:38px;display:grid;place-items:center;border:2px solid var(--teal);border-radius:9px;background:#fff;color:var(--teal-deep);box-shadow:0 3px 10px rgba(16,35,31,.10);cursor:pointer;}
+  .modal .close:hover{background:var(--teal-soft);color:var(--teal-deep);transform:translateY(-1px);}
+  .modal .close:active{transform:translateY(0);}
+  .modal .close svg{pointer-events:none;}
   .scope-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px;}
   .scope h4{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin:0 0 8px;}
   .scope li{font-size:12.5px;color:#475569;display:flex;gap:6px;margin-bottom:7px;list-style:none;}
@@ -447,6 +449,8 @@
   .modal-wrap .second-level-card{position:relative;z-index:3;pointer-events:auto;}
   .cc-kpi{cursor:pointer;}
   .cc-kpi:focus-visible,.second-level-card:focus-visible{outline:3px solid rgba(15,118,110,.28);outline-offset:3px;}
+  button[data-act],.row.clk,.sitecard,.student-work-card,.demo-work-card,.kpi-item-card,.kpi-next-card,.second-level-card{cursor:pointer;}
+  .modal-wrap .modal{padding-top:30px;}
   .second-level-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
   .second-level-kicker{font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--tone,#0F766E)}
   .second-level-title{font-size:14px;font-weight:700;color:var(--ink)}
@@ -1219,6 +1223,20 @@ function viewHospitalFeed(){
   '</div>';
 }
 
+function closeTopOverlay(){
+  if(ST.operatorModelOpen){ST.operatorModelOpen=false;}
+  else if(ST.demoCard){ST.demoCard=null;ST.demoStage=1;}
+  else if(ST.calendarCell){ST.calendarCell=null;}
+  else if(ST.coverageSub || ST.coverageView!==null){ST.coverageSub=false;ST.coverageView=null;}
+  else if(ST.readinessInfo){ST.readinessInfo=null;}
+  else if(ST.openId){ST.openId=null;}
+  else if(ST.openStudentId){ST.openStudentId=null;}
+  else if(ST.aiInsight){ST.aiInsight=null;}
+  else if(ST.kpiDeep!==null || ST.kpi!==null){ST.kpiDeep=null;ST.kpi=null;}
+  else if(ST.about){ST.about=false;}
+  renderOverlay();
+}
+
 function renderOverlay(){
   var o=document.getElementById('overlay'); var html='';
   if(ST.operatorModelOpen){
@@ -1239,7 +1257,7 @@ function renderOverlay(){
     };
     var ds=demoSecondTitles[ST.demoCard];
     var demoSecond='<button class="second-level-card" data-act="demostage" data-stage="2" style="--tone:'+d.tone+';background:linear-gradient(135deg,#fff 0%,'+d.bg+' 100%)"><span class="second-level-copy"><span class="second-level-kicker">'+esc(ds.kicker)+'</span><span class="second-level-title">'+esc(ds.title)+'</span><span class="second-level-desc">'+esc(ds.desc)+'</span></span><span class="cc-kpi-ic" style="background:'+d.tone+';color:#fff">'+ic('arrowr',18,'#fff')+'</span></button>';
-    html='<div class="modal-wrap"><div class="scrim" data-act="closedemocard" style="position:absolute"></div><div class="modal" style="max-width:780px;--tone:'+d.tone+';--tonebg:'+d.bg+'"><button class="close" data-act="closedemocard">'+ic('x',18)+'</button><span class="demo-status" style="--tone:'+d.tone+';--tonebg:'+d.bg+'">'+d.status+'</span><h2 style="margin-top:10px">'+esc(d.title)+'</h2><p class="sub">'+(stage===1?'Expanded detail — what changed, why it matters, and the AI context.':'Action view — complete the review and move the request forward.')+'</p>'+(stage===1?details+demoSecond:actions)+'<div style="display:flex;justify-content:space-between;gap:10px;margin-top:18px"><button class="mini" data-act="closedemocard">Close</button>'+(stage===2?'<button class="mini" data-act="demostage" data-stage="1">'+ic('back',13)+' Back to detail</button>':'')+'</div></div></div>';
+    html='<div class="modal-wrap"><div class="scrim" data-act="closedemocard" style="position:absolute"></div><div class="modal" style="max-width:780px;--tone:'+d.tone+';--tonebg:'+d.bg+'"><button class="close" data-act="closedemocard" aria-label="Close detail card">'+ic('x',18)+'</button><span class="demo-status" style="--tone:'+d.tone+';--tonebg:'+d.bg+'">'+d.status+'</span><h2 style="margin-top:10px">'+esc(d.title)+'</h2><p class="sub">'+(stage===1?'Expanded detail — what changed, why it matters, and the AI context.':'Action view — complete the review and move the request forward.')+'</p>'+(stage===1?details+demoSecond:actions)+(stage===2?'<div style="display:flex;justify-content:flex-start;gap:10px;margin-top:18px"><button class="mini" data-act="demostage" data-stage="1">'+ic('back',13)+' Back to detail</button></div>':'')+'</div></div>';
   } else if(ST.calendarCell){
     var cc=ST.calendarCell;
     var tone=cc.type==='conflict'?'#DC2626':(cc.type==='pto'?'#7C3AED':(cc.type==='oncall'?'#C2410C':'#15803D'));
@@ -1254,12 +1272,11 @@ function renderOverlay(){
           ? 'AI reads this as protected contingency coverage. '+cc.name+' is positioned as the backstop for '+cc.site+' on '+cc.when+', which gives the operator a flexible response option if another assignment drops.'
           : 'AI reads this as stable scheduled coverage. '+cc.name+' is matched to '+cc.site+' for '+cc.rotation+' on '+cc.when+', with no immediate conflict signal detected in this block.'));
     html='<div class="modal-wrap"><div class="scrim" data-act="closecalendarcell" style="position:absolute"></div><div class="modal" style="max-width:650px">'+
-      '<button class="close" data-act="closecalendarcell">'+ic('x',18)+'</button>'+
+      '<button class="close" data-act="closecalendarcell" aria-label="Close detail card">'+ic('x',18)+'</button>'+
       '<div style="display:flex;align-items:center;gap:10px;color:'+tone+'"><span class="cc-kpi-ic" style="background:'+bg+';color:'+tone+'">'+ic(cc.type==='conflict'?'alert':(cc.type==='pto'?'calendar':(cc.type==='oncall'?'clock':'users')),20,tone)+'</span><span style="font-weight:700">Schedule block detail</span></div>'+
       '<h1 style="font-size:22px;margin-top:12px">'+esc(cc.name)+'</h1><p style="font-size:13.5px;color:#475569;margin-top:8px">'+esc(summary)+'</p>'+
       '<div class="grid2" style="margin-top:18px"><div class="kv"><div class="k">Site / row</div><div class="v" style="font-size:15px">'+esc(cc.site)+'</div></div><div class="kv"><div class="k">Rotation</div><div class="v" style="font-size:15px">'+esc(cc.rotation)+'</div></div><div class="kv"><div class="k">Schedule block</div><div class="v" style="font-size:15px">'+esc(cc.when)+'</div></div><div class="kv"><div class="k">Status</div><div class="v" style="font-size:15px;color:'+tone+'">'+esc(statusLabel)+'</div></div></div>'+
       '<div class="card" style="padding:15px;margin-top:18px;border:1px solid #86EFAC;background:#F0FDF4;box-shadow:inset 0 0 0 1px rgba(34,197,94,.08)"><div class="lbl-mini" style="color:#15803D">AI Summary</div><div style="font-size:13px;color:#166534;margin-top:6px;line-height:1.55">'+esc(aiSummary)+'</div></div>'+
-      '<div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="mini" data-act="closecalendarcell">Close</button></div>'+
     '</div></div>';
   } else if(ST.coverageSub){
     var gapIndex=parseInt(ST.coverageView,10)||0;
@@ -1270,7 +1287,7 @@ function renderOverlay(){
     ];
     var cd=coverageDemo[gapIndex]||coverageDemo[0];
     html='<div class="modal-wrap"><div class="scrim" data-act="closecoveragesub" style="position:absolute"></div><div class="modal" style="max-width:700px">'+
-      '<button class="close" data-act="closecoveragesub">'+ic('x',18)+'</button>'+
+      '<button class="close" data-act="closecoverageall" aria-label="Close coverage detail">'+ic('x',18)+'</button>'+
       '<div style="display:flex;align-items:center;gap:10px;color:#0F6E56"><span class="cc-kpi-ic" style="background:#ECFDF5;color:#0F6E56">'+ic('users',20,'#0F6E56')+'</span><span style="font-weight:700">Eligible backfill candidates</span></div>'+
       '<h1 style="font-size:22px;margin-top:12px">'+esc(cd.site)+' · '+esc(cd.when)+'</h1><p style="font-size:13.5px;color:#475569;margin-top:8px">Demo-ranked candidates for the '+esc(cd.rotation)+' coverage need.</p>'+
       '<div class="rowlist" style="margin-top:18px">'+cd.candidates.map(function(c,i){var tone=i===0?'#15803D':(c[2].indexOf('check')>-1?'#B45309':'#2563EB');var bg=i===0?'#DCFCE7':(c[2].indexOf('check')>-1?'#FEF3C7':'#EFF6FF');return '<button class="row clk" data-act="coveragecandidate" data-name="'+esc(c[0])+'"><span style="display:grid;place-items:center;width:32px;height:32px;border-radius:999px;background:#D8E9E5;color:#0F6E56;font-weight:700">'+esc(c[0].split(' ').map(function(x){return x[0]}).join(''))+'</span><div class="grow"><div class="nm">'+esc(c[0])+'</div><div class="meta">'+esc(c[1])+'</div></div><span class="badge-st sm" style="color:'+tone+';background:'+bg+'">'+esc(c[2])+'</span>'+ic('chevr',16,'#cbd5d2')+'</button>';}).join('')+'</div>'+
@@ -1286,14 +1303,13 @@ function renderOverlay(){
     ];
     var cd=coverageDemo[gapIndex]||coverageDemo[0];
     html='<div class="modal-wrap"><div class="scrim" data-act="closecoverageview" style="position:absolute"></div><div class="modal" style="max-width:720px">'+
-      '<button class="close" data-act="closecoverageview">'+ic('x',18)+'</button>'+
+      '<button class="close" data-act="closecoverageview" aria-label="Close detail card">'+ic('x',18)+'</button>'+
       '<div style="display:flex;align-items:center;gap:10px;color:#F97316"><span class="cc-kpi-ic" style="background:#FFF7ED;color:#F97316">'+ic('alert',20,'#F97316')+'</span><span style="font-weight:700">Coverage gap detail</span></div>'+
       '<h1 style="font-size:22px;margin-top:12px">'+esc(cd.site)+' · '+esc(cd.when)+'</h1><p style="font-size:13.5px;color:#475569;margin-top:8px">Demo operational detail for this open '+esc(cd.rotation)+' coverage segment.</p>'+
       '<div class="grid4" style="margin-top:18px"><div class="kv"><div class="k">Open segment</div><div class="v">'+esc(cd.open)+'</div></div><div class="kv"><div class="k">Rotation</div><div class="v">'+esc(cd.rotation)+'</div></div><div class="kv"><div class="k">Risk</div><div class="v" style="color:#B45309">'+esc(cd.risk)+'</div></div><div class="kv"><div class="k">Status</div><div class="v" style="color:#DC2626">Unfilled</div></div></div>'+
       '<section style="margin-top:18px"><div class="sec-head"><div class="ttl"><h2>Why this gap is open</h2></div></div><div class="card" style="padding:14px;font-size:13px;color:#475569">'+esc(cd.reason)+'</div></section>'+
       '<section style="margin-top:18px"><div class="sec-head"><div class="ttl"><h2>Recommended next action</h2></div></div><div class="card" style="padding:14px"><p class="act" style="margin:0">'+ic('arrowr',13,'var(--teal)')+' '+esc(cd.recommended)+'</p><p class="desc attention-note" style="margin:8px 0 0">'+esc(cd.impact)+'</p></div></section>'+
       '<section style="margin-top:18px"><button class="kpi-next-card" data-act="coveragesub"><div class="kpi-next-copy"><span style="font-size:12px;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em;font-weight:700">Clickable next step</span><span style="font-size:14px;font-weight:600;color:var(--ink)">Review eligible backfill candidates</span><span style="font-size:12.5px;color:var(--muted)">Open demo-ranked students who could close this gap.</span></div><span class="cc-kpi-ic" style="background:#ECFDF5;color:#0F6E56">'+ic('users',18,'#0F6E56')+'</span></button></section>'+
-      '<div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="mini" data-act="closecoverageview">Close</button></div>'+
     '</div></div>';
   } else if(ST.readinessInfo){
     var defs={
@@ -1306,11 +1322,10 @@ function renderOverlay(){
     };
     var d=defs[ST.readinessInfo]||{icon:'spark',tone:'var(--teal)',bg:'#F0FDFA',definition:'This readiness rule identifies a condition that requires review before schedule release.'};
     html='<div class="modal-wrap"><div class="scrim" data-act="closereadinessinfo" style="position:absolute"></div><div class="modal" style="max-width:520px">'+
-      '<button class="close" data-act="closereadinessinfo">'+ic('x',18)+'</button>'+ 
+      '<button class="close" data-act="closereadinessinfo" aria-label="Close detail card">'+ic('x',18)+'</button>'+ 
       '<div style="display:flex;align-items:center;gap:10px;color:'+d.tone+'"><span class="cc-kpi-ic" style="background:'+d.bg+';color:'+d.tone+'">'+ic(d.icon,20,d.tone)+'</span><span style="font-weight:700">Readiness definition</span></div>'+ 
       '<h1 style="font-size:22px;margin-top:14px">'+esc(ST.readinessInfo)+'</h1>'+ 
       '<div class="card" style="padding:16px;margin-top:16px;border:1px solid '+d.tone+'33;background:'+d.bg+'"><div style="font-size:14px;line-height:1.55;color:#334155">'+esc(d.definition)+'</div></div>'+ 
-      '<div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="mini" data-act="closereadinessinfo">Close</button></div>'+ 
     '</div></div>';
   } else if(ST.openStudentId){
     var st=ST.data.students.filter(function(s){return s.id===ST.openStudentId;})[0];
@@ -1397,12 +1412,12 @@ function renderOverlay(){
     };
     var ai=insights[ST.aiInsight]||insights.overview;
     html='<div class="modal-wrap"><div class="scrim" data-act="closeai" style="position:absolute"></div><div class="modal" style="max-width:690px">'+
-      '<button class="close" data-act="closeai">'+ic('x',18)+'</button>'+
+      '<button class="close" data-act="closeai" aria-label="Close detail card">'+ic('x',18)+'</button>'+
       '<div style="display:flex;align-items:center;gap:10px;color:'+ai.tone+'"><span class="cc-kpi-ic" style="background:'+ai.tone+'18;color:'+ai.tone+'">'+ic('spark',21)+'</span><span style="font-weight:700">AI-generated operational insight</span></div>'+
       '<h1 style="font-size:22px;margin-top:12px">'+ai.title+'</h1><p style="font-size:13.5px;color:#475569;margin-top:8px">'+ai.summary+'</p>'+
       '<div class="rowlist" style="margin-top:18px">'+ai.items.map(function(it){return '<div class="row" style="align-items:flex-start"><span style="color:'+ai.tone+';margin-top:2px">'+ic('spark',14,ai.tone)+'</span><div class="grow"><div style="font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:.05em;font-weight:700">'+it[0]+'</div><div style="font-size:13px;color:#334155;margin-top:4px;line-height:1.45">'+it[1]+'</div></div></div>';}).join('')+'</div>'+
       '<div class="card" style="padding:14px 16px;margin-top:18px;background:#FAF7FF;border-color:#DDD6FE"><div class="lbl-mini" style="color:#6D28D9;margin-bottom:5px">AI confidence</div><div style="font-size:12.5px;color:#475569">'+ai.confidence+'</div></div>'+
-      '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:18px"><button class="mini" data-act="closeai">Close</button><button class="gate-cta on" data-act="aigoto" data-v="dashboard">Review readiness checks '+ic('arrowr',14,'#fff')+'</button></div>'+
+      '<div style="display:flex;justify-content:flex-end;gap:10px;align-items:center;margin-top:18px"><button class="gate-cta on" data-act="aigoto" data-v="dashboard">Review readiness checks '+ic('arrowr',14,'#fff')+'</button></div>'+
     '</div></div>';
   } else if(ST.kpiDeep!==null){
     var dd=(function(){
@@ -1474,7 +1489,7 @@ function renderOverlay(){
       return {tone:'var(--teal)',title:'Detail',summary:'Additional detail.',bullets:['Demo content layer.'],note:'This is an additional prototype drilldown.'};
     })();
     html='<div class="modal-wrap"><div class="scrim" data-act="closekpideep" style="position:absolute"></div><div class="modal" style="max-width:680px">'+
-      '<button class="close" data-act="closekpideep">'+ic('x',18)+'</button>'+
+      '<button class="close" data-act="closekpiall" aria-label="Close KPI detail">'+ic('x',18)+'</button>'+
       '<div style="display:flex;align-items:center;gap:10px;color:'+dd.tone+'"><span class="cc-kpi-ic" style="background:'+dd.tone+'18;color:'+dd.tone+'">'+ic('spark',21)+'</span><span style="font-weight:700">Additional detail</span></div>'+
       '<h1 style="font-size:22px;margin-top:12px">'+dd.title+'</h1><p style="font-size:13.5px;color:#475569;margin-top:8px">'+dd.summary+'</p>'+
       '<div class="rowlist" style="margin-top:18px">'+dd.bullets.map(function(x){return '<div class="row"><span style="color:'+dd.tone+'">'+ic('checkc',15,dd.tone)+'</span><div class="grow" style="font-size:13px">'+x+'</div></div>';}).join('')+'</div>'+
@@ -1616,7 +1631,7 @@ function renderOverlay(){
     }
 
     html='<div class="modal-wrap"><div class="scrim" data-act="closekpi" style="position:absolute"></div><div class="modal" style="max-width:760px">'+
-      '<button class="close" data-act="closekpi">'+ic('x',18)+'</button>'+
+      '<button class="close" data-act="closekpi" aria-label="Close detail card">'+ic('x',18)+'</button>'+
       '<div style="display:flex;align-items:center;gap:10px;color:'+kd.tone+'"><span class="cc-kpi-ic" style="background:'+kd.tone+'18;color:'+kd.tone+'">'+ic(kd.icon,21)+'</span><span style="font-weight:700">Command-center detail</span></div>'+
       '<h1 style="font-size:22px;margin-top:12px">'+kd.title+'</h1><p style="font-size:13.5px;color:#475569;margin-top:8px">'+kd.summary+'</p>'+
       (function(){var secondCards=[
@@ -1634,7 +1649,7 @@ function renderOverlay(){
     var inScope=['Track students, sites & assignments','Time-off requests + day-off banks','School calendar blocks','Distance & specialty (OB/PED/CV/REG) tags','Six readiness checks','Manager & site-specific views'];
     var roadmap=['Student demographics & mobile contact details','Automated site dissemination & packets','Case tracking & anesthesia hour minimums','Evaluations & student progression','Credentialing & sensitive data','Adapt to other clinical programs (PA, NP, PT\u2026)'];
     html='<div class="modal-wrap"><div class="scrim" data-act="closeabout" style="position:absolute"></div><div class="modal">'+
-      '<button class="close" data-act="closeabout">'+ic('x',18)+'</button>'+
+      '<button class="close" data-act="closeabout" aria-label="Close detail card">'+ic('x',18)+'</button>'+
       '<div style="display:flex;align-items:center;gap:8px;color:var(--teal-deep)">'+ic('shield',18)+'<span style="font-weight:700">About this prototype</span></div>'+
       '<h1 style="font-size:20px;margin-top:8px">Arc is a clinical education scheduling intelligence and reconciliation platform</h1>'+
       '<p style="font-size:13.5px;color:#475569;margin-top:8px">Arc creates a trusted operational picture across rotations, student constraints, clinical-site schedules, program requirements, and schedule changes. This viewer demonstrates the current validated slice: readiness visibility, risk explanation, human decision support, and coordinated next actions.</p>'+
@@ -1644,6 +1659,29 @@ function renderOverlay(){
     '</div></div>';
   }
   o.innerHTML=html;
+  if(html){
+    var wrap=o.querySelector('.modal-wrap');
+    var panel=o.querySelector('.modal, .operator-model-modal');
+    if(panel){
+      panel.addEventListener('click',function(event){event.stopPropagation();});
+    }
+    if(wrap){
+      wrap.addEventListener('click',function(event){
+        if(event.target===wrap || event.target.classList.contains('scrim')){
+          event.preventDefault();
+          event.stopPropagation();
+          closeTopOverlay();
+        }
+      });
+    }
+    o.querySelectorAll('.modal .close, .operator-model-modal .close-model').forEach(function(button){
+      button.addEventListener('click',function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        closeTopOverlay();
+      });
+    });
+  }
 }
 
 var toastTimer=null;
@@ -1772,6 +1810,7 @@ document.addEventListener('click',function(e){
   else if(act==='closecoverageview'){ST.coverageView=null;ST.coverageSub=false;renderOverlay();}
   else if(act==='coveragesub'){ST.coverageSub=true;renderOverlay();}
   else if(act==='closecoveragesub'){ST.coverageSub=false;renderOverlay();}
+  else if(act==='closecoverageall'){ST.coverageSub=false;ST.coverageView=null;renderOverlay();}
   else if(act==='coveragecandidate'){toast((t.getAttribute('data-name')||'Candidate')+' selected for demo review.');}
   else if(act==='checkinfo'){ST.readinessInfo=t.getAttribute('data-key');renderOverlay();}
   else if(act==='closereadinessinfo'){ST.readinessInfo=null;renderOverlay();}
@@ -1781,6 +1820,7 @@ document.addEventListener('click',function(e){
   else if(act==='kpi'){ST.kpi=parseInt(t.getAttribute('data-k'),10);ST.kpiDeep=null;renderOverlay();}
   else if(act==='kpideep'){ST.kpiDeep=t.getAttribute('data-key');renderOverlay();}
   else if(act==='closekpideep'){ST.kpiDeep=null;renderOverlay();}
+  else if(act==='closekpiall'){ST.kpiDeep=null;ST.kpi=null;renderOverlay();}
   else if(act==='closekpi'){ST.kpiDeep=null;ST.kpi=null;renderOverlay();}
   else if(act==='kpigoto'){ST.kpiDeep=null;ST.kpi=null;ST.view=t.getAttribute('data-v');render();}
   else if(act==='closeabout'){ST.about=false;renderOverlay();}
@@ -1798,6 +1838,7 @@ document.addEventListener('click',function(e){
   }
   else if(act==='sitefilter'){ST.siteFilter=t.getAttribute('data-f')||'all';render();}
   else if(act==='sitefocus'){var id=t.getAttribute('data-id');ST.siteFocus=id||null;render();}
+  else if(act==='sitefromkpi'){ST.kpiDeep=null;ST.kpi=null;ST.siteFocus=t.getAttribute('data-id')||null;ST.view='sites';render();}
   else if(act==='review'){var k=t.getAttribute('data-key');if(ST.reviewed.indexOf(k)<0)ST.reviewed.push(k);toast('Issue cleared. Readiness updated.');render();}
   else if(act==='req'){
     if(t.hasAttribute('disabled'))return;
@@ -1820,10 +1861,10 @@ document.addEventListener('change',function(e){
   var ps=e.target.closest('[data-act="pickstudent"]'); if(ps){ST.asStudent=ps.value;render();return;}
   var ph=e.target.closest('[data-act="pickhospital"]'); if(ph){ST.asHospital=ph.value;render();return;}
 });
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(ST.operatorModelOpen){ST.operatorModelOpen=false;renderOverlay();}else if(ST.demoCard){ST.demoCard=null;ST.demoStage=1;renderOverlay();}else if(ST.openId){ST.openId=null;renderOverlay();}else if(ST.openStudentId){ST.openStudentId=null;renderOverlay();}else if(ST.aiInsight){ST.aiInsight=null;renderOverlay();}else if(ST.calendarCell){ST.calendarCell=null;renderOverlay();}else if(ST.coverageSub){ST.coverageSub=false;renderOverlay();}else if(ST.coverageView!==null){ST.coverageView=null;renderOverlay();}else if(ST.readinessInfo){ST.readinessInfo=null;renderOverlay();}else if(ST.kpiDeep){ST.kpiDeep=null;renderOverlay();}else if(ST.kpi!==null){ST.kpi=null;renderOverlay();}else if(ST.about){ST.about=false;renderOverlay();}}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape' && document.querySelector('#overlay .modal-wrap')){e.preventDefault();closeTopOverlay();}});
 
 render();
 </script>
 
 
-</body></html>
+</body></html><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_DrqaBVcwhsHGw3sDvmdgcG9CFvRg" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
