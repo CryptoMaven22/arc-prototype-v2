@@ -1879,6 +1879,29 @@ function render(){
     body='<div class="shell"><main style="margin:0 auto">'+content+'</main></div>';
   }
   app.innerHTML=header+body;
+
+  // Rebind the Operations Review primary controls after every render.
+  // These direct bindings protect the demo interactions from being lost when
+  // the view is rebuilt or when nested elements intercept delegated clicks.
+  Array.prototype.forEach.call(app.querySelectorAll('.cc-kpi[data-act="kpi"]'),function(card){
+    card.onclick=function(event){
+      event.preventDefault();
+      event.stopPropagation();
+      ST.kpi=parseInt(card.getAttribute('data-k'),10);
+      ST.kpiDeep=null;
+      renderOverlay();
+    };
+  });
+  Array.prototype.forEach.call(app.querySelectorAll('.next-action-hero[data-act="democard"], .next-action-hero [data-act="democard"]'),function(control){
+    control.onclick=function(event){
+      event.preventDefault();
+      event.stopPropagation();
+      ST.demoCard=control.getAttribute('data-id') || (control.closest('.next-action-hero') && control.closest('.next-action-hero').getAttribute('data-id')) || 'blocked';
+      ST.demoStage=1;
+      renderOverlay();
+    };
+  });
+
   renderOverlay();
 }
 
