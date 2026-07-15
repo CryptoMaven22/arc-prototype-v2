@@ -632,8 +632,13 @@
   .review-status-card .rs{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.4}
   .review-status-card.pending{border-color:#FCD34D;background:#FFFBEB}
   .review-status-card.clear{border-color:#A7F3D0;background:#F0FDF4}
+  .review-status-card.risk{border-color:#FECACA;background:#FEF2F2}
   .review-decision{border-left:4px solid #D97706;border-radius:0 12px 12px 0;background:#FFF7E6;padding:14px 15px}
+  .review-decision.critical{border-left-color:#DC2626;background:#FFF1F2}
+  .review-decision.success{border-left-color:#16A34A;background:#F0FDF4}
   .review-decision .rk{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:#B45309;font-weight:900;margin-bottom:6px}
+  .review-decision.critical .rk{color:#B91C1C}
+  .review-decision.success .rk{color:#15803D}
   .review-decision strong{display:block;font-size:15px;color:#10231F;line-height:1.4}
   .review-decision p{margin:5px 0 0;font-size:12.5px;color:#64748B;line-height:1.5}
   .review-sequence{border:1px solid var(--hair);border-radius:12px;background:#fff;padding:13px 15px}
@@ -1281,9 +1286,31 @@ function renderOverlay(){
     var d=demos[ST.demoCard], stage=ST.demoStage||1;
     var details='<div class="demo-detail-grid"><div class="demo-detail"><b>What changed</b><p>'+esc(d.changed)+'</p></div><div class="demo-detail"><b>Why it matters</b><p>'+esc(d.matters)+'</p></div><div class="demo-detail"><b>Affected assignment</b><p>'+esc(d.assignment)+'</p></div><div class="demo-detail"><b>Clinical site</b><p>'+esc(d.site)+'</p></div><div class="demo-detail"><b>Preceptor</b><p>'+esc(d.preceptor)+'</p></div><div class="demo-detail"><b>AI confidence</b><p>'+esc(d.confidence)+'</p></div></div><div class="demo-note"><b>AI summary</b><br>'+esc(d.summary)+'</div>';
     var actions='<div class="demo-actions">'+d.actions.map(function(a,i){var disabled=a.indexOf('disabled')>-1;return '<button class="demo-action'+(i===0&&!disabled?' primary':'')+'" data-act="demoaction" data-label="'+esc(a.replace(' — disabled',''))+'" '+(disabled?'disabled':'')+'>'+esc(a.replace(' — disabled',''))+'</button>';}).join('')+'</div><div class="demo-note"><b>Suggested note</b><br>“'+esc(d.note)+'”</div>';
-    var reviewWorkspace='';
-    if(ST.demoCard==='review'){
-      reviewWorkspace='<div class="review-workspace">'+
+    var stageWorkspace='';
+    if(ST.demoCard==='blocked'){
+      stageWorkspace='<div class="review-workspace">'+
+        '<div class="review-status-grid">'+
+          '<div class="review-status-card risk"><div class="rk">Time-off conflict</div><div class="rv">Approved PTO overlaps requested dates</div><div class="rs">Jordan is already approved out for part of July 20–24, so the move cannot be published as requested.</div></div>'+
+          '<div class="review-status-card risk"><div class="rk">ICU preceptor coverage</div><div class="rv">Unfilled</div><div class="rs">Dr. Elena Ruiz is unavailable and no alternate ICU preceptor is currently assigned.</div></div>'+
+          '<div class="review-status-card pending"><div class="rk">Downstream schedule impact</div><div class="rv">Coverage update required</div><div class="rs">Publishing the change now would leave the ICU schedule unresolved for the affected week.</div></div>'+
+          '<div class="review-status-card clear"><div class="rk">Student record</div><div class="rv">Request captured</div><div class="rs">Jordan's request and assignment context are already documented in Arc.</div></div>'+
+        '</div>'+
+        '<div class="review-decision critical"><div class="rk">Owner decision needed</div><strong>Resolve the conflict before any schedule change is approved.</strong><p>Request alternate dates from Jordan or identify replacement ICU coverage first. Only approve the move after time off and preceptor coverage are both cleared.</p></div>'+
+        '<div class="review-sequence"><div class="review-sequence-title">Recommended resolution sequence</div>'+
+          '<div class="review-step"><span class="review-step-num">1</span><div><b>Review the blockers</b><span>Confirm the approved PTO overlap and the missing ICU preceptor coverage.</span></div></div>'+
+          '<div class="review-step"><span class="review-step-num">2</span><div><b>Route the recovery action</b><span>Request alternate dates from Jordan and notify the clinical coordinator of the open ICU conflict.</span></div></div>'+
+          '<div class="review-step"><span class="review-step-num">3</span><div><b>Document and close</b><span>Add the review note, confirm the next step owner, and mark the issue resolved when coverage is protected.</span></div></div>'+
+        '</div>'+
+        '<div class="review-actions">'+
+          '<button class="review-action primary" data-act="demoaction" data-label="Alternate dates requested"><span>Request alternate dates</span><span class="action-meta">Recommended</span></button>'+
+          '<button class="review-action" data-act="demoaction" data-label="Jordan notified"><span>Notify Jordan</span><span class="action-meta">Student</span></button>'+
+          '<button class="review-action" data-act="demoaction" data-label="Clinical coordinator notified"><span>Notify clinical coordinator</span><span class="action-meta">Coordinator</span></button>'+
+          '<button class="review-action" data-act="demoaction" data-label="ICU conflict note added"><span>Add review note</span><span class="action-meta">Document</span></button>'+
+        '</div>'+
+        '<div class="demo-note"><b>Suggested review note</b><br>“'+esc(d.note)+'”</div>'+
+      '</div>';
+    } else if(ST.demoCard==='review'){
+      stageWorkspace='<div class="review-workspace">'+
         '<div class="review-status-grid">'+
           '<div class="review-status-card pending"><div class="rk">Preceptor confirmation</div><div class="rv">Pending · Melissa Grant, CRNA</div><div class="rs">Confirm availability for July 13–17 before approval.</div></div>'+
           '<div class="review-status-card clear"><div class="rk">Clinical-site capacity</div><div class="rv">Available</div><div class="rs">Highland Park has one open OB placement for the revised dates.</div></div>'+
@@ -1304,6 +1331,28 @@ function renderOverlay(){
         '</div>'+
         '<div class="demo-note"><b>Suggested review note</b><br>“'+esc(d.note)+'”</div>'+
       '</div>';
+    } else if(ST.demoCard==='ready'){
+      stageWorkspace='<div class="review-workspace">'+
+        '<div class="review-status-grid">'+
+          '<div class="review-status-card clear"><div class="rk">Preceptor confirmation</div><div class="rv">Confirmed · Daniel Brooks, CRNA</div><div class="rs">The PACU preceptor is available and aligned to the updated shift.</div></div>'+
+          '<div class="review-status-card clear"><div class="rk">Clinical-site capacity</div><div class="rv">Available</div><div class="rs">St. Vincent Carmel has capacity for the updated PACU assignment.</div></div>'+
+          '<div class="review-status-card clear"><div class="rk">Student eligibility</div><div class="rv">Confirmed</div><div class="rs">Marcus remains within required PACU hours and rotation rules after the swap.</div></div>'+
+          '<div class="review-status-card clear"><div class="rk">Conflict checks</div><div class="rv">No blockers detected</div><div class="rs">Arc found no site, schedule, time-off, or specialty conflicts for this request.</div></div>'+
+        '</div>'+
+        '<div class="review-decision success"><div class="rk">Approval ready</div><strong>Approve the PACU swap and complete the outbound notifications.</strong><p>The change is operationally clear. Once approved, update the assignment record, notify Marcus and the preceptor, and close the request.</p></div>'+
+        '<div class="review-sequence"><div class="review-sequence-title">Recommended completion sequence</div>'+
+          '<div class="review-step"><span class="review-step-num">1</span><div><b>Approve the request</b><span>Confirm the schedule change and write the new PACU placement into the system record.</span></div></div>'+
+          '<div class="review-step"><span class="review-step-num">2</span><div><b>Send notifications</b><span>Notify Marcus and Daniel Brooks that the swap has been approved.</span></div></div>'+
+          '<div class="review-step"><span class="review-step-num">3</span><div><b>Close the loop</b><span>Add the final note and mark the request resolved so the queue stays current.</span></div></div>'+
+        '</div>'+
+        '<div class="review-actions">'+
+          '<button class="review-action primary" data-act="demoaction" data-label="PACU swap approved"><span>Approve request</span><span class="action-meta">Recommended</span></button>'+
+          '<button class="review-action" data-act="demoaction" data-label="Marcus notified"><span>Notify Marcus</span><span class="action-meta">Student</span></button>'+
+          '<button class="review-action" data-act="demoaction" data-label="Preceptor notified"><span>Notify preceptor</span><span class="action-meta">Message</span></button>'+
+          '<button class="review-action" data-act="demoaction" data-label="Final approval note added"><span>Add final note</span><span class="action-meta">Document</span></button>'+
+        '</div>'+
+        '<div class="demo-note"><b>Suggested review note</b><br>“'+esc(d.note)+'”</div>'+
+      '</div>';
     }
     var demoSecondTitles={
       blocked:{kicker:'Required owner decision',title:'Resolve the ICU scheduling conflict',desc:'Request alternate dates, notify the student and clinical coordinator, add a review note, or mark the issue resolved.'},
@@ -1312,7 +1361,7 @@ function renderOverlay(){
     };
     var ds=demoSecondTitles[ST.demoCard];
     var demoSecond='<button class="second-level-card" data-act="demostage" data-stage="2" style="--tone:'+d.tone+';background:linear-gradient(135deg,#fff 0%,'+d.bg+' 100%)"><span class="second-level-copy"><span class="second-level-kicker">'+esc(ds.kicker)+'</span><span class="second-level-title">'+esc(ds.title)+'</span><span class="second-level-desc">'+esc(ds.desc)+'</span></span><span class="cc-kpi-ic" style="background:'+d.tone+';color:#fff">'+ic('arrowr',18,'#fff')+'</span></button>';
-    html='<div class="modal-wrap"><div class="scrim" data-act="closedemocard" style="position:absolute"></div><div class="modal" style="max-width:780px;--tone:'+d.tone+';--tonebg:'+d.bg+'"><button class="close" data-act="closedemocard" aria-label="Close detail card">'+ic('x',18)+'</button><span class="demo-status" style="--tone:'+d.tone+';--tonebg:'+d.bg+'">'+d.status+'</span><h2 style="margin-top:10px">'+esc(d.title)+'</h2><p class="sub">'+(stage===1?'Expanded detail — what changed, why it matters, and the AI context.':'Action view — complete the review and move the request forward.')+'</p>'+(stage===1?details+demoSecond:(ST.demoCard==='review'?reviewWorkspace:actions))+(stage===2?'<div style="display:flex;justify-content:flex-start;gap:10px;margin-top:18px"><button class="mini" data-act="demostage" data-stage="1">'+ic('back',13)+' Back to detail</button></div>':'')+'</div></div>';
+    html='<div class="modal-wrap"><div class="scrim" data-act="closedemocard" style="position:absolute"></div><div class="modal" style="max-width:780px;--tone:'+d.tone+';--tonebg:'+d.bg+'"><button class="close" data-act="closedemocard" aria-label="Close detail card">'+ic('x',18)+'</button><span class="demo-status" style="--tone:'+d.tone+';--tonebg:'+d.bg+'">'+d.status+'</span><h2 style="margin-top:10px">'+esc(d.title)+'</h2><p class="sub">'+(stage===1?'Expanded detail — what changed, why it matters, and the AI context.':'Action view — complete the decision and move the request forward.')+'</p>'+(stage===1?details+demoSecond:stageWorkspace)+(stage===2?'<div style="display:flex;justify-content:flex-start;gap:10px;margin-top:18px"><button class="mini" data-act="demostage" data-stage="1">'+ic('back',13)+' Back to detail</button></div>':'')+'</div></div>';
   } else if(ST.calendarCell){
     var cc=ST.calendarCell;
     var tone=cc.type==='conflict'?'#DC2626':(cc.type==='pto'?'#7C3AED':(cc.type==='oncall'?'#C2410C':'#15803D'));
