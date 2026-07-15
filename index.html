@@ -621,6 +621,37 @@
   .source-label{display:inline-flex;align-items:center;gap:5px;border:1px solid #DBEAFE;background:#EFF6FF;color:#1D4ED8;border-radius:999px;padding:3px 7px;font-size:9.5px;font-weight:700}
   @media(max-width:760px){.next-action-hero{align-items:flex-start;flex-direction:column}.next-action-hero button{width:100%}}
 </style>
+
+<style>
+  /* Pending human review workspace */
+  .review-workspace{margin-top:18px;display:flex;flex-direction:column;gap:14px}
+  .review-status-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .review-status-card{border:1px solid var(--hair);border-radius:12px;padding:12px 13px;background:#FCFEFD}
+  .review-status-card .rk{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);font-weight:800;margin-bottom:5px}
+  .review-status-card .rv{font-size:13.5px;font-weight:700;color:#334155;line-height:1.35}
+  .review-status-card .rs{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.4}
+  .review-status-card.pending{border-color:#FCD34D;background:#FFFBEB}
+  .review-status-card.clear{border-color:#A7F3D0;background:#F0FDF4}
+  .review-decision{border-left:4px solid #D97706;border-radius:0 12px 12px 0;background:#FFF7E6;padding:14px 15px}
+  .review-decision .rk{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:#B45309;font-weight:900;margin-bottom:6px}
+  .review-decision strong{display:block;font-size:15px;color:#10231F;line-height:1.4}
+  .review-decision p{margin:5px 0 0;font-size:12.5px;color:#64748B;line-height:1.5}
+  .review-sequence{border:1px solid var(--hair);border-radius:12px;background:#fff;padding:13px 15px}
+  .review-sequence-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);font-weight:800;margin-bottom:8px}
+  .review-step{display:grid;grid-template-columns:24px 1fr;gap:9px;align-items:start;padding:7px 0;border-top:1px solid #EEF1F0}
+  .review-step:first-of-type{border-top:0;padding-top:0}
+  .review-step:last-child{padding-bottom:0}
+  .review-step-num{width:22px;height:22px;border-radius:999px;background:#E7F1EF;color:#0E6E63;display:grid;place-items:center;font-size:11px;font-weight:800}
+  .review-step b{display:block;font-size:12.5px;color:#334155}
+  .review-step span{display:block;font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.4}
+  .review-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .review-action{border:1px solid var(--hair);border-radius:10px;background:#fff;padding:11px 12px;text-align:left;font-size:12.5px;font-weight:700;color:#334155;display:flex;align-items:center;justify-content:space-between;gap:10px;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease,background .16s ease}
+  .review-action:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(16,35,31,.08);border-color:#9fb7b0}
+  .review-action.primary{background:#0E6E63;color:#fff;border-color:#0E6E63}
+  .review-action.primary:hover{background:#0B4F47;border-color:#0B4F47}
+  .review-action .action-meta{font-size:10px;font-weight:600;opacity:.76;white-space:nowrap}
+  @media(max-width:640px){.review-status-grid,.review-actions{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
 <!-- Arc Overview and Operator Model are rendered as Product Foundation views before the operational workspace navigation. -->
@@ -1250,6 +1281,30 @@ function renderOverlay(){
     var d=demos[ST.demoCard], stage=ST.demoStage||1;
     var details='<div class="demo-detail-grid"><div class="demo-detail"><b>What changed</b><p>'+esc(d.changed)+'</p></div><div class="demo-detail"><b>Why it matters</b><p>'+esc(d.matters)+'</p></div><div class="demo-detail"><b>Affected assignment</b><p>'+esc(d.assignment)+'</p></div><div class="demo-detail"><b>Clinical site</b><p>'+esc(d.site)+'</p></div><div class="demo-detail"><b>Preceptor</b><p>'+esc(d.preceptor)+'</p></div><div class="demo-detail"><b>AI confidence</b><p>'+esc(d.confidence)+'</p></div></div><div class="demo-note"><b>AI summary</b><br>'+esc(d.summary)+'</div>';
     var actions='<div class="demo-actions">'+d.actions.map(function(a,i){var disabled=a.indexOf('disabled')>-1;return '<button class="demo-action'+(i===0&&!disabled?' primary':'')+'" data-act="demoaction" data-label="'+esc(a.replace(' — disabled',''))+'" '+(disabled?'disabled':'')+'>'+esc(a.replace(' — disabled',''))+'</button>';}).join('')+'</div><div class="demo-note"><b>Suggested note</b><br>“'+esc(d.note)+'”</div>';
+    var reviewWorkspace='';
+    if(ST.demoCard==='review'){
+      reviewWorkspace='<div class="review-workspace">'+
+        '<div class="review-status-grid">'+
+          '<div class="review-status-card pending"><div class="rk">Preceptor confirmation</div><div class="rv">Pending · Melissa Grant, CRNA</div><div class="rs">Confirm availability for July 13–17 before approval.</div></div>'+
+          '<div class="review-status-card clear"><div class="rk">Clinical-site capacity</div><div class="rv">Available</div><div class="rs">Highland Park has one open OB placement for the revised dates.</div></div>'+
+          '<div class="review-status-card clear"><div class="rk">Student eligibility</div><div class="rv">Confirmed</div><div class="rs">Priya meets the OB rotation requirements for this assignment.</div></div>'+
+          '<div class="review-status-card clear"><div class="rk">Schedule conflicts</div><div class="rv">None detected</div><div class="rs">No approved time off or overlapping clinical assignment was found.</div></div>'+
+        '</div>'+
+        '<div class="review-decision"><div class="rk">Decision needed</div><strong>Confirm the preceptor, then approve or return the request.</strong><p>If Melissa confirms the revised dates, approve the move and notify Priya and Highland Park. If she cannot cover the dates, request alternate dates before changing ASN-005.</p></div>'+
+        '<div class="review-sequence"><div class="review-sequence-title">Recommended review sequence</div>'+
+          '<div class="review-step"><span class="review-step-num">1</span><div><b>Confirm coverage</b><span>Contact Melissa Grant and verify July 13–17 availability.</span></div></div>'+
+          '<div class="review-step"><span class="review-step-num">2</span><div><b>Record the response</b><span>Add the preceptor confirmation or note the reason coverage is unavailable.</span></div></div>'+
+          '<div class="review-step"><span class="review-step-num">3</span><div><b>Complete the decision</b><span>Approve and notify when confirmed; otherwise return the request for alternate dates.</span></div></div>'+
+        '</div>'+
+        '<div class="review-actions">'+
+          '<button class="review-action primary" data-act="demoaction" data-label="Preceptor confirmation requested"><span>Request preceptor confirmation</span><span class="action-meta">Recommended</span></button>'+
+          '<button class="review-action" data-act="demoaction" data-label="Additional information requested"><span>Request more information</span><span class="action-meta">Priya</span></button>'+
+          '<button class="review-action" data-act="demoaction" data-label="Review note added"><span>Add review note</span><span class="action-meta">Document</span></button>'+
+          '<button class="review-action" data-act="demoaction" data-label="Priya notified"><span>Notify Priya</span><span class="action-meta">Message</span></button>'+
+        '</div>'+
+        '<div class="demo-note"><b>Suggested review note</b><br>“'+esc(d.note)+'”</div>'+
+      '</div>';
+    }
     var demoSecondTitles={
       blocked:{kicker:'Required owner decision',title:'Resolve the ICU scheduling conflict',desc:'Request alternate dates, notify the student and clinical coordinator, add a review note, or mark the issue resolved.'},
       review:{kicker:'Pending human review',title:'Confirm the OB preceptor and decide',desc:'Approve when confirmed, request more information, notify Priya or the preceptor, and document the decision.'},
@@ -1257,7 +1312,7 @@ function renderOverlay(){
     };
     var ds=demoSecondTitles[ST.demoCard];
     var demoSecond='<button class="second-level-card" data-act="demostage" data-stage="2" style="--tone:'+d.tone+';background:linear-gradient(135deg,#fff 0%,'+d.bg+' 100%)"><span class="second-level-copy"><span class="second-level-kicker">'+esc(ds.kicker)+'</span><span class="second-level-title">'+esc(ds.title)+'</span><span class="second-level-desc">'+esc(ds.desc)+'</span></span><span class="cc-kpi-ic" style="background:'+d.tone+';color:#fff">'+ic('arrowr',18,'#fff')+'</span></button>';
-    html='<div class="modal-wrap"><div class="scrim" data-act="closedemocard" style="position:absolute"></div><div class="modal" style="max-width:780px;--tone:'+d.tone+';--tonebg:'+d.bg+'"><button class="close" data-act="closedemocard" aria-label="Close detail card">'+ic('x',18)+'</button><span class="demo-status" style="--tone:'+d.tone+';--tonebg:'+d.bg+'">'+d.status+'</span><h2 style="margin-top:10px">'+esc(d.title)+'</h2><p class="sub">'+(stage===1?'Expanded detail — what changed, why it matters, and the AI context.':'Action view — complete the review and move the request forward.')+'</p>'+(stage===1?details+demoSecond:actions)+(stage===2?'<div style="display:flex;justify-content:flex-start;gap:10px;margin-top:18px"><button class="mini" data-act="demostage" data-stage="1">'+ic('back',13)+' Back to detail</button></div>':'')+'</div></div>';
+    html='<div class="modal-wrap"><div class="scrim" data-act="closedemocard" style="position:absolute"></div><div class="modal" style="max-width:780px;--tone:'+d.tone+';--tonebg:'+d.bg+'"><button class="close" data-act="closedemocard" aria-label="Close detail card">'+ic('x',18)+'</button><span class="demo-status" style="--tone:'+d.tone+';--tonebg:'+d.bg+'">'+d.status+'</span><h2 style="margin-top:10px">'+esc(d.title)+'</h2><p class="sub">'+(stage===1?'Expanded detail — what changed, why it matters, and the AI context.':'Action view — complete the review and move the request forward.')+'</p>'+(stage===1?details+demoSecond:(ST.demoCard==='review'?reviewWorkspace:actions))+(stage===2?'<div style="display:flex;justify-content:flex-start;gap:10px;margin-top:18px"><button class="mini" data-act="demostage" data-stage="1">'+ic('back',13)+' Back to detail</button></div>':'')+'</div></div>';
   } else if(ST.calendarCell){
     var cc=ST.calendarCell;
     var tone=cc.type==='conflict'?'#DC2626':(cc.type==='pto'?'#7C3AED':(cc.type==='oncall'?'#C2410C':'#15803D'));
