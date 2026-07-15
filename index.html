@@ -447,6 +447,9 @@
   .modal-wrap > .scrim{z-index:0 !important;pointer-events:auto;}
   .modal-wrap > .modal{z-index:2 !important;pointer-events:auto;}
   .modal-wrap .second-level-card{position:relative;z-index:3;pointer-events:auto;}
+  .modal-wrap .second-level-card *{pointer-events:none;}
+  .modal-wrap .second-level-card:active{transform:translateY(0) scale(.995);}
+
   .cc-kpi{cursor:pointer;}
   .cc-kpi:focus-visible,.second-level-card:focus-visible{outline:3px solid rgba(15,118,110,.28);outline-offset:3px;}
   button[data-act],.row.clk,.sitecard,.student-work-card,.demo-work-card,.kpi-item-card,.kpi-next-card,.second-level-card{cursor:pointer;}
@@ -1896,8 +1899,18 @@ function render(){
 // Demo-critical click routing: handle the four primary cards and their second-level cards
 // in the capture phase so nested controls or overlay layering cannot swallow the interaction.
 document.addEventListener('click',function(e){
-  // Only intercept the demo-card progression control here. KPI second-level cards
-  // use data-act="kpideep" and must continue to the normal data-act router below.
+  // Handle every KPI second-level control directly in capture phase.
+  // This prevents the modal/backdrop or a parent card from swallowing the click.
+  var kpiDeep=e.target.closest('[data-act="kpideep"]');
+  if(kpiDeep){
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    ST.kpiDeep=kpiDeep.getAttribute('data-key');
+    renderOverlay();
+    return;
+  }
+
+  // Demo-card progression remains separate from KPI drilldowns.
   var second=e.target.closest('.second-level-card[data-act="demostage"]');
   if(second){
     e.preventDefault();
