@@ -562,7 +562,7 @@
 
   /* ================================================================
      PRODUCT FOUNDATION INSERTS
-     Product Thesis belongs before the operational workspaces.
+     Arc Overview belongs before the operational workspaces.
      Operator Model belongs directly after the thesis and above the
      operational views because it explains how Arc coordinates the work.
      ================================================================ */
@@ -604,10 +604,22 @@
   @media(max-width:900px){.arc-thesis-meta,.foundation-context{grid-template-columns:1fr}.operator-page-head{align-items:flex-start;flex-direction:column}.operator-principle{white-space:normal}.operator-reading-order{grid-template-columns:1fr 1fr}.operator-role.orchestrator{grid-column:1/-1}.nav-group{display:none}}
   @media(max-width:620px){.operator-reading-order{grid-template-columns:1fr}.operator-role.orchestrator{grid-column:auto}.arc-thesis-hero{border-radius:18px;padding:28px 22px}.arc-thesis-line{border-radius:14px}.operator-image-wrap{padding:8px}.operator-image-button{padding:6px}}
 
+
+  .prototype-banner{display:flex;align-items:flex-start;gap:10px;border:1px solid #BFDBFE;background:#EFF6FF;color:#1E3A8A;border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.45;margin-bottom:12px}
+  .prototype-banner b{display:block;color:#1E40AF;margin-bottom:1px}
+  .next-action-hero{display:flex;align-items:center;justify-content:space-between;gap:16px;border:2px solid var(--teal);background:linear-gradient(180deg,#F0FDFA 0%,#FFFFFF 100%);border-radius:14px;padding:14px 16px;box-shadow:0 8px 22px rgba(14,110,99,.08)}
+  .next-action-hero .k{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--teal)}
+  .next-action-hero .v{font-size:14px;font-weight:800;color:var(--ink);margin-top:3px}
+  .next-action-hero .s{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .next-action-hero button{background:var(--teal);color:#fff;border-radius:9px;padding:9px 12px;font-size:12px;font-weight:800;white-space:nowrap}
+  .next-action-hero button:hover{background:var(--teal-deep)}
+  .release-status{display:inline-flex;align-items:center;gap:7px;border:1px solid #FECACA;background:#FEF2F2;color:#B91C1C;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:800}
+  .source-label{display:inline-flex;align-items:center;gap:5px;border:1px solid #DBEAFE;background:#EFF6FF;color:#1D4ED8;border-radius:999px;padding:3px 7px;font-size:9.5px;font-weight:700}
+  @media(max-width:760px){.next-action-hero{align-items:flex-start;flex-direction:column}.next-action-hero button{width:100%}}
 </style>
 </head>
 <body>
-<!-- Product Thesis and Operator Model are rendered as Product Foundation views before the operational workspace navigation. -->
+<!-- Arc Overview and Operator Model are rendered as Product Foundation views before the operational workspace navigation. -->
 <div id="app"></div>
 <footer class="atlas-footer" aria-label="AtlasFlow footer">
   <div>AtlasFlow</div>
@@ -797,7 +809,7 @@ function legend(){
     ['Missing Data','alert','1 request','#2563EB']
   ];
   var items=results.map(function(c){return '<button class="proof-tile" data-act="checkinfo" data-key="'+esc(c[0])+'"><span class="proof-icon">'+ic(c[1],16)+'</span><span><span class="proof-name">'+esc(c[0])+'</span><span class="proof-result" style="color:'+c[3]+'">'+esc(c[2])+'</span></span></button>';}).join('');
-  return '<div class="readiness-proof"><div class="proof-head"><div><h2>Readiness engine activity</h2><p>Operational proof of the checks Arc ran across this week’s schedule.</p></div><span class="sync-pill">168 checks performed</span></div><div class="proof-grid">'+items+'</div></div>';
+  return '<div class="readiness-proof"><div class="proof-head"><div><h2>Readiness engine activity</h2><p>Operational proof of the checks Arc ran across this week’s schedule.</p></div><span class="sync-pill">168 prototype checks illustrated</span></div><div class="proof-grid">'+items+'</div></div>';
 }
 
 function viewDashboard(){
@@ -806,10 +818,10 @@ function viewDashboard(){
     ['shield','#FEF2F2','#EF4444','Readiness issues','4','Reasons identified',2],
     ['alert','#FFF7ED','#F97316','Coverage gaps','3','1 added this week',1],
     ['inbox','#F5F3FF','#8B5CF6','Pending approvals','2','Time-off tracking',3],
-    ['calendar','#EAF4FF','#1683E8','Open assignments','5','2 need action',0]
+    ['calendar','#EAF4FF','#1683E8','Active assignments','5','2 need action',0]
   ];
   var kpiHtml=kpis.map(function(k){return '<button class="cc-kpi" type="button" aria-label="Open '+k[3]+' detail" data-act="kpi" data-k="'+k[6]+'"><span class="cc-kpi-ic" style="background:'+k[1]+';color:'+k[2]+'">'+ic(k[0],22)+'</span><div><div class="lab">'+k[3]+'</div><div class="num">'+k[4]+'</div><div class="delta">'+k[5]+'</div></div></button>';}).join('');
-  var brief='<aside class="weekly-brief"><div class="brief-head"><div><div class="brief-title">Weekly operating brief</div><div class="brief-sub">Jul 6–12, 2026 · All clinical sites</div></div><span class="sync-pill">Synced 8 min ago</span></div>'+
+  var brief='<aside class="weekly-brief"><div class="brief-head"><div><div class="brief-title">Weekly operating brief</div><div class="brief-sub">Jul 6–12, 2026 · All clinical sites</div></div><span class="sync-pill">Prototype snapshot</span></div>'+
     '<div class="brief-stats"><div class="brief-stat"><b>42</b><span>scheduled assignments</span></div><div class="brief-stat"><b>4</b><span>readiness issues</span></div><div class="brief-stat"><b>3</b><span>coverage gaps</span></div><div class="brief-stat"><b>2</b><span>approvals pending</span></div></div>'+
     '<div class="brief-block"><div class="brief-label">Highest-risk issue</div><div class="brief-risk"><b>Jordan Lee — ICU Rotation Move</b><span>Time-off conflict</span><span>No qualified ICU preceptor confirmed</span></div></div>'+
     '<div class="brief-block"><div class="brief-label">Recommended focus</div><ol class="brief-focus"><li>Resolve ICU coverage first</li><li>Confirm Priya Shah’s preceptor</li><li>Approve Marcus Reed by end of day</li></ol></div></aside>';
@@ -817,7 +829,7 @@ function viewDashboard(){
     '<section class="ops-panel"><h2>Weekly capacity</h2><p>Assignment pressure across the network.</p><div class="ops-line"><span>Evanston Hospital</span><b>8 / 10</b></div><div class="ops-line"><span>Highland Park</span><b style="color:#D97706">9 / 10</b></div><div class="ops-line"><span>Children’s Rotation</span><b style="color:#DC2626">At limit</b></div></section>'+
     '<section class="ops-panel"><h2>System activity</h2><p>What Arc processed this week.</p><div class="ops-line"><span>Checks performed</span><b>168</b></div><div class="ops-line"><span>Conflicts detected</span><b>4</b></div><div class="ops-line"><span>Automatically cleared</span><b>37</b></div></section>'+
     '<section class="ops-panel"><h2>Recent decisions</h2><p>Latest human-reviewed outcomes.</p><div class="ops-line"><span>Approved</span><b style="color:#16A34A">6</b></div><div class="ops-line"><span>Returned for review</span><b style="color:#D97706">2</b></div><div class="ops-line"><span>Notifications sent</span><b>11</b></div></section></div>';
-  return '<div class="cc"><div class="ops-top"><div class="cc-focus"><div class="cc-toolbar"><div class="cc-title"><h1>Schedule command center</h1><p>Weekly readiness, coverage, approvals, and next actions in one operational view.</p></div><div class="cc-tools"><button class="tbtn">'+ic('back',14)+' Jul 6–12, 2026</button><button class="tbtn">Today</button><button class="tbtn">All sites '+ic('chevr',13)+'</button></div></div><div class="cc-kpis">'+kpiHtml+'</div></div>'+brief+'</div><div style="margin-top:18px">'+viewChecks()+'</div><div style="margin-top:18px">'+legend()+'</div><div style="margin-top:18px">'+lower+'</div></div>';
+  return '<div class="cc"><div class="ops-top"><div class="cc-focus"><div class="cc-toolbar"><div class="cc-title"><h1>Operations Review</h1><p>Weekly readiness, coverage, approvals, and next actions in one operational view.</p></div><div class="cc-tools"><button class="tbtn">'+ic('back',14)+' Jul 6–12, 2026</button><button class="tbtn">Today</button><button class="tbtn">All sites '+ic('chevr',13)+'</button></div></div><div class="cc-kpis">'+kpiHtml+'</div><div class="next-action-hero"><div><div class="k">Next recommended action</div><div class="v">Resolve Jordan Lee’s ICU coverage conflict before publishing the schedule.</div><div class="s">Time-off request approved · downstream coverage update still requires review</div></div><button type="button" onclick="openKpi('readiness')">Review assignment</button></div></div>'+brief+'</div><div style="margin-top:18px">'+viewChecks()+'</div><div style="margin-top:18px">'+legend()+'</div><div style="margin-top:18px">'+lower+'</div></div>';
 }
 
 function viewCalendar2(){
@@ -889,7 +901,7 @@ function viewAssignments(){
 
 function viewChecks(){
   var cards=[
-    {id:'blocked',tone:'#DC2626',bg:'#FEE2E2',status:'Blocked',student:'Jordan Lee',request:'ICU Rotation Move',risk:'Requested dates overlap with an approved time-off block, and no qualified ICU preceptor is available.',next:'Request two alternate date ranges before changing the assignment.',time:'Urgent — response needed today',button:'Resolve Conflict',submitted:'Jul 14 · 8:12 AM',site:'Northwestern Medical',week:'Jul 20–26',reviewer:'Ryan',score:'42/100',checked:'8 min ago'},
+    {id:'blocked',tone:'#DC2626',bg:'#FEE2E2',status:'Blocked',student:'Jordan Lee',request:'ICU Rotation Move',risk:'Requested dates overlap with an approved time-off block, and no qualified ICU preceptor is available.',next:'Request two alternate date ranges before changing the assignment.',time:'Urgent — response needed today',button:'Resolve Conflict',submitted:'Jul 14 · 8:12 AM',site:'Northwestern Medical',week:'Jul 20–26',reviewer:'Ryan',score:'Blocked',checked:'8 min ago'},
     {id:'review',tone:'#D97706',bg:'#FEF3C7',status:'Needs Review',student:'Priya Shah',request:'OB Rotation Schedule Change',risk:'Site capacity appears available, but preceptor confirmation is still pending.',next:'Confirm preceptor availability before approving the move.',time:'Review within 24 hours',button:'Review Request',submitted:'Jul 14 · 9:05 AM',site:'Highland Park Hospital',week:'Jul 27–Aug 2',reviewer:'Ryan',score:'76/100',checked:'11 min ago'},
     {id:'ready',tone:'#16A34A',bg:'#DCFCE7',status:'Ready',student:'Marcus Reed',request:'PACU Rotation Swap',risk:'No assignment, site-capacity, preceptor, or time-off conflicts were identified.',next:'Approve the request and notify the student and preceptor.',time:'Routine — approve by end of day',button:'Approve & Notify',submitted:'Jul 14 · 10:21 AM',site:'Evanston Hospital',week:'Aug 3–9',reviewer:'Ryan',score:'96/100',checked:'5 min ago'}
   ];
@@ -1011,7 +1023,7 @@ function viewStudents(){
     var bankChips=x.bank.map(function(b){return '<span class="pill" title="'+esc(TYPE_LABEL[b.type])+'">'+b.type+' '+b.left+'/'+b.allow+'</span>';}).join('');
     var issueText=clear?'No readiness issues':issue.type;
     return '<button class="student-work-card" style="--accent:'+accent+';--status-bg:'+statusBg+';--status-fg:'+statusFg+';--signal-bg:'+signalBg+';--signal-border:'+signalBorder+'" data-act="openstudent" data-id="'+st.id+'">'+
-      '<div class="student-topline">'+avatar(st.name,40)+'<div class="student-ident"><div class="student-name">'+esc(st.name)+'</div><div class="student-sub">'+esc(st.cohort)+' &nbsp;·&nbsp; '+esc(st.level)+' &nbsp;·&nbsp; '+esc(st.region)+'</div></div><span class="student-status">'+ic(clear?'checkc':'alert',12,statusFg)+(clear?'Clear':'Needs review')+'</span></div>'+
+      '<div class="student-topline">'+avatar(st.name,40)+'<div class="student-ident"><div class="student-name">'+esc(st.name)+'</div><div class="student-sub">'+esc(st.cohort)+' &nbsp;·&nbsp; '+esc(st.level)+' &nbsp;·&nbsp; '+esc(st.region)+'</div></div><span class="student-status">'+ic(clear?'checkc':'alert',12,statusFg)+(clear?'Clear':'Needs Review')+'</span></div>'+
       '<div class="student-assignment"><span class="label">Assignment</span>'+assignment+'</div>'+
       '<div class="student-core"><div><div class="student-signal"><div><div class="k">Readiness issue</div><div class="v"><strong>'+esc(issueText)+'</strong></div></div><div><div class="k">Recommended action</div><div class="v">'+esc(x.action)+'</div></div></div><div class="student-allow"><span class="label">Remaining allowance</span><div class="chips">'+bankChips+'</div></div></div>'+
       '<div class="student-meta-panel"><div class="readiness-ring"><span class="ring" style="--score:'+x.score+'"><b>'+x.score+'</b></span><div><b style="font-size:10px">Readiness</b><small> /100</small></div></div><div class="student-meta-line">'+ic('clock',13,'#64748B')+'<span>Last checked<b>'+x.checked+'</b></span></div><div class="student-meta-line">'+ic('users',13,'#64748B')+'<span>Assigned to<b>Ryan</b></span></div></div></div>'+
@@ -1088,7 +1100,7 @@ function viewTimeline(){
     }).join('');
   }
   var legend='<div class="tllegend">'+
-    [['Ready','#16A34A','#DCFCE7'],['Needs review','#DC2626','#FEE2E2']].map(function(s){
+    [['Ready','#16A34A','#DCFCE7'],['Needs Review','#DC2626','#FEE2E2']].map(function(s){
       return '<span class="lk"><span class="tlsw" style="background:'+s[2]+';border-color:'+s[1]+'"></span>'+s[0]+'</span>';}).join('')+
     '<span class="lk"><span class="tlpip" style="position:static;background:#DC2626;box-shadow:none"></span>conflict day</span>'+
     '<span class="lk"><span class="tlpip" style="position:static;background:#D97706;box-shadow:none"></span>review day</span>'+
@@ -1210,7 +1222,7 @@ function viewHospitalFeed(){
 function renderOverlay(){
   var o=document.getElementById('overlay'); var html='';
   if(ST.operatorModelOpen){
-    html='<div class="modal-wrap"><div class="scrim" data-act="closeoperatormodel" style="position:absolute"></div><div class="operator-model-modal"><button class="close-model" data-act="closeoperatormodel" aria-label="Close operator model">'+ic('x',20)+'</button><div class="operator-model-frame"><img src="'+OPERATOR_MODEL_IMAGE+'" alt="Arc Operator and Decision Flow full-resolution view"></div></div></div>';
+    html='<div class="modal-wrap"><div class="scrim" data-act="closeoperatormodel" style="position:absolute"></div><div class="operator-model-modal"><button class="close-model" data-act="closeoperatormodel" aria-label="Close operator model">'+ic('x',20)+'</button><div class="operator-model-frame"><img src="'+OPERATOR_MODEL_IMAGE+'" alt="How Arc Makes and Reconciles Decisions full-resolution view"></div></div></div>';
   } else if(ST.demoCard){
     var demos={
       blocked:{tone:'#DC2626',bg:'#FEE2E2',status:'Blocked',title:'Jordan Lee — ICU Rotation Move',changed:'Jordan requested moving the ICU rotation from July 13–17 to July 20–24.',matters:'The new dates conflict with approved student time off and would leave the rotation without a confirmed preceptor.',assignment:'ASN-014 — Adult ICU Rotation',site:'Community North Hospital',preceptor:'Dr. Elena Ruiz — unavailable July 20–24',confidence:'96%',summary:'The request should not be approved until both the schedule conflict and preceptor coverage are resolved.',note:'Requested dates conflict with approved time off and no ICU preceptor is currently available. Please provide two alternate date ranges.',actions:['Approve request — disabled','Request alternate dates','Notify student','Notify clinical coordinator','Add review note','Mark resolved']},
@@ -1414,7 +1426,7 @@ function renderOverlay(){
 
         '3|approvals-pending':{tone:'#8B5CF6',title:'Pending approvals',summary:'These requests still require confirmation, recording, or a judgment call before the approval picture is complete.',bullets:['The queue is intentionally simple and paper-binder-like.','Pending items give Ryan one place to remember what is still unresolved.','Once approved, these requests feed into readiness when they overlap assignments.'],note:'This preserves the spirit of the current workflow while making it visible.'},
         '3|approvals-requested':{tone:'#64748B',title:'Requested items',summary:'Requested items are newer requests that have entered the queue but have not yet been acted on.',bullets:['These are waiting for a decision or acknowledgment.','They may or may not affect the current week.','The queue helps Ryan avoid losing track of incoming requests.'],note:'Think of this as the front edge of the approval workflow.'},
-        '3|approvals-review':{tone:'#92400E',title:'Needs review requests',summary:'Needs review requests require more judgment than a routine approval—often because of timing or operational impact.',bullets:['Study days or unusual requests often land here.','These may need Ryan to weigh educational needs against site commitments.','Flagging them separately lowers the chance of a casual miss.'],note:'This metric highlights where simple tracking becomes real decision-making.'},
+        '3|approvals-review':{tone:'#92400E',title:'Needs Review requests',summary:'Needs Review requests require more judgment than a routine approval—often because of timing or operational impact.',bullets:['Study days or unusual requests often land here.','These may need Ryan to weigh educational needs against site commitments.','Flagging them separately lowers the chance of a casual miss.'],note:'This metric highlights where simple tracking becomes real decision-making.'},
         '3|approvals-impact':{tone:'#DC2626',title:'Schedule impact',summary:'This count isolates pending requests that would touch active assignments if approved or confirmed.',bullets:['It narrows Ryan’s attention to the requests most likely to change the live schedule.','A request with schedule impact can ripple into coverage, readiness, and coordinator communication.','This is the most operationally important subset of the approval queue.'],note:'Useful when Ryan wants to triage requests by urgency rather than by arrival time.'},
 
         '4|students-total':{tone:'#10B981',title:'Program total students',summary:'This program-level count is a headline number meant to orient Ryan, even though the prototype only includes a smaller demo-safe roster for interaction.',bullets:['42 represents the broader junior + senior population in the program week.','The command center keeps this visible so the demo feels grounded in real operational scale.','Only five student records are fully represented for prototype interaction.'],note:'This combines a realistic scale signal with a manageable demo footprint.'},
@@ -1434,7 +1446,7 @@ function renderOverlay(){
         var row0=rws.filter(function(x){return x.id===aid;})[0];
         if(row0){
           var lead=row0.open[0]||null;
-          return {tone:'#1683E8',title:row0.student.name+' assignment review',summary:'This drilldown focuses on one assignment that is currently part of the Open assignments detail.',bullets:[esc(row0.site.name)+' · '+fmtRange(row0.start,row0.end)+' · '+row0.rotation,'Current status: '+row0.status+(lead?' with '+lead.type.toLowerCase():' and no open reasons'),lead?lead.action:'No immediate action is needed beyond normal schedule confirmation.'],note:lead?lead.summary:'This assignment appears operationally clear in the current demo week.'};
+          return {tone:'#1683E8',title:row0.student.name+' assignment review',summary:'This drilldown focuses on one assignment that is currently part of the Active assignments detail.',bullets:[esc(row0.site.name)+' · '+fmtRange(row0.start,row0.end)+' · '+row0.rotation,'Current status: '+row0.status+(lead?' with '+lead.type.toLowerCase():' and no open reasons'),lead?lead.action:'No immediate action is needed beyond normal schedule confirmation.'],note:lead?lead.summary:'This assignment appears operationally clear in the current demo week.'};
         }
       }
       if(ST.kpi===1 && /^coverage-gap-/.test(ST.kpiDeep)){
@@ -1499,12 +1511,12 @@ function renderOverlay(){
     if(ST.kpi===0){
       var needReview=rws.filter(function(x){return x.status==='Needs Review';});
       var ready=rws.filter(function(x){return x.status==='Ready';});
-      kd.title='Open assignments'; kd.icon='calendar'; kd.tone='#1683E8'; kd.view='assignments'; kd.cta='Open assignments';
+      kd.title='Active assignments'; kd.icon='calendar'; kd.tone='#1683E8'; kd.view='assignments'; kd.cta='Active assignments';
       kd.summary='All active demo assignments for the selected week, with status, issue count, and the fastest path to the record that needs attention.';
       kd.stats='<div class="grid4">'+
         statBox(rws.length,'Active','Assignments in the schedule week',kd.tone,'assignments-active')+
         statBox(ready.length,'Ready','Clear to proceed', '#16A34A','assignments-ready')+
-        statBox(needReview.length,'Need review','Assignments with open reasons', '#DC2626','assignments-review')+
+        statBox(needReview.length,'Needs Review','Assignments with open reasons', '#DC2626','assignments-review')+
         statBox(oc.length,'Open reasons','Underlying readiness reasons', '#B91C1C','assignments-reasons')+
       '</div>';
       var priority = needReview.length ? '<div style="display:flex;flex-direction:column;gap:10px">'+needReview.map(function(x){
@@ -1560,7 +1572,7 @@ function renderOverlay(){
       kd.stats='<div class="grid4">'+
         statBox(pr.length,'Pending','Requests still awaiting action',kd.tone,'approvals-pending')+
         statBox(requested,'Requested','New requests in queue','#64748B','approvals-requested')+
-        statBox(awaitingReview,'Needs review','Require a judgment call','#92400E','approvals-review')+
+        statBox(awaitingReview,'Needs Review','Require a judgment call','#92400E','approvals-review')+
         statBox(pr.filter(function(rq){return rws.some(function(a){return a.studentId===rq.studentId&&overlaps(a.start,a.end,rq.start,rq.end);});}).length,'Schedule impact','Would touch an active assignment','#DC2626','approvals-impact')+
       '</div>';
       var requestRows='<div class="rowlist">'+pr.map(function(rq){
@@ -1593,7 +1605,7 @@ function renderOverlay(){
       var reviewSites=siteInfo.filter(function(s){return s.status==='Needs Review';}).length;
       kd.stats='<div class="grid4">'+
         statBox(readySites,'Ready','Sites currently clear',kd.tone,'sites-ready')+
-        statBox(reviewSites,'Need review','Sites with open reasons','#DC2626','sites-review')+
+        statBox(reviewSites,'Needs Review','Sites with open reasons','#DC2626','sites-review')+
         statBox(siteInfo.length,'Total sites','Included in this demo','#64748B','sites-total')+
         statBox(siteInfo.filter(function(s){return s.assignments>0;}).length,'Active this week','Sites with current assignments','#0F766E','sites-active')+
       '</div>';
@@ -1645,15 +1657,15 @@ function toast(msg){
 
 /* ------------------------------------------------------------------
    PRODUCT THESIS VIEW
-   Placement: Product Foundation. This belongs before Daily Review and
+   Placement: Product Foundation. 
    every operational workspace because it defines the problem, promise,
    human boundary, and outcome the rest of the viewer must demonstrate.
    ------------------------------------------------------------------ */
 function viewProductThesis(){
   return '<div class="foundation-page">'+
-    '<div><span class="placement-note">'+ic('info',13)+' Product foundation · belongs before operational views</span></div>'+
+    '<div><span class="placement-note">'+ic('info',13)+' Product foundation</span></div>'+
     '<article class="arc-thesis-hero">'+
-      '<p class="arc-thesis-kicker">Arc product thesis</p>'+
+      '<p class="arc-thesis-kicker">Arc product overview</p>'+
       '<h1 class="arc-thesis-title">Arc helps clinical education teams understand what is planned, see what changed, identify what is at risk, and complete the right next actions across complex, interconnected schedules—without removing human judgment or control.</h1>'+
       '<p class="arc-thesis-support">Arc is a clinical education scheduling intelligence and reconciliation platform that turns fragmented schedules, constraints, changes, and exceptions into clear readiness signals, risk explanations, coordinated decisions, and verified follow-through.</p>'+
       '<div class="arc-thesis-line">Know what is planned. See what changed. Understand what is at risk. Complete every required next action.</div>'+
@@ -1670,15 +1682,15 @@ function viewProductThesis(){
 /* ------------------------------------------------------------------
    OPERATOR MODEL VIEW
    Placement: Operating Architecture. This belongs after the Product
-   Thesis and above Daily Review because it explains how Octavia coordinates
+   Overview because it explains how Octavia coordinates
    Roxanne, Clara, Gloria, and Nadia to produce the operational experience.
    ------------------------------------------------------------------ */
 function viewOperatorModel(){
   return '<div class="foundation-page">'+
     
     '<article class="operator-page-card">'+
-      '<header class="operator-page-head"><div><div class="eyebrow">How Arc operates</div><h1>Arc Operator and Decision Flow</h1><p>Octavia, Arc’s orchestrator, coordinates the complete scheduling-intelligence loop above Roxanne, Clara, Gloria, and Nadia.</p></div></header>'+
-      '<div class="operator-image-wrap"><button class="operator-image-button" data-act="openoperatormodel" aria-label="Open the complete Arc Operator and Decision Flow full screen"><img src="'+OPERATOR_MODEL_IMAGE+'" alt="Arc Operator and Decision Flow showing Octavia the Orchestrator above Roxanne Review, Clara Clarify, Gloria Guard, and Nadia Next Action"></button><p class="operator-zoom-note">Scaled to fit the page preview. Click the graphic to enlarge the full-resolution operator and decision flow.</p></div>'+
+      '<header class="operator-page-head"><div><div class="eyebrow">How Arc operates</div><h1>How Arc Makes and Reconciles Decisions</h1><p>Octavia, Arc’s orchestrator, coordinates the complete scheduling-intelligence loop above Roxanne, Clara, Gloria, and Nadia.</p></div></header>'+
+      '<div class="operator-image-wrap"><button class="operator-image-button" data-act="openoperatormodel" aria-label="Open the complete How Arc Makes and Reconciles Decisions full screen"><img src="'+OPERATOR_MODEL_IMAGE+'" alt="How Arc Makes and Reconciles Decisions showing Octavia the Orchestrator above Roxanne Review, Clara Clarify, Gloria Guard, and Nadia Next Action"></button><p class="operator-zoom-note">Scaled to fit the page preview. Click the graphic to enlarge the full-resolution operator and decision flow.</p></div>'+
       '<div class="operator-reading-order"><div class="operator-role orchestrator"><b>Octavia · Orchestrator</b><span>Coordinates intent, routing, reasoning, outputs, and reconciliation across the full loop.</span></div><div class="operator-role"><b>Roxanne · Review</b><span>Assembles trusted scheduling context.</span></div><div class="operator-role"><b>Clara · Clarify</b><span>Structures changes and resolves missing detail.</span></div><div class="operator-role"><b>Gloria · Guard</b><span>Tests readiness, constraints, and policy risk.</span></div><div class="operator-role"><b>Nadia · Next Action</b><span>Recommends decisions and verifies closure.</span></div></div>'+
     '</article>'+
   '</div>';
@@ -1688,11 +1700,11 @@ var VIEWS={thesis:viewProductThesis,operators:viewOperatorModel,dashboard:viewDa
 function nav(){
   var c=counts(), oc=openChecks().length, pr=pendingReq().length;
   var foundation=[
-    ['thesis','Product thesis','info',null],
+    ['thesis','Arc overview','info',null],
     ['operators','Operator model','layers',null]
   ];
   var operations=[
-    ['dashboard','Daily Review','shield',null],
+    ['dashboard','Operations Review','shield',null],
     ['assignments','Assignments','layers',c.review||null],
     ['timeline','Calendar','calendar',null],
     ['calendar2','Coverage map','calendar',null],
@@ -1727,7 +1739,8 @@ function render(){
   var body;
   if(ST.role==='leader'){
     body='<div class="shell"><nav class="rail">'+nav()+'</nav>'+
-      '<main>'+(VIEWS[ST.view]||viewDashboard)()+'</main></div>';
+      '<main>
+<div class="prototype-banner"><div>ⓘ</div><div><b>Validated prototype</b>This environment uses representative demo data to illustrate Arc’s proposed workflow, decision logic, and operating experience.</div></div>'+(VIEWS[ST.view]||viewDashboard)()+'</main></div>';
   } else {
     var content=ST.role==='student'?viewStudentPortal():viewHospitalFeed();
     body='<div class="shell"><main style="margin:0 auto">'+content+'</main></div>';
@@ -1815,4 +1828,4 @@ render();
 
 
 </body></html>
-<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_j8KerFC7fxUFpEumNcvbdtxfsZjM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_9wc6UCb5iUFkULU8WybcCj3BMUYb" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_8W9LhvrV1Ah2xvdUjGbCNu51C3nX" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_EDM8u3Dhdi9VLXz9r4TjtXWSAYtP" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_DS7HH5uu35XUEFEJmVHXr1tNH6Uy" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
+<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_j8KerFC7fxUFpEumNcvbdtxfsZjM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_9wc6UCb5iUFkULU8WybcCj3BMUYb" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_8W9LhvrV1Ah2xvdUjGbCNu51C3nX" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_EDM8u3Dhdi9VLXz9r4TjtXWSAYtP" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_DS7HH5uu35XUEFEJmVHXr1tNH6Uy" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_3XVBHaYsFEUb5EwdkdsR6aubHdmi" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
