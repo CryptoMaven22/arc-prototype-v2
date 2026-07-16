@@ -668,11 +668,14 @@
   .primary-click-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(16,35,31,.10)}
   .primary-click-card:focus-visible{outline:3px solid rgba(14,110,99,.30);outline-offset:3px}
   @media(max-width:640px){.review-status-grid,.review-actions{grid-template-columns:1fr}}
+
+#overlay{position:relative;z-index:1000;}#overlay:empty{display:none;}
 </style>
 </head>
 <body>
 <!-- Arc Overview and Operator Model are rendered as Product Foundation views before the operational workspace navigation. -->
 <div id="app"></div>
+<div id="overlay" aria-live="polite"></div>
 <script>
 "use strict";
 
@@ -2065,4 +2068,4 @@ window.addEventListener('pageshow',function(event){
 </script>
 
 
-</body></html><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_AQNKK4xUva5weL4eF1M6rCd2p8RA" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
+</body></html>
