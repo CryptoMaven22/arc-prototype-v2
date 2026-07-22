@@ -436,6 +436,9 @@
   button.demo-work-card:focus-visible{outline:3px solid rgba(14,110,99,.32);outline-offset:3px;}
   button.demo-work-card .demo-owner{display:block;text-align:center;}
   .demo-status{display:inline-flex;align-items:center;gap:6px;width:max-content;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:800;background:var(--tonebg);color:var(--tone);}
+  .demo-badges{display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:max-content;}
+  .steel-thread-pill{display:inline-flex;align-items:center;padding:5px 11px;border-radius:999px;background:linear-gradient(180deg,#0F8A78 0%,#0B6F63 100%);color:#fff;font-size:12px;font-weight:800;letter-spacing:.01em;border:1px solid rgba(6,95,84,.28);box-shadow:0 3px 8px rgba(14,110,99,.20);}
+
   .demo-field{margin-top:14px}.demo-field b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);margin-bottom:5px}.demo-field p{font-size:14px;line-height:1.5;color:#475569;margin:0;}
   .demo-time{margin-top:auto;padding-top:16px;font-size:14px;font-weight:700;color:var(--tone);}
   .demo-owner{margin-top:12px;border:0;border-radius:9px;background:var(--tone);color:#fff;padding:12px 14px;font-size:14px;font-weight:700;width:100%;}
@@ -1276,7 +1279,7 @@ function viewChecks(){
     {id:'review',tone:'#D97706',bg:'#FEF3C7',status:'Needs Review',student:'Priya Shah',request:'OB Rotation Schedule Change',risk:'The July 13–17 move fits site capacity, but the revised preceptor has not confirmed.',next:'Confirm preceptor availability, then approve or return the move.',time:'Review within 24 hours',button:'Review Request'},
     {id:'ready',tone:'#16A34A',bg:'#DCFCE7',status:'Ready',student:'Marcus Hill',request:'OB Schedule Reconciliation',risk:'The DNP-day overlap has a documented coverage plan and replacement clinical time.',next:'Approve the reconciled assignment and send the final notifications.',time:'Routine — approve by end of day',button:'Approve & Notify'}
   ];
-  var html=cards.map(function(c){return '<button type="button" class="demo-work-card primary-click-card" data-act="democard" data-id="'+c.id+'" aria-label="Open '+esc(c.student)+' '+esc(c.request)+' detail" style="--tone:'+c.tone+';--tonebg:'+c.bg+'"><span class="demo-status">'+esc(c.status)+'</span><h3>'+esc(c.student)+' — '+esc(c.request)+'</h3><div class="demo-field"><b>Risk reason</b><p>'+esc(c.risk)+'</p></div><div class="demo-field"><b>Recommended next action</b><p>'+esc(c.next)+'</p></div><div class="demo-time">'+esc(c.time)+'</div><span class="demo-owner" aria-hidden="true">'+esc(c.button)+'</span></button>';}).join('');
+  var html=cards.map(function(c){return '<button type="button" class="demo-work-card primary-click-card" data-act="democard" data-id="'+c.id+'" aria-label="Open '+esc(c.student)+' '+esc(c.request)+' detail" style="--tone:'+c.tone+';--tonebg:'+c.bg+'"><span class="demo-badges"><span class="demo-status">'+esc(c.status)+'</span>'+(c.id==='review'?'<span class="steel-thread-pill">Steel Thread</span>':'')+'</span><h3>'+esc(c.student)+' — '+esc(c.request)+'</h3><div class="demo-field"><b>Risk reason</b><p>'+esc(c.risk)+'</p></div><div class="demo-field"><b>Recommended next action</b><p>'+esc(c.next)+'</p></div><div class="demo-time">'+esc(c.time)+'</div><span class="demo-owner" aria-hidden="true">'+esc(c.button)+'</span></button>';}).join('');
   return '<div class="stack"><div><h2 class="attention-heading">Attention queue</h2><p class="sub">The same schedule-change records ranked by readiness, urgency, and next action.</p></div><div class="queue-summary"><strong>3 active records</strong><span class="queue-chip" style="background:#FEE2E2;color:#B91C1C">1 blocked</span><span class="queue-chip" style="background:#FEF3C7;color:#92400E">1 awaiting review</span><span class="queue-chip" style="background:#DCFCE7;color:#15803D">1 ready</span></div><div class="demo-card-grid">'+html+'</div><p class="note">Inspect the operational context and complete the human decision without leaving the viewer.</p></div>';
 }
 
@@ -2203,7 +2206,7 @@ document.addEventListener('click',function(e){
   else if(act==='captureplay'){var cap=document.getElementById('captureExperience');if(cap){cap.classList.remove('is-capturing');void cap.offsetWidth;cap.classList.add('is-capturing');window.setTimeout(function(){cap.classList.remove('is-capturing');},1500);}}
   else if(act==='openoperatormodel'){ST.operatorModelOpen=true;renderOverlay();}
   else if(act==='closeoperatormodel'){ST.operatorModelOpen=false;renderOverlay();}
-  else if(act==='home'){ST.role='leader';ST.view='thesis';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;render();}
+  else if(act==='home'){ST.role='leader';ST.view='dashboard';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;render();}
   else if(act==='open'){ST.openStudentId=null;ST.openId=t.getAttribute('data-id');renderOverlay();}
   else if(act==='openstudent'){ST.openId=null;ST.openStudentId=t.getAttribute('data-id');renderOverlay();}
   else if(act==='closedrawer'){ST.openId=null;renderOverlay();}
@@ -2291,9 +2294,9 @@ document.addEventListener('keydown',function(e){
   }
 });
 
-// Always open Arc on the main product-overview page while resetting transient demo overlays.
+// Always open Arc on the Operations Review page while resetting transient demo overlays.
 function startArc(){
-  ST.view='thesis';
+  ST.view='dashboard';
   ST.role='leader';
   ST.siteFocus=null;
   ST.openId=null;
@@ -2437,4 +2440,4 @@ window.addEventListener('hashchange',function(){
 })();
 </script>
 
-</body></html><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_56njz6N96U47EoLLtMKkujwW5oFP" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_9k1v5iUSGnA7r956ercTm1XSHdyK" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_7Sk3pJh3EaYmAZKtU1ZLhSiyHSAw" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
+</body></html><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_56njz6N96U47EoLLtMKkujwW5oFP" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_9k1v5iUSGnA7r956ercTm1XSHdyK" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_7Sk3pJh3EaYmAZKtU1ZLhSiyHSAw" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_HMzMZvKJhYD5eCVJ7UypeBQ7CEzd" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
