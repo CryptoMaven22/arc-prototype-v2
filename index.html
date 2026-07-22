@@ -397,7 +397,7 @@
     background:#fff;
     padding:8px 10px;
     position:sticky;
-    top:56px;
+    top:var(--top-h-mobile);
     z-index:35;
     box-shadow:0 2px 8px rgba(16,35,31,.06);
   }
@@ -512,7 +512,7 @@
   .readiness-proof{border:1px solid var(--hair);background:#fff;border-radius:14px;padding:16px;box-shadow:0 3px 14px rgba(16,35,31,.04);}
   .proof-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px;} .proof-head h2{font-size:16px;} .proof-head p{font-size:11.5px;color:var(--muted);margin:3px 0 0;}
   .proof-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;} .proof-tile{border:1px solid var(--hair);border-radius:11px;padding:12px;background:#FCFEFD;display:flex;gap:10px;align-items:center;}
-  .proof-icon{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:var(--teal-soft);color:var(--teal);flex:0 0 auto;} .proof-name{font-size:11px;color:var(--muted);font-weight:600;} .proof-result{font-size:13px;font-weight:800;margin-top:2px;}
+  .proof-icon{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:var(--teal-soft);color:var(--teal);flex:0 0 auto;} .proof-name{display:block;font-size:11px;color:var(--muted);font-weight:600;} .proof-result{display:block;font-size:13px;font-weight:800;margin-top:2px;}
   .ops-lower{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:14px;} .ops-panel{background:#fff;border:1px solid var(--hair);border-radius:14px;padding:15px;box-shadow:0 3px 14px rgba(16,35,31,.04);}
   .ops-panel h2{font-size:14px;margin-bottom:3px;} .ops-panel>p{font-size:11px;color:var(--muted);margin:0 0 11px;} .ops-line{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid #EEF1F0;font-size:11px;} .ops-line:first-of-type{border-top:none;} .ops-line b{margin-left:auto;font-size:12px;}
   @media(max-width:1100px){.ops-top{grid-template-columns:1fr}.proof-grid{grid-template-columns:repeat(2,1fr)}.ops-lower{grid-template-columns:1fr 1fr}}
@@ -782,6 +782,46 @@
     .arc-thesis-question p{font-size:14px;}
   }
 
+
+
+  /* Arc coherence pass — one Priya steel thread, decision-first hierarchy, self-contained assets */
+  .brand-lockup{display:flex;align-items:center;gap:11px;min-width:max-content;padding:2px 4px}
+  .brand-name{font-size:31px;line-height:1;font-weight:800;letter-spacing:-.055em;color:var(--ink)}
+  .brand-divider{width:1px;height:28px;background:var(--hair)}
+  .brand-platform{font-size:11px;line-height:1.2;font-weight:650;color:var(--muted);max-width:80px;text-align:left}
+  .cc-focus .cc-toolbar{order:1}.cc-focus .next-action-hero{order:2}.cc-focus .cc-kpis{order:3}
+  .weekly-brief{gap:13px}
+  .brief-change-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .brief-change{border:1px solid var(--hair);background:#FAFCFB;border-radius:10px;padding:10px 11px;display:flex;align-items:flex-start;gap:8px}
+  .brief-change .bc-num{font-size:18px;font-weight:800;line-height:1;color:var(--ink)}
+  .brief-change .bc-copy{font-size:10.5px;line-height:1.35;color:var(--muted)}
+  .attention-heading{font-size:20px;letter-spacing:-.02em}
+  .demo-work-card{min-height:260px;padding:14px}
+  .demo-work-card h3{font-size:17px;margin:9px 0 4px}
+  .demo-work-card .demo-meta,.demo-work-card .demo-live{display:none}
+  .demo-work-card .demo-field{margin-top:10px}
+  .demo-work-card .demo-field p{font-size:12.5px;line-height:1.42}
+  .demo-work-card .demo-time{padding-top:12px;font-size:12px}
+  .demo-work-card .demo-owner{margin-top:9px;padding:10px 12px;font-size:12.5px}
+  .operator-image-button{cursor:zoom-in;padding:18px}
+  .operator-map{width:100%;max-width:1080px;margin:0 auto;padding:22px;border-radius:18px;background:radial-gradient(circle at 50% 0%,rgba(14,110,99,.12),transparent 42%),linear-gradient(180deg,#F8FCFB,#FFFFFF);border:1px solid #DCE8E5}
+  .operator-orchestrator{max-width:430px;margin:0 auto;border:2px solid var(--teal);border-radius:16px;padding:16px 18px;background:#fff;box-shadow:0 12px 28px rgba(14,110,99,.12);text-align:center}
+  .operator-orchestrator small,.operator-output small{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.12em;font-weight:850;color:var(--teal);margin-bottom:4px}
+  .operator-orchestrator b{display:block;font-size:19px}.operator-orchestrator span{display:block;font-size:12px;color:var(--muted);margin-top:4px}
+  .operator-spine{height:34px;width:2px;background:linear-gradient(var(--teal),#9BCBC1);margin:0 auto;position:relative}
+  .operator-spine:after{content:"";position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #9BCBC1}
+  .operator-team{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .operator-node{border:1px solid var(--hair);border-top:4px solid var(--teal);border-radius:13px;padding:13px;background:#fff;text-align:left;min-height:112px;box-shadow:0 5px 14px rgba(16,35,31,.045)}
+  .operator-node .on-role{font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;color:var(--teal)}
+  .operator-node b{display:block;font-size:15px;margin-top:4px}.operator-node span{display:block;font-size:11px;line-height:1.4;color:var(--muted);margin-top:5px}
+  .operator-converge{height:34px;margin:0 12.5%;border-bottom:2px solid #9BCBC1;border-left:2px solid #9BCBC1;border-right:2px solid #9BCBC1}
+  .operator-output{max-width:600px;margin:14px auto 0;border-radius:14px;padding:14px 18px;background:#0B4F47;color:#fff;text-align:center;box-shadow:0 12px 26px rgba(11,79,71,.18)}
+  .operator-output b{font-size:16px}.operator-output span{display:block;font-size:11.5px;color:#CDEAE4;margin-top:3px}
+  .operator-model-frame .operator-map{width:min(1180px,92vw);max-width:none;margin:0}
+  .operator-model-modal .operator-model-frame{padding:18px}
+  @media(max-width:820px){.brief-change-list{grid-template-columns:1fr}.operator-team{grid-template-columns:1fr 1fr}.operator-converge{margin:0 25%}.brand-name{font-size:27px}.brand-platform{display:none}.brand-divider{display:none}}
+  @media(max-width:520px){.operator-team{grid-template-columns:1fr}.operator-converge{display:none}.operator-node{min-height:0}.operator-spine{height:24px}}
+
 </style>
 
 <style>
@@ -832,8 +872,6 @@
 <script>
 "use strict";
 
-var OPERATOR_MODEL_IMAGE='assets/arc-operator-model.webp';
-
 var P = {
   shield:'<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
   layers:'<path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/>',
@@ -870,7 +908,7 @@ function fmtRange(s,e){var a=dt(s),b=dt(e);if(a.getMonth()===b.getMonth())return
 function overlaps(aS,aE,bS,bE){return aS<=bE&&bS<=aE;}
 function overlapDays(aS,aE,bS,bE){var s=aS>bS?aS:bS,e=aE<bE?aE:bE;if(s>e)return 0;return Math.round((dt(e)-dt(s))/86400000)+1;}
 function initials(n){return n.split(' ').map(function(w){return w[0];}).slice(0,2).join('');}
-function esc(s){return (''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function esc(s){return (''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function avatar(name,size){size=size||32;return '<span class="avatar" style="width:'+size+'px;height:'+size+'px;font-size:'+Math.round(size*.36)+'px">'+esc(initials(name))+'</span>';}
 
 function seed(){return {
@@ -879,7 +917,7 @@ function seed(){return {
     {id:'s2',name:'Marcus Hill',cohort:'Cohort C',level:'Senior',region:'North',active:true},
     {id:'s3',name:'Sarah Collins',cohort:'Cohort A',level:'Senior',region:'Central',active:true},
     {id:'s4',name:'Daniel Brooks',cohort:'Cohort B',level:'Junior',region:'North',active:true},
-    {id:'s5',name:'Priya Shah',cohort:'Cohort B',level:'Junior',region:'West',active:true}
+    {id:'s5',name:'Priya Shah',cohort:'Cohort B',level:'Senior',region:'West',active:true}
   ],
   sites:[
     {id:'site1',name:'Evanston Hospital',city:'Evanston',miles:8,cap:3,levels:['Junior','Senior'],specialties:['General'],coordinator:'Linda Chen',notes:'High-volume general OR.'},
@@ -895,12 +933,12 @@ function seed(){return {
     {id:'a2',aid:'ASN-002',studentId:'s2',siteId:'site2',start:'2026-07-01',end:'2026-07-07',rotation:'OB',notes:'Senior specialty placement; DNP day overlaps the week.'},
     {id:'a3',aid:'ASN-003',studentId:'s3',siteId:'site3',start:'2026-07-01',end:'2026-07-07',rotation:'Peds',notes:'Pediatric rotation; Cohort A class day overlaps.'},
     {id:'a4',aid:'ASN-004',studentId:'s4',siteId:'site2',start:'2026-07-08',end:'2026-07-14',rotation:'OB',notes:'Intentional level mismatch \u2014 junior at a senior-only site.'},
-    {id:'a5',aid:'ASN-005',studentId:'s5',siteId:'site4',start:'2026-07-08',end:'2026-07-14',rotation:'General',notes:'Demo junior general placement; clear.'}
+    {id:'a5',aid:'ASN-005',studentId:'s5',siteId:'site2',start:'2026-07-06',end:'2026-07-10',rotation:'OB',preceptorConfirmed:false,notes:'Priya requested moving this Highland Park OB rotation to Jul 13–17; preceptor confirmation is pending.'}
   ],
   requests:[
-    {id:'rq1',rid:'REQ-001',studentId:'s1',type:'ATO',status:'Approved',start:'2026-07-03',end:'2026-07-03',notes:'Allowable time off.'},
+    {id:'rq1',rid:'REQ-001',studentId:'s1',type:'ATO',status:'Approved',start:'2026-07-15',end:'2026-07-15',notes:'Allowable time off.'},
     {id:'rq2',rid:'REQ-002',studentId:'s2',type:'DNP',status:'Approved',start:'2026-07-06',end:'2026-07-06',notes:'DNP project day.'},
-    {id:'rq3',rid:'REQ-003',studentId:'s5',type:'STDY',status:'Needs Review',start:'2026-07-10',end:'2026-07-10',notes:'Requested study day before boards.'},
+    {id:'rq3',rid:'REQ-003',studentId:'s5',type:'MOVE',status:'Needs Review',start:'2026-07-13',end:'2026-07-17',notes:'Move Highland Park OB rotation from Jul 6–10 to Jul 13–17; preceptor confirmation pending.'},
     {id:'rq4',rid:'REQ-004',studentId:'s4',type:'MTG',status:'Requested',start:'2026-07-20',end:'2026-07-21',notes:'Professional meeting.'},
     {id:'rq5',rid:'REQ-005',studentId:'s1',type:'ATO',status:'Approved',start:'2026-06-08',end:'2026-06-12',notes:'Spring vacation week.'},
     {id:'rq6',rid:'REQ-006',studentId:'s3',type:'ATO',status:'Approved',start:'2026-06-22',end:'2026-06-26',notes:'Vacation.'},
@@ -932,6 +970,8 @@ function generateChecks(state){
     var st=stOf(a.studentId), si=siOf(a.siteId);
     if(!st||['Junior','Senior'].indexOf(st.level)<0)return;
     if(!si||!a.start||!a.end||!a.rotation){push(a,'Missing Data','High','A required field (site, dates, or rotation) is blank.','Complete the assignment record before review.','missing');return;}
+    if(a.preceptorConfirmed===false)
+      push(a,'Missing Data','Medium','Preceptor confirmation is still missing for the requested rotation dates.','Confirm the preceptor before approving or publishing the move.','preceptor');
     if(si.levels.indexOf(st.level)<0)
       push(a,'Level Mismatch','High',st.level+' student placed at '+si.name+', which is '+si.levels.join('/')+'-only.','Reassign '+st.name.split(' ')[0]+' to a '+st.level+'-eligible site.','level');
     if(si.specialties.indexOf(a.rotation)<0)
@@ -972,7 +1012,7 @@ var SPEC={
 };
 function specPill(s){var c=SPEC[s]||SPEC['General'];return '<span class="pill" style="color:'+c.text+';background:'+c.bg+'" title="'+esc(s)+'">'+c.code+'</span>';}
 var ALLOW={ATO:35,DNP:3,MTG:2,STDY:2};
-var TYPE_LABEL={ATO:'ATO (vacation)',DNP:'DNP project day',MTG:'Meeting day',STDY:'Study day'};
+var TYPE_LABEL={ATO:'ATO (vacation)',DNP:'DNP project day',MTG:'Meeting day',STDY:'Study day',MOVE:'Move assignment'};
 function reqDays(r){return overlapDays(r.start,r.end,r.start,r.end);}
 function bankFor(studentId){
   var used={ATO:0,DNP:0,MTG:0,STDY:0};
@@ -1003,34 +1043,34 @@ function emptyState(t,b){return '<div class="empty"><span class="ec">'+ic('check
 function legend(){
   var results=[
     ['Time-Off Conflict','clock','1 detected','#DC2626'],
-    ['School Calendar Conflict','calendar','None','#16A34A'],
-    ['Level Mismatch','cap','None','#16A34A'],
-    ['Specialty Mismatch','layers','1 pending','#D97706'],
-    ['Site Capacity','building','2 nearing limit','#D97706'],
-    ['Missing Data','alert','1 request','#2563EB']
+    ['School Calendar Conflict','calendar','1 detected','#DC2626'],
+    ['Level Mismatch','cap','1 detected','#DC2626'],
+    ['Specialty Mismatch','layers','None','#16A34A'],
+    ['Site Capacity','building','Within limit','#16A34A'],
+    ['Missing Data','alert','1 confirmation','#D97706']
   ];
   var items=results.map(function(c){return '<button class="proof-tile" data-act="checkinfo" data-key="'+esc(c[0])+'"><span class="proof-icon">'+ic(c[1],16)+'</span><span><span class="proof-name">'+esc(c[0])+'</span><span class="proof-result" style="color:'+c[3]+'">'+esc(c[2])+'</span></span></button>';}).join('');
-  return '<div class="readiness-proof"><div class="proof-head"><div><h2>Readiness engine activity</h2><p>Operational proof of the checks Arc ran across this week’s schedule.</p></div><span class="sync-pill">168 prototype checks illustrated</span></div><div class="proof-grid">'+items+'</div></div>';
+  return '<div class="readiness-proof"><div class="proof-head"><div><h2>Readiness engine activity</h2><p>Checks Arc ran across the same assignments and change requests shown in this review.</p></div></div><div class="proof-grid">'+items+'</div></div>';
 }
 
 function viewDashboard(){
   var kpis=[
     ['shield','#FEF2F2','#EF4444','Readiness issues','4','Reasons identified',2],
-    ['alert','#FFF7ED','#F97316','Coverage gaps','3','Across the review week',1],
+    ['alert','#FFF7ED','#F97316','Coverage gaps','1','Highland Park · Jul 13–17',1],
     ['inbox','#F5F3FF','#8B5CF6','Pending approvals','2','Active change requests',3],
-    ['calendar','#EAF4FF','#1683E8','Prototype assignments','5','2 need action',0]
+    ['calendar','#EAF4FF','#1683E8','Program schedule','42','5 records shown',0]
   ];
-  var kpiHtml=kpis.map(function(k){return '<button class="cc-kpi" type="button" aria-label="Open '+k[3]+' detail" data-act="kpi" data-k="'+k[6]+'"><span class="cc-kpi-ic" style="background:'+k[1]+';color:'+k[2]+'">'+ic(k[0],22)+'</span><div><div class="lab">'+k[3]+'</div><div class="num">'+k[4]+'</div><div class="delta">'+k[5]+'</div></div></button>';}).join('');
-  var brief='<aside class="weekly-brief"><div class="brief-head"><div><div class="brief-title">Weekly operating brief</div><div class="brief-sub">Jul 20–26, 2026 · All clinical sites</div></div><span class="sync-pill">Prototype snapshot</span></div>'+ 
-    '<div class="brief-stats"><div class="brief-stat"><b>42</b><span>program assignments</span></div><div class="brief-stat"><b>5</b><span>prototype records</span></div><div class="brief-stat"><b>3</b><span>active change requests</span></div><div class="brief-stat"><b>2</b><span>approvals pending</span></div></div>'+ 
-    '<div class="brief-block"><div class="brief-label">Highest-risk issue</div><div class="brief-risk"><b>Jordan Lee — ICU Rotation Move</b><span>Time-off conflict</span><span>No qualified ICU preceptor confirmed</span></div></div>'+ 
-    '<div class="brief-block"><div class="brief-label">Recommended focus</div><ol class="brief-focus"><li>Resolve ICU coverage first</li><li>Confirm Priya Shah’s preceptor</li><li>Approve Marcus Reed by end of day</li></ol></div></aside>';
+  var kpiHtml=kpis.map(function(k){return '<button class="cc-kpi" type="button" aria-label="Open '+esc(k[3])+' detail" data-act="kpi" data-k="'+k[6]+'"><span class="cc-kpi-ic" style="background:'+k[1]+';color:'+k[2]+'">'+ic(k[0],22)+'</span><div><div class="lab">'+esc(k[3])+'</div><div class="num">'+esc(k[4])+'</div><div class="delta">'+esc(k[5])+'</div></div></button>';}).join('');
+  var nextAction='<button type="button" class="next-action-hero primary-click-card" data-act="democard" data-id="review" aria-label="Review Priya Shah OB rotation change"><div><div class="k">Next recommended action</div><div class="v">Confirm Priya Shah’s OB preceptor before approving the July 13–17 move.</div><div class="s">Site capacity is available · final human confirmation is still required</div></div><span class="next-action-cta">Review request</span></button>';
+  var brief='<aside class="weekly-brief"><div class="brief-head"><div><div class="brief-title">Since the last review</div><div class="brief-sub">Priya Shah steel thread · Jul 6–17, 2026</div></div></div>'+ 
+    '<div class="brief-change-list"><div class="brief-change"><span class="bc-num">1</span><span class="bc-copy">new schedule-change request captured</span></div><div class="brief-change"><span class="bc-num">1</span><span class="bc-copy">preceptor confirmation still missing</span></div><div class="brief-change"><span class="bc-num">1</span><span class="bc-copy">coverage gap exposed for the requested week</span></div><div class="brief-change"><span class="bc-num">0</span><span class="bc-copy">new student-eligibility issues</span></div></div>'+ 
+    '<div class="brief-block"><div class="brief-label">Highest-priority issue</div><div class="brief-risk"><b>Priya Shah — Highland Park OB move</b><span>Requested dates: Jul 13–17</span><span>Preceptor confirmation pending</span></div></div>'+ 
+    '<div class="brief-block"><div class="brief-label">Recommended focus</div><ol class="brief-focus"><li>Confirm the OB preceptor</li><li>Approve or return Priya’s change request</li><li>Publish the reconciled schedule and notifications</li></ol></div></aside>';
   var lower='<div class="ops-lower">'+
-    '<section class="ops-panel"><h2>Weekly capacity</h2><p>Assignment pressure across the network.</p><div class="ops-line"><span>Evanston Hospital</span><b>8 / 10</b></div><div class="ops-line"><span>Highland Park</span><b style="color:#D97706">9 / 10</b></div><div class="ops-line"><span>Children’s Rotation</span><b style="color:#DC2626">At limit</b></div></section>'+ 
-    '<section class="ops-panel"><h2>System activity</h2><p>What Arc processed this review week.</p><div class="ops-line"><span>Checks performed</span><b>168</b></div><div class="ops-line"><span>Conflicts detected</span><b>4</b></div><div class="ops-line"><span>Automatically cleared</span><b>37</b></div></section>'+ 
-    '<section class="ops-panel"><h2>Recent decisions</h2><p>Latest human-reviewed outcomes.</p><div class="ops-line"><span>Approved</span><b style="color:#16A34A">6</b></div><div class="ops-line"><span>Returned for review</span><b style="color:#D97706">2</b></div><div class="ops-line"><span>Notifications sent</span><b>11</b></div></section></div>';
-  var nextAction='<button type="button" class="next-action-hero primary-click-card" data-act="democard" data-id="blocked" aria-label="Review Jordan Lee ICU rotation conflict"><div><div class="k">Next recommended action</div><div class="v">Resolve Jordan Lee’s ICU coverage conflict before publishing the schedule.</div><div class="s">Time-off request approved · downstream coverage update still requires review</div></div><span class="next-action-cta">Review assignment</span></button>';
-  return '<div class="cc"><div class="ops-top"><div class="cc-focus"><div class="cc-toolbar"><div class="cc-title"><h1>Operations Review</h1><p>Weekly readiness, coverage, approvals, and next actions in one operational view.</p></div><div class="cc-tools"><button class="tbtn">'+ic('back',14)+' Jul 20–26, 2026</button><button class="tbtn">Today</button><button class="tbtn">All sites '+ic('chevr',13)+'</button></div></div><div class="cc-kpis">'+kpiHtml+'</div>'+nextAction+'</div>'+brief+'</div><div style="margin-top:18px">'+viewChecks()+'</div><div style="margin-top:18px">'+legend()+'</div><div style="margin-top:18px">'+lower+'</div></div>';
+    '<section class="ops-panel"><h2>Weekly capacity</h2><p>Assignment pressure across the same network view.</p><div class="ops-line"><span>Evanston Hospital</span><b>8 / 10</b></div><div class="ops-line"><span>Highland Park</span><b style="color:#D97706">9 / 10</b></div><div class="ops-line"><span>Children’s Rotation</span><b>8 / 10</b></div></section>'+ 
+    '<section class="ops-panel"><h2>System activity</h2><p>What Arc processed for this review.</p><div class="ops-line"><span>Checks performed</span><b>168</b></div><div class="ops-line"><span>Readiness reasons</span><b>4</b></div><div class="ops-line"><span>Records shown</span><b>5 of 42</b></div></section>'+ 
+    '<section class="ops-panel"><h2>Recent human decisions</h2><p>Latest operator-controlled outcomes.</p><div class="ops-line"><span>Approved</span><b style="color:#16A34A">6</b></div><div class="ops-line"><span>Returned for review</span><b style="color:#D97706">2</b></div><div class="ops-line"><span>Notifications sent</span><b>11</b></div></section></div>';
+  return '<div class="cc"><div class="ops-top"><div class="cc-focus"><div class="cc-toolbar"><div class="cc-title"><h1>Operations Review</h1><p>What changed, what is at risk, what requires judgment, and what should happen next.</p></div><div class="cc-tools"><button class="tbtn">'+ic('back',14)+' Jul 6–17, 2026</button><button class="tbtn">Today</button><button class="tbtn">All sites '+ic('chevr',13)+'</button></div></div>'+nextAction+'<div class="cc-kpis">'+kpiHtml+'</div></div>'+brief+'</div><div style="margin-top:18px">'+viewChecks()+'</div><div style="margin-top:18px">'+legend()+'</div><div style="margin-top:18px">'+lower+'</div></div>';
 }
 
 function viewCalendar2(){
@@ -1044,14 +1084,14 @@ function viewCalendar2(){
     ['Northwestern Cardiac','Cardiac','assigned'],
     ['On-call coverage','System','oncall']
   ];
-  var days=['Mon 7/20','Tue 7/21','Wed 7/22','Thu 7/23','Fri 7/24','Sat 7/25','Sun 7/26'];
+  var days=['Mon 7/13','Tue 7/14','Wed 7/15','Thu 7/16','Fri 7/17','Sat 7/18','Sun 7/19'];
   var header='<div class="wg-corner">Site / Rotation</div>'+days.map(function(d){return '<div class="wg-day" style="grid-column:span 2"><b>'+d+'</b>AM &nbsp;&nbsp; PM</div>';}).join('');
   var cells='';
   sites.forEach(function(si,r){
     cells+='<div class="wg-site"><b>'+si[0]+'</b><small>'+si[1]+'</small></div>';
     for(var j=0;j<14;j++){
       var type='assigned', text=names[(r*2+j)%names.length];
-      if((r===2&&(j===1||j===7))||(r===1&&j===9)){type='conflict';text='Coverage gap';}
+      if(r===1&&j===5){type='conflict';text='Coverage gap';}
       if(r===4&&(j===5||j===11)){type='pto';text='PTO';}
       if(r===6&&(j%3===1)){type='oncall';text='Dr. Carter';}
       var dayLabel=days[Math.floor(j/2)]+' '+(j%2===0?'AM':'PM');
@@ -1060,7 +1100,7 @@ function viewCalendar2(){
       cells+='<div class="wg-cell"><button class="shift '+type+'" style="'+(hide?'opacity:.12;pointer-events:none;':'')+'" data-act="calendarcell" data-name="'+esc(text)+'" data-site="'+esc(si[0])+'" data-rotation="'+esc(si[1])+'" data-when="'+esc(dayLabel)+'" data-type="'+esc(type)+'">'+label+'</button></div>';
     }
   });
-  var summary='<div class="coverage-summary"><span class="coverage-chip"><strong>88</strong> covered shifts</span><span class="coverage-chip" style="color:#B91C1C"><strong style="color:#B91C1C">3</strong> open gaps</span><span class="coverage-chip" style="color:#6D28D9"><strong style="color:#6D28D9">2</strong> PTO blocks</span><span class="coverage-chip" style="color:#C2410C"><strong style="color:#C2410C">5</strong> on-call shifts</span></div>';
+  var summary='<div class="coverage-summary"><span class="coverage-chip"><strong>91</strong> covered shifts</span><span class="coverage-chip" style="color:#B91C1C"><strong style="color:#B91C1C">1</strong> open gap</span><span class="coverage-chip" style="color:#6D28D9"><strong style="color:#6D28D9">2</strong> PTO blocks</span><span class="coverage-chip" style="color:#C2410C"><strong style="color:#C2410C">5</strong> on-call shifts</span></div>';
   return '<div class="stack"><div><h1>Coverage Calendar</h1><p class="sub">Site- and shift-centered coverage with assignments, open gaps, PTO, and on-call coverage.</p>'+summary+'</div>'+ 
     '<div class="cc-panel"><div class="cc-panel-head"><div class="cc-panel-title">'+ic('calendar',15,'#1683E8')+' Coverage Calendar</div><div class="cc-panel-tools"><button class="coverage-toggle'+(ST.coverageGapOnly?' on':'')+'" data-act="coveragetoggle">'+ic('alert',13,ST.coverageGapOnly?'#B91C1C':'#64748B')+' Show gaps only</button><div class="seg"><button class="on">Week</button><button>Day</button></div><div class="cc-legend"><span><i class="cc-swatch" style="background:#86EFAC"></i>Assigned</span><span><i class="cc-swatch" style="background:#FCA5A5"></i>Gap / conflict</span><span><i class="cc-swatch" style="background:#C4B5FD"></i>PTO</span><span><i class="cc-swatch" style="background:#FDBA74"></i>On call</span></div></div></div><div class="week-wrap"><div class="week-grid">'+header+cells+'</div></div></div></div>';
 }
@@ -1102,29 +1142,34 @@ function viewAssignments(){
 
 function viewChecks(){
   var cards=[
-    {id:'blocked',tone:'#DC2626',bg:'#FEE2E2',status:'Blocked',student:'Jordan Lee',request:'ICU Rotation Move',risk:'Requested dates overlap with an approved time-off block, and no qualified ICU preceptor is available.',next:'Request two alternate date ranges before changing the assignment.',time:'Urgent — response needed today',button:'Resolve Conflict',submitted:'Jul 20 · 8:12 AM',site:'Northwestern Medical',week:'Jul 20–26',reviewer:'Ryan',score:'Blocked',checked:'8 min ago'},
-    {id:'review',tone:'#D97706',bg:'#FEF3C7',status:'Needs Review',student:'Priya Shah',request:'OB Rotation Schedule Change',risk:'Site capacity appears available, but preceptor confirmation is still pending.',next:'Confirm preceptor availability before approving the move.',time:'Review within 24 hours',button:'Review Request',submitted:'Jul 20 · 9:05 AM',site:'Highland Park Hospital',week:'Jul 27–Aug 2',reviewer:'Ryan',score:'76/100',checked:'11 min ago'},
-    {id:'ready',tone:'#16A34A',bg:'#DCFCE7',status:'Ready',student:'Marcus Reed',request:'PACU Rotation Swap',risk:'No assignment, site-capacity, preceptor, or time-off conflicts were identified.',next:'Approve the request and notify the student and preceptor.',time:'Routine — approve by end of day',button:'Approve & Notify',submitted:'Jul 20 · 10:21 AM',site:'Evanston Hospital',week:'Aug 3–9',reviewer:'Ryan',score:'96/100',checked:'5 min ago'}
+    {id:'blocked',tone:'#DC2626',bg:'#FEE2E2',status:'Blocked',student:'Daniel Brooks',request:'OB Placement Exception',risk:'Daniel is a junior student assigned to a senior-only Highland Park OB placement.',next:'Move Daniel to a junior-eligible OB site before publishing the assignment.',time:'Resolve before schedule publication',button:'Resolve Conflict'},
+    {id:'review',tone:'#D97706',bg:'#FEF3C7',status:'Needs Review',student:'Priya Shah',request:'OB Rotation Schedule Change',risk:'The July 13–17 move fits site capacity, but the revised preceptor has not confirmed.',next:'Confirm preceptor availability, then approve or return the move.',time:'Review within 24 hours',button:'Review Request'},
+    {id:'ready',tone:'#16A34A',bg:'#DCFCE7',status:'Ready',student:'Marcus Hill',request:'OB Schedule Reconciliation',risk:'The DNP-day overlap has a documented coverage plan and replacement clinical time.',next:'Approve the reconciled assignment and send the final notifications.',time:'Routine — approve by end of day',button:'Approve & Notify'}
   ];
-  var html=cards.map(function(c){return '<button type="button" class="demo-work-card primary-click-card" data-act="democard" data-id="'+c.id+'" aria-label="Open '+esc(c.student)+' '+esc(c.request)+' detail" style="--tone:'+c.tone+';--tonebg:'+c.bg+'"><span class="demo-status">'+c.status+'</span><h3>'+esc(c.student)+' — '+esc(c.request)+'</h3><div class="demo-meta"><div class="demo-meta-item"><b>Submitted</b><span>'+esc(c.submitted)+'</span></div><div class="demo-meta-item"><b>Clinical site</b><span>'+esc(c.site)+'</span></div><div class="demo-meta-item"><b>Rotation week</b><span>'+esc(c.week)+'</span></div><div class="demo-meta-item"><b>Assigned reviewer</b><span>'+esc(c.reviewer)+'</span></div></div><div class="demo-live">Readiness '+esc(c.score)+' · Last checked '+esc(c.checked)+' · Assigned to '+esc(c.reviewer)+'</div><div class="demo-field"><b>Risk reason</b><p>'+esc(c.risk)+'</p></div><div class="demo-field"><b>Recommended next action</b><p>'+esc(c.next)+'</p></div><div class="demo-time">'+esc(c.time)+'</div><span class="demo-owner" aria-hidden="true">'+esc(c.button)+'</span></button>';}).join('');
-  return '<div class="stack"><div><h1>Attention queue</h1><p class="sub">Active schedule changes ranked by readiness, urgency, and next action.</p></div><div class="queue-summary"><strong>3 active schedule changes</strong><span class="queue-chip" style="background:#FEE2E2;color:#B91C1C">1 blocked</span><span class="queue-chip" style="background:#FEF3C7;color:#92400E">1 awaiting review</span><span class="queue-chip" style="background:#DCFCE7;color:#15803D">1 ready</span></div><div class="demo-card-grid">'+html+'</div><p class="note">Understand the issue, inspect the operational context, and take action without leaving the viewer.</p></div>';
+  var html=cards.map(function(c){return '<button type="button" class="demo-work-card primary-click-card" data-act="democard" data-id="'+c.id+'" aria-label="Open '+esc(c.student)+' '+esc(c.request)+' detail" style="--tone:'+c.tone+';--tonebg:'+c.bg+'"><span class="demo-status">'+esc(c.status)+'</span><h3>'+esc(c.student)+' — '+esc(c.request)+'</h3><div class="demo-field"><b>Risk reason</b><p>'+esc(c.risk)+'</p></div><div class="demo-field"><b>Recommended next action</b><p>'+esc(c.next)+'</p></div><div class="demo-time">'+esc(c.time)+'</div><span class="demo-owner" aria-hidden="true">'+esc(c.button)+'</span></button>';}).join('');
+  return '<div class="stack"><div><h2 class="attention-heading">Attention queue</h2><p class="sub">The same schedule-change records ranked by readiness, urgency, and next action.</p></div><div class="queue-summary"><strong>3 active records</strong><span class="queue-chip" style="background:#FEE2E2;color:#B91C1C">1 blocked</span><span class="queue-chip" style="background:#FEF3C7;color:#92400E">1 awaiting review</span><span class="queue-chip" style="background:#DCFCE7;color:#15803D">1 ready</span></div><div class="demo-card-grid">'+html+'</div><p class="note">Inspect the operational context and complete the human decision without leaving the viewer.</p></div>';
 }
 
 function viewRequests(){
-  var html=ST.data.requests.map(function(rq){
+  var ordered=ST.data.requests.slice().sort(function(a,b){
+    var rank={'Needs Review':0,'Requested':1,'Approved':2,'Denied':3};
+    return (rank[a.status]||9)-(rank[b.status]||9) || (a.start<b.start?1:-1);
+  });
+  var html=ordered.map(function(rq){
     var st=ST.data.students.filter(function(s){return s.id===rq.studentId;})[0];
     var approved=rq.status==='Approved';
+    var typeLabel=TYPE_LABEL[rq.type]||rq.type;
+    var isMove=rq.type==='MOVE';
     return '<div class="row">'+avatar(st.name,32)+
-      '<div class="grow"><div style="font-size:14px;font-weight:500">'+esc(st.name)+' <span class="mono" style="font-size:11px;color:var(--muted2);font-weight:400">'+rq.rid+'</span></div>'+
-      '<div style="font-size:12.5px;color:var(--muted)">'+esc(rq.type)+' <span style="color:#cbd5d2">\u00b7</span> <span class="mono">'+(rq.start===rq.end?fmtFull(rq.start):fmtRange(rq.start,rq.end))+'</span></div>'+
+      '<div class="grow"><div style="font-size:14px;font-weight:600">'+esc(st.name)+' <span class="mono" style="font-size:11px;color:var(--muted2);font-weight:400">'+esc(rq.rid)+'</span></div>'+
+      '<div style="font-size:12.5px;color:var(--muted)">'+esc(typeLabel)+' <span style="color:#cbd5d2">·</span> <span class="mono">'+(rq.start===rq.end?fmtFull(rq.start):fmtRange(rq.start,rq.end))+'</span></div>'+
       '<div style="font-size:12px;color:var(--muted2);margin-top:3px">'+esc(rq.notes||'')+'</div></div>'+
-      '<span class="badge-st sm" style="color:'+RQS[rq.status].text+';background:'+RQS[rq.status].bg+'">'+(approved?'Approved':'Awaiting confirmation')+'</span>'+
-      (!approved?'<button class="mini" data-act="req" data-id="'+rq.id+'" data-s="Approved" style="background:#DCFCE7;color:#15803D;border:none">'+ic('check',13)+' Mark approved</button>':'<span class="note" style="min-width:92px;text-align:right">Recorded</span>')+
+      (isMove?'<span class="source-chip">'+ic('layers',11)+' Schedule change</span>':'')+
+      '<span class="badge-st sm" style="color:'+RQS[rq.status].text+';background:'+RQS[rq.status].bg+'">'+(approved?'Approved':(rq.status==='Needs Review'?'Needs review':'Awaiting confirmation'))+'</span>'+
+      (!approved?'<button class="mini" data-act="req" data-id="'+rq.id+'" data-s="Approved" style="background:#DCFCE7;color:#15803D;border:none">'+ic('check',13)+' Mark approved</button>':'<span class="note" style="min-width:72px;text-align:right">Recorded</span>')+
       '</div>';
   }).join('');
-  return '<div class="stack"><div><h1>Time-off approval tracking</h1><p class="sub">A simple record of requests Ryan has already approved and items still awaiting confirmation.</p></div>'+
-    '<div class="rowlist">'+html+'</div>'+
-    '<p class="note">Approved time off automatically becomes part of the readiness review when it overlaps a clinical assignment.</p></div>';
+  return '<div class="stack"><div><h1>Change Requests</h1><p class="sub">Schedule changes, time off, and program requests that can affect assignment readiness.</p></div><div class="rowlist">'+html+'</div><p class="note">Approvals become part of the readiness review whenever they affect an assignment, site, preceptor, or program constraint.</p></div>';
 }
 
 function viewCalendar(){
@@ -1437,92 +1482,20 @@ function closeTopOverlay(){
 function renderOverlay(){
   var o=document.getElementById('overlay'); var html='';
   if(ST.operatorModelOpen){
-    html='<div class="modal-wrap"><div class="scrim" data-act="closeoperatormodel" style="position:absolute"></div><div class="operator-model-modal"><button class="close-model" data-act="closeoperatormodel" aria-label="Close operator model">'+ic('x',20)+'</button><div class="operator-model-frame"><img src="'+OPERATOR_MODEL_IMAGE+'" alt="How Arc Makes and Reconciles Decisions full-resolution view"></div></div></div>';
+    html='<div class="modal-wrap"><div class="scrim" data-act="closeoperatormodel" style="position:absolute"></div><div class="operator-model-modal"><button class="close-model" data-act="closeoperatormodel" aria-label="Close operator model">'+ic('x',20)+'</button><div class="operator-model-frame">'+operatorDiagram('operator-map-full')+'</div></div></div>';
   } else if(ST.demoCard){
     var demos={
-      blocked:{tone:'#DC2626',bg:'#FEE2E2',status:'Blocked',title:'Jordan Lee — ICU Rotation Move',changed:'Jordan requested moving the ICU rotation from July 13–17 to July 20–24.',matters:'The new dates conflict with approved student time off and would leave the rotation without a confirmed preceptor.',assignment:'ASN-014 — Adult ICU Rotation',site:'Community North Hospital',preceptor:'Dr. Elena Ruiz — unavailable July 20–24',confidence:'96%',summary:'The request should not be approved until both the schedule conflict and preceptor coverage are resolved.',note:'Requested dates conflict with approved time off and no ICU preceptor is currently available. Please provide two alternate date ranges.',actions:['Approve request — disabled','Request alternate dates','Notify student','Notify clinical coordinator','Add review note','Mark resolved']},
-      review:{tone:'#D97706',bg:'#FEF3C7',status:'Needs Review',title:'Priya Shah — OB Rotation Schedule Change',changed:'Priya requested moving her OB rotation from July 27–31 to August 3–7.',matters:'The site has capacity, but the proposed preceptor has not confirmed the revised dates.',assignment:'ASN-005 — Obstetrics Rotation',site:'Highland Park Hospital',preceptor:'Melissa Grant, CRNA — confirmation pending',confidence:'84%',summary:'The request is likely feasible but requires human confirmation of preceptor coverage.',note:'Site availability is confirmed. Approval is pending confirmation from Melissa Grant for the revised rotation dates.',actions:['Approve request','Request additional information','Notify student','Notify preceptor','Add review note','Mark resolved']},
-      ready:{tone:'#16A34A',bg:'#DCFCE7',status:'Ready',title:'Marcus Reed — PACU Rotation Swap',changed:'Marcus requested swapping his July 27 PACU shift with his open July 29 clinical block.',matters:'The change preserves required clinical hours and does not create downstream scheduling conflicts.',assignment:'ASN-021 — PACU Clinical Rotation',site:'St. Vincent Carmel',preceptor:'Daniel Brooks, CRNA — available',confidence:'98%',summary:'The request is ready for approval. All required schedule, site, and preceptor checks passed.',note:'Schedule change approved. The updated assignment has been confirmed with the clinical site and preceptor.',actions:['Approve request','Request additional information','Notify student','Notify preceptor','Add note','Mark resolved']}
+      blocked:{tone:'#DC2626',bg:'#FEE2E2',status:'Blocked',title:'Daniel Brooks — OB Placement Exception',changed:'Daniel is assigned to Highland Park Hospital for July 8–14.',matters:'Daniel is a junior student and the current Highland Park OB placement is senior-only.',assignment:'ASN-004 — OB Rotation',site:'Highland Park Hospital',preceptor:'Not evaluated until eligibility is resolved',confidence:'97%',summary:'The assignment should not be published until Daniel is moved to a junior-eligible OB site.',note:'Student level does not meet the current site rule. Reassign Daniel to a junior-eligible OB placement before publication.',checks:[['Student eligibility','Blocked','Junior assigned to senior-only site','risk'],['Site capacity','Available','Capacity is not the blocker','clear'],['Specialty match','Confirmed','OB is supported at the site','clear']],actions:['Find eligible site','Notify coordinator','Add review note']},
+      review:{tone:'#D97706',bg:'#FEF3C7',status:'Needs Review',title:'Priya Shah — OB Rotation Schedule Change',changed:'Priya requested moving her Highland Park OB rotation from July 6–10 to July 13–17.',matters:'The requested week fits site capacity, but the revised preceptor has not confirmed availability.',assignment:'ASN-005 — OB Rotation',site:'Highland Park Hospital',preceptor:'Melissa Grant, CRNA — confirmation pending',confidence:'88%',summary:'The move is operationally feasible once the human operator confirms preceptor coverage.',note:'Site capacity is available for July 13–17. Approval remains pending until the revised OB preceptor confirms coverage.',checks:[['Site capacity','Available','The requested week remains within capacity','clear'],['Student eligibility','Confirmed','Priya is eligible for the OB placement','clear'],['Preceptor confirmation','Pending','Human confirmation is still required','pending']],actions:['Request preceptor confirmation','Approve after confirmation','Notify Priya','Add review note']},
+      ready:{tone:'#16A34A',bg:'#DCFCE7',status:'Ready',title:'Marcus Hill — OB Schedule Reconciliation',changed:'Marcus’s approved DNP day overlaps the original OB assignment week.',matters:'Replacement clinical time and site coverage are documented, so the reconciled assignment preserves requirements.',assignment:'ASN-002 — OB Rotation',site:'Highland Park Hospital',preceptor:'Coverage plan documented',confidence:'96%',summary:'The reconciled assignment is ready for approval and final notifications.',note:'DNP-day coverage and replacement clinical time are documented. Approve the reconciled assignment and notify Marcus and the site.',checks:[['Time-off impact','Resolved','Replacement clinical time documented','clear'],['Site capacity','Available','No additional capacity issue created','clear'],['Program requirements','Confirmed','Required hours are preserved','clear']],actions:['Approve reconciliation','Notify Marcus','Notify site','Close request']}
     };
-    var d=demos[ST.demoCard], stage=ST.demoStage||1;
-    var details='<div class="demo-detail-grid"><div class="demo-detail"><b>What changed</b><p>'+esc(d.changed)+'</p></div><div class="demo-detail"><b>Why it matters</b><p>'+esc(d.matters)+'</p></div><div class="demo-detail"><b>Affected assignment</b><p>'+esc(d.assignment)+'</p></div><div class="demo-detail"><b>Clinical site</b><p>'+esc(d.site)+'</p></div><div class="demo-detail"><b>Preceptor</b><p>'+esc(d.preceptor)+'</p></div><div class="demo-detail"><b>AI confidence</b><p>'+esc(d.confidence)+'</p></div></div><div class="demo-note"><b>AI summary</b><br>'+esc(d.summary)+'</div>';
-    var actions='<div class="demo-actions">'+d.actions.map(function(a,i){var disabled=a.indexOf('disabled')>-1;return '<button class="demo-action'+(i===0&&!disabled?' primary':'')+'" data-act="demoaction" data-label="'+esc(a.replace(' — disabled',''))+'" '+(disabled?'disabled':'')+'>'+esc(a.replace(' — disabled',''))+'</button>';}).join('')+'</div><div class="demo-note"><b>Suggested note</b><br>“'+esc(d.note)+'”</div>';
-    var stageWorkspace='';
-    if(ST.demoCard==='blocked'){
-      stageWorkspace='<div class="review-workspace">'+
-        '<div class="review-status-grid">'+
-          '<div class="review-status-card risk"><div class="rk">Time-off conflict</div><div class="rv">Approved PTO overlaps requested dates</div><div class="rs">Jordan is already approved out for part of July 20–24, so the move cannot be published as requested.</div></div>'+
-          '<div class="review-status-card risk"><div class="rk">ICU preceptor coverage</div><div class="rv">Unfilled</div><div class="rs">Dr. Elena Ruiz is unavailable and no alternate ICU preceptor is currently assigned.</div></div>'+
-          '<div class="review-status-card pending"><div class="rk">Downstream schedule impact</div><div class="rv">Coverage update required</div><div class="rs">Publishing the change now would leave the ICU schedule unresolved for the affected week.</div></div>'+
-          '<div class="review-status-card clear"><div class="rk">Student record</div><div class="rv">Request captured</div><div class="rs">Jordan\'s request and assignment context are already documented in Arc.</div></div>'+
-        '</div>'+
-        '<div class="review-decision critical"><div class="rk">Owner decision needed</div><strong>Resolve the conflict before any schedule change is approved.</strong><p>Request alternate dates from Jordan or identify replacement ICU coverage first. Only approve the move after time off and preceptor coverage are both cleared.</p></div>'+
-        '<div class="review-sequence"><div class="review-sequence-title">Recommended resolution sequence</div>'+
-          '<div class="review-step"><span class="review-step-num">1</span><div><b>Review the blockers</b><span>Confirm the approved PTO overlap and the missing ICU preceptor coverage.</span></div></div>'+
-          '<div class="review-step"><span class="review-step-num">2</span><div><b>Route the recovery action</b><span>Request alternate dates from Jordan and notify the clinical coordinator of the open ICU conflict.</span></div></div>'+
-          '<div class="review-step"><span class="review-step-num">3</span><div><b>Document and close</b><span>Add the review note, confirm the next step owner, and mark the issue resolved when coverage is protected.</span></div></div>'+
-        '</div>'+
-        '<div class="review-actions">'+
-          '<button class="review-action primary" data-act="demoaction" data-label="Alternate dates requested"><span>Request alternate dates</span><span class="action-meta">Recommended</span></button>'+
-          '<button class="review-action" data-act="demoaction" data-label="Jordan notified"><span>Notify Jordan</span><span class="action-meta">Student</span></button>'+
-          '<button class="review-action" data-act="demoaction" data-label="Clinical coordinator notified"><span>Notify clinical coordinator</span><span class="action-meta">Coordinator</span></button>'+
-          '<button class="review-action" data-act="demoaction" data-label="ICU conflict note added"><span>Add review note</span><span class="action-meta">Document</span></button>'+
-        '</div>'+
-        '<div class="demo-note"><b>Suggested review note</b><br>“'+esc(d.note)+'”</div>'+
-      '</div>';
-    } else if(ST.demoCard==='review'){
-      stageWorkspace='<div class="review-workspace">'+
-        '<div class="review-status-grid">'+
-          '<div class="review-status-card pending"><div class="rk">Preceptor confirmation</div><div class="rv">Pending · Melissa Grant, CRNA</div><div class="rs">Confirm availability for July 13–17 before approval.</div></div>'+
-          '<div class="review-status-card clear"><div class="rk">Clinical-site capacity</div><div class="rv">Available</div><div class="rs">Highland Park has one open OB placement for the revised dates.</div></div>'+
-          '<div class="review-status-card clear"><div class="rk">Student eligibility</div><div class="rv">Confirmed</div><div class="rs">Priya meets the OB rotation requirements for this assignment.</div></div>'+
-          '<div class="review-status-card clear"><div class="rk">Schedule conflicts</div><div class="rv">None detected</div><div class="rs">No approved time off or overlapping clinical assignment was found.</div></div>'+
-        '</div>'+
-        '<div class="review-decision"><div class="rk">Decision needed</div><strong>Confirm the preceptor, then approve or return the request.</strong><p>If Melissa confirms the revised dates, approve the move and notify Priya and Highland Park. If she cannot cover the dates, request alternate dates before changing ASN-005.</p></div>'+
-        '<div class="review-sequence"><div class="review-sequence-title">Recommended review sequence</div>'+
-          '<div class="review-step"><span class="review-step-num">1</span><div><b>Confirm coverage</b><span>Contact Melissa Grant and verify July 13–17 availability.</span></div></div>'+
-          '<div class="review-step"><span class="review-step-num">2</span><div><b>Record the response</b><span>Add the preceptor confirmation or note the reason coverage is unavailable.</span></div></div>'+
-          '<div class="review-step"><span class="review-step-num">3</span><div><b>Complete the decision</b><span>Approve and notify when confirmed; otherwise return the request for alternate dates.</span></div></div>'+
-        '</div>'+
-        '<div class="review-actions">'+
-          '<button class="review-action primary" data-act="demoaction" data-label="Preceptor confirmation requested"><span>Request preceptor confirmation</span><span class="action-meta">Recommended</span></button>'+
-          '<button class="review-action" data-act="demoaction" data-label="Additional information requested"><span>Request more information</span><span class="action-meta">Priya</span></button>'+
-          '<button class="review-action" data-act="demoaction" data-label="Review note added"><span>Add review note</span><span class="action-meta">Document</span></button>'+
-          '<button class="review-action" data-act="demoaction" data-label="Priya notified"><span>Notify Priya</span><span class="action-meta">Message</span></button>'+
-        '</div>'+
-        '<div class="demo-note"><b>Suggested review note</b><br>“'+esc(d.note)+'”</div>'+
-      '</div>';
-    } else if(ST.demoCard==='ready'){
-      stageWorkspace='<div class="review-workspace">'+
-        '<div class="review-status-grid">'+
-          '<div class="review-status-card clear"><div class="rk">Preceptor confirmation</div><div class="rv">Confirmed · Daniel Brooks, CRNA</div><div class="rs">The PACU preceptor is available and aligned to the updated shift.</div></div>'+
-          '<div class="review-status-card clear"><div class="rk">Clinical-site capacity</div><div class="rv">Available</div><div class="rs">St. Vincent Carmel has capacity for the updated PACU assignment.</div></div>'+
-          '<div class="review-status-card clear"><div class="rk">Student eligibility</div><div class="rv">Confirmed</div><div class="rs">Marcus remains within required PACU hours and rotation rules after the swap.</div></div>'+
-          '<div class="review-status-card clear"><div class="rk">Conflict checks</div><div class="rv">No blockers detected</div><div class="rs">Arc found no site, schedule, time-off, or specialty conflicts for this request.</div></div>'+
-        '</div>'+
-        '<div class="review-decision success"><div class="rk">Approval ready</div><strong>Approve the PACU swap and complete the outbound notifications.</strong><p>The change is operationally clear. Once approved, update the assignment record, notify Marcus and the preceptor, and close the request.</p></div>'+
-        '<div class="review-sequence"><div class="review-sequence-title">Recommended completion sequence</div>'+
-          '<div class="review-step"><span class="review-step-num">1</span><div><b>Approve the request</b><span>Confirm the schedule change and write the new PACU placement into the system record.</span></div></div>'+
-          '<div class="review-step"><span class="review-step-num">2</span><div><b>Send notifications</b><span>Notify Marcus and Daniel Brooks that the swap has been approved.</span></div></div>'+
-          '<div class="review-step"><span class="review-step-num">3</span><div><b>Close the loop</b><span>Add the final note and mark the request resolved so the queue stays current.</span></div></div>'+
-        '</div>'+
-        '<div class="review-actions">'+
-          '<button class="review-action primary" data-act="demoaction" data-label="PACU swap approved"><span>Approve request</span><span class="action-meta">Recommended</span></button>'+
-          '<button class="review-action" data-act="demoaction" data-label="Marcus notified"><span>Notify Marcus</span><span class="action-meta">Student</span></button>'+
-          '<button class="review-action" data-act="demoaction" data-label="Preceptor notified"><span>Notify preceptor</span><span class="action-meta">Message</span></button>'+
-          '<button class="review-action" data-act="demoaction" data-label="Final approval note added"><span>Add final note</span><span class="action-meta">Document</span></button>'+
-        '</div>'+
-        '<div class="demo-note"><b>Suggested review note</b><br>“'+esc(d.note)+'”</div>'+
-      '</div>';
-    }
-    var demoSecondTitles={
-      blocked:{kicker:'Required owner decision',title:'Resolve the ICU scheduling conflict',desc:'Request alternate dates, notify the student and clinical coordinator, add a review note, or mark the issue resolved.'},
-      review:{kicker:'Pending human review',title:'Confirm the OB preceptor and decide',desc:'Approve when confirmed, request more information, notify Priya or the preceptor, and document the decision.'},
-      ready:{kicker:'Recommended approval',title:'Approve the PACU swap and notify',desc:'Complete the approval, notify Marcus and the preceptor, add the final note, and close the request.'}
-    };
-    var ds=demoSecondTitles[ST.demoCard];
-    var demoSecond='<button class="second-level-card" data-act="demostage" data-stage="2" style="--tone:'+d.tone+';background:linear-gradient(135deg,#fff 0%,'+d.bg+' 100%)"><span class="second-level-copy"><span class="second-level-kicker">'+esc(ds.kicker)+'</span><span class="second-level-title">'+esc(ds.title)+'</span><span class="second-level-desc">'+esc(ds.desc)+'</span></span><span class="cc-kpi-ic" style="background:'+d.tone+';color:#fff">'+ic('arrowr',18,'#fff')+'</span></button>';
-    html='<div class="modal-wrap"><div class="scrim" data-act="closedemocard" style="position:absolute"></div><div class="modal" style="max-width:780px;--tone:'+d.tone+';--tonebg:'+d.bg+'"><button class="close" data-act="closedemocard" aria-label="Close detail card">'+ic('x',18)+'</button><span class="demo-status" style="--tone:'+d.tone+';--tonebg:'+d.bg+'">'+d.status+'</span><h2 style="margin-top:10px">'+esc(d.title)+'</h2><p class="sub">'+(stage===1?'Expanded detail — what changed, why it matters, and the AI context.':'Action view — complete the decision and move the request forward.')+'</p>'+(stage===1?details+demoSecond:stageWorkspace)+(stage===2?'<div style="display:flex;justify-content:flex-start;gap:10px;margin-top:18px"><button class="mini" data-act="demostage" data-stage="1">'+ic('back',13)+' Back to detail</button></div>':'')+'</div></div>';
+    var d=demos[ST.demoCard]||demos.review, stage=ST.demoStage||1;
+    var details='<div class="demo-detail-grid"><div class="demo-detail"><b>What changed</b><p>'+esc(d.changed)+'</p></div><div class="demo-detail"><b>Why it matters</b><p>'+esc(d.matters)+'</p></div><div class="demo-detail"><b>Affected assignment</b><p>'+esc(d.assignment)+'</p></div><div class="demo-detail"><b>Clinical site</b><p>'+esc(d.site)+'</p></div><div class="demo-detail"><b>Preceptor / coverage</b><p>'+esc(d.preceptor)+'</p></div><div class="demo-detail"><b>AI confidence</b><p>'+esc(d.confidence)+'</p></div></div><div class="demo-note"><b>AI summary</b><br>'+esc(d.summary)+'</div>';
+    var checkCards=d.checks.map(function(c){return '<div class="review-status-card '+c[3]+'"><div class="rk">'+esc(c[0])+'</div><div class="rv">'+esc(c[1])+'</div><div class="rs">'+esc(c[2])+'</div></div>';}).join('');
+    var actionButtons=d.actions.map(function(a,i){return '<button class="review-action'+(i===0?' primary':'')+'" data-act="demoaction" data-label="'+esc(a)+'"><span>'+esc(a)+'</span><span class="action-meta">'+(i===0?'Recommended':'Optional')+'</span></button>';}).join('');
+    var stageWorkspace='<div class="review-workspace"><div class="review-status-grid">'+checkCards+'</div><div class="review-decision '+(d.status==='Blocked'?'critical':(d.status==='Ready'?'success':''))+'"><div class="rk">Human decision</div><strong>'+esc(d.status==='Blocked'?'Resolve the blocker before publishing.':(d.status==='Ready'?'Approve and close the loop.':'Confirm the missing detail, then decide.'))+'</strong><p>'+esc(d.summary)+'</p></div><div class="review-actions">'+actionButtons+'</div><div class="demo-note"><b>Suggested review note</b><br>“'+esc(d.note)+'”</div></div>';
+    var demoSecond='<button class="second-level-card" data-act="demostage" data-stage="2" style="--tone:'+d.tone+';background:linear-gradient(135deg,#fff 0%,'+d.bg+' 100%)"><span class="second-level-copy"><span class="second-level-kicker">Human decision required</span><span class="second-level-title">Open the decision workspace</span><span class="second-level-desc">Review the checks, record the decision, coordinate the notifications, and close the request.</span></span><span class="cc-kpi-ic" style="background:'+d.tone+';color:#fff">'+ic('arrowr',18,'#fff')+'</span></button>';
+    html='<div class="modal-wrap"><div class="scrim" data-act="closedemocard" style="position:absolute"></div><div class="modal" style="max-width:780px;--tone:'+d.tone+';--tonebg:'+d.bg+'"><button class="close" data-act="closedemocard" aria-label="Close detail card">'+ic('x',18)+'</button><span class="demo-status" style="--tone:'+d.tone+';--tonebg:'+d.bg+'">'+d.status+'</span><h2 style="margin-top:10px">'+esc(d.title)+'</h2><p class="sub">'+(stage===1?'Expanded detail — what changed, why it matters, and the reconciled context.':'Action view — complete the human decision and move the request forward.')+'</p>'+(stage===1?details+demoSecond:stageWorkspace)+(stage===2?'<div style="display:flex;justify-content:flex-start;gap:10px;margin-top:18px"><button class="mini" data-act="demostage" data-stage="1">'+ic('back',13)+' Back to detail</button></div>':'')+'</div></div>';
   } else if(ST.calendarCell){
     var cc=ST.calendarCell;
     var tone=cc.type==='conflict'?'#DC2626':(cc.type==='pto'?'#7C3AED':(cc.type==='oncall'?'#C2410C':'#15803D'));
@@ -1687,12 +1660,12 @@ function renderOverlay(){
   } else if(ST.kpiDeep!==null){
     var dd=(function(){
       var m={
-        '0|assignments-active':{tone:'#1683E8',title:'Prototype assignments',summary:'The current week includes five active demo assignments. This count helps Ryan verify the roster that is actually in motion before thinking about approvals or downstream communication.',bullets:['5 total assignments are visible in the current review week.','Each assignment ties a student, site, dates, and a rotation together.','Clicking through to assignments lets Ryan inspect readiness and reassign sites if needed.'],note:'Operationally, this is the roster Ryan is trying to clear before the schedule goes out.'},
+        '0|assignments-active':{tone:'#1683E8',title:'Program schedule',summary:'The current review shows five representative assignments from a 42-assignment program schedule. This count helps Ryan verify the roster that is actually in motion before thinking about approvals or downstream communication.',bullets:['5 total assignments are visible in the current review week.','Each assignment ties a student, site, dates, and a rotation together.','Clicking through to assignments lets Ryan inspect readiness and reassign sites if needed.'],note:'Operationally, this is the roster Ryan is trying to clear before the schedule goes out.'},
         '0|assignments-ready':{tone:'#16A34A',title:'Ready assignments',summary:'Ready assignments have no open readiness reasons. They are the stable portion of the schedule Ryan can feel confident about.',bullets:['These assignments passed the current readiness checks.','No time-off, calendar, or level mismatch issue is still open on them.','They are the best candidates to leave untouched while Ryan fixes the risky items.'],note:'This is the part of the week that can move forward with minimal intervention.'},
         '0|assignments-review':{tone:'#DC2626',title:'Assignments needing review',summary:'These are the assignments that are holding up the schedule. They need a human decision before the roster should be shared.',bullets:['A review item means at least one readiness reason is still open.','Examples include level mismatch, calendar conflict, or approved time off overlap.','Ryan can open the assignment drawer to see the reason and next action.'],note:'This is the most actionable assignment count in the command center.'},
         '0|assignments-reasons':{tone:'#B91C1C',title:'Open readiness reasons',summary:'Reasons are the underlying issues, not just the count of affected assignments. A single assignment can carry more than one reason.',bullets:['This separates surface workload from the actual problem mix.','Multiple reasons on one assignment often signal the most fragile placement.','The Readiness Issues view groups them by type and severity.'],note:'This helps Ryan understand complexity, not just volume.'},
 
-        '1|coverage-open':{tone:'#F97316',title:'Open coverage gaps',summary:'Coverage gaps represent visible holes in the weekly schedule view. They are the easiest visual signal that the schedule is not ready.',bullets:['The current prototype models three open gap segments.','Gaps are placed in the weekly view to mirror what an operator would notice first.','Each gap includes a suggested fill path in the command-center detail.'],note:'This is demo content meant to show what a more operational coverage layer could look like.'},
+        '1|coverage-open':{tone:'#F97316',title:'Open coverage gaps',summary:'Coverage gaps represent visible holes in the weekly schedule view. They are the easiest visual signal that the schedule is not ready.',bullets:['The current review exposes one open Highland Park OB coverage gap for Jul 13–17.','Gaps are placed in the weekly view to mirror what an operator would notice first.','Each gap includes a suggested fill path in the command-center detail.'],note:'This coverage detail shows how Arc connects a schedule-change request to the downstream gap it creates.'},
         '1|coverage-sites':{tone:'#92400E',title:'Affected sites',summary:'Affected sites show where those open coverage segments are concentrated. This helps Ryan think in terms of coordinator impact, not just abstract gaps.',bullets:['Highland Park Hospital carries multiple open segments.','Children’s Rotation Site has a pediatric coverage need.','Site concentration matters because one unhappy coordinator can create outsized friction.'],note:'The goal is to show which clinical relationships may need the quickest attention.'},
         '1|coverage-fills':{tone:'#0F6E56',title:'Suggested fills',summary:'Suggested fills are proposed operator moves to close the gaps quickly. These can be rough or demo-safe—they exist to demonstrate decision support.',bullets:['Promote an OB-eligible senior into the Highland Park gap.','Move a clear student into the pediatric slot if site rules allow.','Use reassignment to test the least disruptive move before publishing.'],note:'In production, these could be AI-assisted recommendations rather than static examples.'},
         '1|coverage-pattern':{tone:'#64748B',title:'Coverage pattern',summary:'Patterns help Ryan understand whether the week is breaking down in a meaningful way—for example, PM-heavy or late-week strain.',bullets:['The example pattern here is PM-heavy.','A pattern view helps Ryan spot systemic fragility instead of isolated events.','Over time, this could surface recurring schedule bottlenecks by site or shift.'],note:'This is intentionally illustrative and can be refined later.'},
@@ -1791,7 +1764,7 @@ function renderOverlay(){
     if(ST.kpi===0){
       var needReview=rws.filter(function(x){return x.status==='Needs Review';});
       var ready=rws.filter(function(x){return x.status==='Ready';});
-      kd.title='Prototype assignments'; kd.icon='calendar'; kd.tone='#1683E8'; kd.view='assignments'; kd.cta='Prototype assignments';
+      kd.title='Program schedule'; kd.icon='calendar'; kd.tone='#1683E8'; kd.view='assignments'; kd.cta='Assignment readiness';
       kd.summary='All active demo assignments for the selected week, with status, issue count, and the fastest path to the record that needs attention.';
       kd.stats='<div class="grid4">'+
         statBox(rws.length,'Active','Assignments in the schedule week',kd.tone,'assignments-active')+
@@ -1961,14 +1934,14 @@ function viewProductThesis(){
     '<section class="arc-thesis-hero" aria-labelledby="arc-overview-title">'+
       '<div class="arc-overview-block">'+
         '<p class="arc-thesis-kicker">Arc product overview</p>'+ 
-        '<h1 id="arc-overview-title" class="arc-overview-title">Can Arc turn schedule changes into trusted decisions—and reconcile every downstream impact?</h1>'+ 
+        '<h1 id="arc-overview-title" class="arc-overview-title">Arc turns schedule changes into trusted decisions—and reconciles every downstream impact.</h1>'+ 
         '<p class="arc-thesis-support">Arc gives clinical education leaders one operating view of what changed, what is at risk, what still requires human judgment, and what should happen next.</p>'+ 
       '</div>'+ 
       '<div class="arc-product-thesis">'+
         '<span class="arc-section-label">Product thesis</span>'+ 
         '<p class="arc-product-thesis-text">Arc turns fragmented schedule changes into a reconciled view of readiness, risk, approvals, and coordinated next actions.</p>'+ 
       '</div>'+ 
-      '<div class="arc-thesis-question"><small>Validation question</small><p>Does Arc help clinical education teams structure schedule changes, test readiness across assignments, time off, site capacity, and program constraints, and recommend the next action—while keeping final approval with the human operator?</p></div>'+ 
+      '<div class="arc-thesis-question"><small>What this prototype is testing</small><p>Whether Arc helps clinical education teams structure schedule changes, test readiness across assignments, time off, site capacity, preceptor coverage, and program constraints, and recommend the next action—while keeping final approval with the human operator.</p></div>'+ 
     '</section>'+ 
     '<div class="foundation-context">'+
       '<article class="card"><div class="fc-k">Operational problem</div><div class="fc-v"><strong>Context is fragmented.</strong> Schedule changes arrive through messages, notes, requests, and disconnected records.</div></article>'+ 
@@ -2009,15 +1982,26 @@ function viewCapture(){
    Overview because it explains how Octavia coordinates
    Roxanne, Clara, Gloria, and Nadia to produce the operational experience.
    ------------------------------------------------------------------ */
-function viewOperatorModel(){
-  return '<div class="foundation-page">'+
-    
-    '<article class="operator-page-card">'+
-      '<header class="operator-page-head"><div><div class="eyebrow">How Arc operates</div><h1>How Arc Makes and Reconciles Decisions</h1><p>Octavia, Arc’s orchestrator, coordinates the complete scheduling-intelligence loop above Roxanne, Clara, Gloria, and Nadia.</p></div></header>'+
-      '<div class="operator-image-wrap"><button class="operator-image-button" data-act="openoperatormodel" aria-label="Open the complete How Arc Makes and Reconciles Decisions full screen"><img src="'+OPERATOR_MODEL_IMAGE+'" alt="How Arc Makes and Reconciles Decisions showing Octavia the Orchestrator above Roxanne Review, Clara Clarify, Gloria Guard, and Nadia Next Action"></button><p class="operator-zoom-note">Scaled to fit the page preview. Click the graphic to enlarge the full-resolution operator and decision flow.</p></div>'+
-      '<div class="operator-reading-order"><div class="operator-role orchestrator"><b>Octavia · Orchestrator</b><span>Coordinates intent, routing, reasoning, outputs, and reconciliation across the full loop.</span></div><div class="operator-role"><b>Roxanne · Review</b><span>Assembles trusted scheduling context.</span></div><div class="operator-role"><b>Clara · Clarify</b><span>Structures changes and resolves missing detail.</span></div><div class="operator-role"><b>Gloria · Guard</b><span>Tests readiness, constraints, and policy risk.</span></div><div class="operator-role"><b>Nadia · Next Action</b><span>Recommends decisions and verifies closure.</span></div></div>'+
-    '</article>'+
+function operatorDiagram(extraClass){
+  return '<div class="operator-map '+(extraClass||'')+'">'+
+    '<div class="operator-orchestrator"><small>Human-governed orchestrator</small><b>Octavia · Orchestrator</b><span>Coordinates intent, routing, specialist reasoning, human judgment, and reconciliation.</span></div>'+
+    '<div class="operator-spine"></div>'+
+    '<div class="operator-team">'+
+      '<div class="operator-node"><span class="on-role">Review</span><b>Roxanne</b><span>Assembles the trusted scheduling context and identifies what changed.</span></div>'+
+      '<div class="operator-node"><span class="on-role">Clarify</span><b>Clara</b><span>Structures the request and resolves missing people, dates, sites, and details.</span></div>'+
+      '<div class="operator-node"><span class="on-role">Guard</span><b>Gloria</b><span>Tests readiness across assignments, time off, capacity, eligibility, and policy.</span></div>'+
+      '<div class="operator-node"><span class="on-role">Next Action</span><b>Nadia</b><span>Recommends the least disruptive action and verifies the loop is closed.</span></div>'+
+    '</div><div class="operator-converge"></div>'+
+    '<div class="operator-output"><small>Reconciled operating outcome</small><b>Trusted decision · coordinated action · updated schedule</b><span>The human operator retains final approval.</span></div>'+
   '</div>';
+}
+
+function viewOperatorModel(){
+  return '<div class="foundation-page"><article class="operator-page-card">'+
+    '<header class="operator-page-head"><div><div class="eyebrow">How Arc operates</div><h1>How Arc Makes and Reconciles Decisions</h1><p>Octavia coordinates Roxanne, Clara, Gloria, and Nadia across one human-governed scheduling-intelligence loop.</p></div></header>'+
+    '<div class="operator-image-wrap"><button class="operator-image-button" data-act="openoperatormodel" aria-label="Open the complete Arc operator model full screen">'+operatorDiagram('')+'</button><p class="operator-zoom-note">Click the model to enlarge the complete operator and decision flow.</p></div>'+
+    '<div class="operator-reading-order"><div class="operator-role orchestrator"><b>Octavia · Orchestrator</b><span>Coordinates intent, routing, reasoning, outputs, and reconciliation across the full loop.</span></div><div class="operator-role"><b>Roxanne · Review</b><span>Assembles trusted scheduling context.</span></div><div class="operator-role"><b>Clara · Clarify</b><span>Structures changes and resolves missing detail.</span></div><div class="operator-role"><b>Gloria · Guard</b><span>Tests readiness, constraints, and policy risk.</span></div><div class="operator-role"><b>Nadia · Next Action</b><span>Recommends decisions and verifies closure.</span></div></div>'+
+  '</article></div>';
 }
 
 var VIEWS={thesis:viewProductThesis,capture:viewCapture,operators:viewOperatorModel,dashboard:viewDashboard,assignments:viewAssignments,timeline:viewTimeline,calendar2:viewCalendar2,checks:viewChecks,requests:viewRequests,calendar:viewCalendar,sites:viewSites,students:viewStudents};
@@ -2029,13 +2013,13 @@ function nav(){
   ];
   var operations=[
     ['dashboard','Operations Review','shield',null],
-    ['assignments','Assignments','layers',c.review||null],
+    ['capture','Capture','inbox',null],
+    ['requests','Change Requests','inbox',pr||null],
+    ['assignments','Assignment Readiness','layers',c.review||null],
     ['timeline','Assignment Timeline','calendar',null],
     ['calendar2','Coverage Calendar','calendar',null],
-    ['requests','Requests & Approvals','inbox',pr||null],
     ['sites','Clinical sites','building',null],
-    ['students','Students','users',null],
-    ['capture','Capture','inbox',null]
+    ['students','Students','users',null]
   ];
   function navItems(items){return items.map(function(it){
     var active=ST.view===it[0];
@@ -2045,6 +2029,10 @@ function nav(){
 }
 function render(){
   var app=document.getElementById('app');
+  if(ST.role==='leader' && VIEWS[ST.view]){
+    try{localStorage.setItem('arc:view',ST.view);}catch(ignore){}
+    if((location.hash||'').replace(/^#/,'')!==ST.view){history.replaceState(null,'','#'+ST.view);}
+  }
   var ctx;
   if(ST.role==='leader'){
     ctx='<span class="ctx mono">Nurse Anesthesia Residency \u00b7 17 clinical sites \u00b7 3 cohorts</span>';
@@ -2054,17 +2042,16 @@ function render(){
     ctx='<select class="rolesel" data-act="pickhospital">'+ST.data.sites.map(function(s){return '<option value="'+s.id+'"'+(s.id===ST.asHospital?' selected':'')+'>'+esc(s.name)+'</option>';}).join('')+'</select>';
   }
 
-  var header='<header class="top"><div class="top-in"><div class="brand"><button class="brand-home" data-act="home" aria-label="Go to home screen"><img class="brand-wordmark" src="assets/arc-wordmark.webp" alt="Arc — an AtlasFlow platform"></button></div>'+
+  var header='<header class="top"><div class="top-in"><div class="brand"><button class="brand-home" data-act="home" aria-label="Go to home screen"><span class="brand-lockup" aria-label="Arc — an AtlasFlow platform"><span class="brand-name">arc</span><span class="brand-divider"></span><span class="brand-platform">an AtlasFlow platform</span></span></button></div>'+
     ctx+
-    '<div class="top-actions"><span class="chip-demo">Demo data</span>'+
-      '<button class="tbtn" data-act="about">'+ic('info',15)+' About</button>'+
+    '<div class="top-actions"><button class="tbtn" data-act="about">'+ic('info',15)+' About</button>'+
       '<button class="tbtn" data-act="reset">'+ic('reset',15)+' Reset</button></div>'+
   '</div></header>';
 
   var body;
   if(ST.role==='leader'){
     body='<div class="shell"><nav class="rail">'+nav()+'</nav>'+
-      '<main><div class="prototype-banner"><div>ⓘ</div><div><b>Validated prototype</b>This environment uses representative demo data to illustrate Arc’s proposed workflow, decision logic, and operating experience.</div></div>'+(VIEWS[ST.view]||viewDashboard)()+'</main></div>';
+      '<main><div class="prototype-banner"><div>ⓘ</div><div><b>Validated prototype · representative data</b>This environment illustrates Arc’s proposed workflow, decision logic, human controls, and operating experience.</div></div>'+(VIEWS[ST.view]||viewDashboard)()+'</main></div>';
   } else {
     var content=ST.role==='student'?viewStudentPortal():viewHospitalFeed();
     body='<div class="shell"><main style="margin:0 auto">'+content+'</main></div>';
@@ -2210,4 +2197,3 @@ window.addEventListener('hashchange',function(){
 
 
 </body></html>
-<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_34uyzL933RF1bxKVCiyi298a7hn3" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_DvvE9mABatUh86bJdW4rgj36CG56" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
