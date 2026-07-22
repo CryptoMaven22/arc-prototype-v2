@@ -886,11 +886,15 @@
 </style>
 
 <style id="arc-vitals-monitor-styles">
-  .arc-vitals-monitor{flex:1 1 auto;width:auto;max-width:none;min-width:420px;
+  .arc-vitals-monitor{
+    flex:1 1 auto;
+    width:auto;
+    max-width:none;
+    min-width:420px;
     height:58px;
     margin-left:6px;
     display:grid;
-    grid-template-columns:minmax(190px,1fr) auto;
+    grid-template-columns:minmax(260px,1fr) auto;
     align-items:stretch;
     overflow:hidden;
     border-radius:12px;
@@ -898,12 +902,22 @@
     background:linear-gradient(180deg,#0F7A6E 0%,#0A5C54 100%);
     box-shadow:0 9px 24px rgba(14,110,99,.22),inset 0 1px 0 rgba(255,255,255,.12);
     color:#fff;
+    cursor:pointer;
+    user-select:none;
+  }
+  .arc-vitals-monitor:hover{
+    box-shadow:0 11px 28px rgba(14,110,99,.30),inset 0 1px 0 rgba(255,255,255,.16);
+  }
+  .arc-vitals-monitor:focus-visible{
+    outline:3px solid rgba(14,110,99,.30);
+    outline-offset:3px;
   }
   .arc-vitals-wave{
     position:relative;
     min-width:0;
     padding:6px 11px 5px 12px;
     border-right:1px solid rgba(255,255,255,.16);
+    overflow:hidden;
   }
   .arc-vitals-label{
     position:absolute;
@@ -914,37 +928,22 @@
     font-size:8px;
     font-weight:600;
     letter-spacing:.14em;
+    pointer-events:none;
   }
   .arc-vitals-wave svg{
     display:block;
     width:100%;
     height:100%;
-    overflow:visible;
+    overflow:hidden;
   }
-  .arc-vitals-baseline{
+  .arc-vitals-line{
     fill:none;
-    stroke:rgba(218,255,246,.20);
-    stroke-width:1.2;
-    vector-effect:non-scaling-stroke;
-  }
-  .arc-vitals-trace{
-    fill:none;
-    stroke:#9FFFD8;
-    stroke-width:2;
+    stroke:#A8FFDA;
+    stroke-width:2.25;
     stroke-linecap:round;
     stroke-linejoin:round;
     vector-effect:non-scaling-stroke;
-    filter:drop-shadow(0 0 4px rgba(159,255,216,.8));
-    stroke-dasharray:1;
-    stroke-dashoffset:1;
-    opacity:0;
-    animation:arcVitalsPulse 7s linear infinite;
-  }
-  .arc-vitals-dot{
-    fill:#D8FFF0;
-    opacity:0;
-    filter:drop-shadow(0 0 5px rgba(216,255,240,.95));
-    animation:arcVitalsDot 7s linear infinite;
+    filter:drop-shadow(0 0 4px rgba(168,255,218,.72));
   }
   .arc-vitals-readings{
     display:grid;
@@ -975,37 +974,19 @@
     font-weight:600;
     text-shadow:0 0 8px rgba(159,255,216,.26);
   }
-  @keyframes arcVitalsPulse{
-    0%,74%{stroke-dashoffset:1;opacity:0}
-    76%{opacity:1}
-    89%{stroke-dashoffset:0;opacity:1}
-    93%,100%{stroke-dashoffset:0;opacity:0}
-  }
-  @keyframes arcVitalsDot{
-    0%,80%{opacity:0;transform:scale(.7)}
-    83%{opacity:1;transform:scale(1.35)}
-    89%{opacity:.9;transform:scale(1)}
-    93%,100%{opacity:0;transform:scale(.7)}
-  }
   @media(max-width:1100px){
-    .arc-vitals-monitor{width:auto;min-width:320px}
+    .arc-vitals-monitor{min-width:320px}
     .arc-vitals-readings{gap:8px;padding-left:9px;padding-right:10px}
     .arc-vitals-readings strong{font-size:16px}
   }
   @media(max-width:820px){
     .arc-vitals-monitor{
-      width:auto;
       min-width:320px;
       height:54px;
       margin-left:4px;
-      grid-template-columns:minmax(175px,1fr) auto;
+      grid-template-columns:minmax(190px,1fr) auto;
     }
     .arc-vitals-readings{gap:8px}
-  }
-  @media(prefers-reduced-motion:reduce){
-    .arc-vitals-trace,.arc-vitals-dot{animation:none!important}
-    .arc-vitals-trace{stroke-dashoffset:0;opacity:.55}
-    .arc-vitals-dot{opacity:0}
   }
 </style>
 
@@ -2180,13 +2161,11 @@ function render(){
   }
   var ctx;
   if(ST.role==='leader'){
-    ctx='<div class="arc-vitals-monitor" role="img" aria-label="Mock patient monitor showing heart rate 72, oxygen saturation 98 percent, and respiratory rate 16">'+
+    ctx='<div class="arc-vitals-monitor" role="button" tabindex="0" title="Click to pulse" aria-label="Mock patient monitor. Click to pulse. Heart rate 72, oxygen saturation 98 percent, respiratory rate 16">'+
       '<div class="arc-vitals-wave">'+
         '<span class="arc-vitals-label mono">LIVE SIGNAL</span>'+
-        '<svg viewBox="0 0 280 44" aria-hidden="true" preserveAspectRatio="none">'+
-          '<path class="arc-vitals-baseline" d="M0 25 H280"></path>'+
-          '<path class="arc-vitals-trace" pathLength="1" d="M0 25 H66 L77 25 L84 18 L91 33 L101 6 L111 36 L121 25 H176 L184 22 L191 27 L198 25 H280"></path>'+
-          '<circle class="arc-vitals-dot" cx="101" cy="6" r="2.8"></circle>'+
+        '<svg viewBox="0 0 1000 44" aria-hidden="true" preserveAspectRatio="none">'+
+          '<path class="arc-vitals-line" d="M0 25 H1000"></path>'+
         '</svg>'+
       '</div>'+
       '<div class="arc-vitals-readings mono">'+
@@ -2354,5 +2333,117 @@ window.addEventListener('hashchange',function(){
 });
 </script>
 
+
+
+<script id="arc-vitals-monitor-controller">
+(function(){
+  var intervalId = null;
+  var animationFrame = null;
+
+  function getMonitor(){
+    return document.querySelector('.arc-vitals-monitor');
+  }
+
+  function flatLine(path){
+    path.setAttribute('d','M0 25 H1000');
+  }
+
+  function pulsePath(center){
+    var p1 = center - 46;
+    var p2 = center - 34;
+    var p3 = center - 22;
+    var p4 = center - 11;
+    var p5 = center;
+    var p6 = center + 12;
+    var p7 = center + 24;
+    var p8 = center + 36;
+    var p9 = center + 49;
+
+    return [
+      'M0 25',
+      'H' + p1.toFixed(2),
+      'L' + p2.toFixed(2) + ' 25',
+      'L' + p3.toFixed(2) + ' 18',
+      'L' + p4.toFixed(2) + ' 33',
+      'L' + p5.toFixed(2) + ' 6',
+      'L' + p6.toFixed(2) + ' 36',
+      'L' + p7.toFixed(2) + ' 25',
+      'L' + p8.toFixed(2) + ' 22',
+      'L' + p9.toFixed(2) + ' 25',
+      'H1000'
+    ].join(' ');
+  }
+
+  function pulseMonitor(){
+    var monitor = getMonitor();
+    if(!monitor) return;
+
+    var path = monitor.querySelector('.arc-vitals-line');
+    if(!path) return;
+
+    if(animationFrame) cancelAnimationFrame(animationFrame);
+
+    var start = performance.now();
+    var duration = 2300;
+    var fromX = 52;
+    var toX = 948;
+
+    function step(now){
+      var progress = Math.min((now - start) / duration, 1);
+      var eased = progress < .5
+        ? 2 * progress * progress
+        : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+
+      var center = fromX + (toX - fromX) * eased;
+      path.setAttribute('d',pulsePath(center));
+
+      if(progress < 1){
+        animationFrame = requestAnimationFrame(step);
+      }else{
+        flatLine(path);
+        animationFrame = null;
+      }
+    }
+
+    animationFrame = requestAnimationFrame(step);
+  }
+
+  function startCycle(){
+    pulseMonitor();
+    if(intervalId) clearInterval(intervalId);
+    intervalId = setInterval(pulseMonitor,7000);
+  }
+
+  document.addEventListener('click',function(event){
+    if(event.target.closest('.arc-vitals-monitor')) pulseMonitor();
+  });
+
+  document.addEventListener('keydown',function(event){
+    var monitor = event.target.closest && event.target.closest('.arc-vitals-monitor');
+    if(monitor && (event.key === 'Enter' || event.key === ' ')){
+      event.preventDefault();
+      pulseMonitor();
+    }
+  });
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded',function(){
+      setTimeout(startCycle,250);
+    });
+  }else{
+    setTimeout(startCycle,250);
+  }
+
+  var observer = new MutationObserver(function(){
+    var monitor = getMonitor();
+    if(monitor && !monitor.dataset.vitalsReady){
+      monitor.dataset.vitalsReady = 'true';
+      pulseMonitor();
+    }
+  });
+
+  observer.observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
 
 </body></html><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_56njz6N96U47EoLLtMKkujwW5oFP" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_9k1v5iUSGnA7r956ercTm1XSHdyK" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
