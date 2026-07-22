@@ -2203,7 +2203,7 @@ document.addEventListener('click',function(e){
   else if(act==='captureplay'){var cap=document.getElementById('captureExperience');if(cap){cap.classList.remove('is-capturing');void cap.offsetWidth;cap.classList.add('is-capturing');window.setTimeout(function(){cap.classList.remove('is-capturing');},1500);}}
   else if(act==='openoperatormodel'){ST.operatorModelOpen=true;renderOverlay();}
   else if(act==='closeoperatormodel'){ST.operatorModelOpen=false;renderOverlay();}
-  else if(act==='home'){ST.role='leader';ST.view='dashboard';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;render();}
+  else if(act==='home'){ST.role='leader';ST.view='thesis';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;render();}
   else if(act==='open'){ST.openStudentId=null;ST.openId=t.getAttribute('data-id');renderOverlay();}
   else if(act==='openstudent'){ST.openId=null;ST.openStudentId=t.getAttribute('data-id');renderOverlay();}
   else if(act==='closedrawer'){ST.openId=null;renderOverlay();}
@@ -2291,12 +2291,9 @@ document.addEventListener('keydown',function(e){
   }
 });
 
-// Restore the last meaningful Arc view while resetting transient demo overlays.
+// Always open Arc on the main product-overview page while resetting transient demo overlays.
 function startArc(){
-  var hashView=(location.hash||'').replace(/^#/,'');
-  var savedView='';
-  try{savedView=localStorage.getItem('arc:view')||'';}catch(ignore){}
-  ST.view=VIEWS[hashView]?hashView:(VIEWS[savedView]?savedView:'dashboard');
+  ST.view='thesis';
   ST.role='leader';
   ST.siteFocus=null;
   ST.openId=null;
