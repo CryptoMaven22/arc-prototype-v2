@@ -1025,6 +1025,63 @@
     }
     .arc-vitals-readings{gap:8px}
   }
+
+  /* Arc steel-thread completion — student request to reconciled schedule */
+  .lifecycle{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0;margin:14px 0 2px;border:1px solid var(--hair);border-radius:12px;overflow:hidden;background:#fff}
+  .life-step{position:relative;padding:10px 8px;text-align:center;border-right:1px solid var(--hair);font-size:10px;font-weight:700;color:var(--muted2);background:#FAFCFB}
+  .life-step:last-child{border-right:none}
+  .life-step.done{color:#047857;background:#ECFDF5}
+  .life-step.current{color:#92400E;background:#FFFBEB;box-shadow:inset 0 -3px 0 #D97706}
+  .life-step.denied{color:#B91C1C;background:#FEF2F2}
+  .life-step .life-dot{display:grid;place-items:center;width:22px;height:22px;border-radius:999px;margin:0 auto 5px;background:#E2E8F0;color:#64748B;font-size:10px}
+  .life-step.done .life-dot{background:#10B981;color:#fff}
+  .life-step.current .life-dot{background:#F59E0B;color:#fff}
+  .life-step.denied .life-dot{background:#EF4444;color:#fff}
+  .steel-thread-card{border:2px solid #0F766E!important;box-shadow:0 0 0 4px rgba(15,118,110,.06),0 12px 30px rgba(15,118,110,.10)!important}
+  .request-hero{border:2px solid var(--teal);background:linear-gradient(135deg,#FFFFFF 0%,#F0FDFA 100%);border-radius:16px;padding:18px;box-shadow:0 10px 28px rgba(14,110,99,.09)}
+  .request-hero-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  .request-hero h2{font-size:20px;margin:4px 0 3px}
+  .request-hero p{font-size:12.5px;color:var(--muted);margin:0}
+  .request-context-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:13px}
+  .request-context{border:1px solid var(--hair);border-radius:10px;background:#fff;padding:10px}
+  .request-context .k{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);font-weight:750}
+  .request-context .v{font-size:12px;font-weight:700;color:#334155;margin-top:3px}
+  .request-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto auto;align-items:center;gap:12px;padding:12px 16px}
+  .request-row+.request-row{border-top:1px solid var(--hair)}
+  .request-row.is-steel{background:#FBFFFE}
+  .request-form{border:2px solid var(--teal);border-radius:16px;padding:18px;background:linear-gradient(180deg,#FFFFFF,#F7FCFA);box-shadow:0 10px 28px rgba(14,110,99,.08)}
+  .request-form-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+  .request-form-head h2{font-size:18px;margin:0}
+  .request-form-head p{font-size:12px;color:var(--muted);margin:3px 0 0}
+  .request-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .request-form-field{display:flex;flex-direction:column;gap:5px}
+  .request-form-field.full{grid-column:1/-1}
+  .request-form-field label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);font-weight:750}
+  .request-form-field input,.request-form-field select,.request-form-field textarea{width:100%;border:1px solid var(--hair);background:#fff;border-radius:9px;padding:9px 10px;font:inherit;font-size:13px;color:var(--ink)}
+  .request-form-field textarea{min-height:76px;resize:vertical}
+  .request-form-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px}
+  .decision-complete{border:1px solid #A7F3D0;background:#ECFDF5;border-radius:12px;padding:16px;color:#065F46}
+  .decision-complete strong{display:block;font-size:16px}
+  .decision-complete p{margin:5px 0 0;font-size:12.5px;line-height:1.5}
+  .review-action[disabled]{opacity:.42;cursor:not-allowed;transform:none!important}
+  .nav-group{margin:12px 10px 5px;font-size:9px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--muted2)}
+  @media(max-width:900px){
+    .lifecycle{grid-template-columns:repeat(3,1fr)}
+    .life-step:nth-child(3){border-right:none}
+    .life-step:nth-child(-n+3){border-bottom:1px solid var(--hair)}
+    .request-context-grid{grid-template-columns:repeat(2,1fr)}
+    .request-row{grid-template-columns:auto minmax(0,1fr);align-items:flex-start}
+    .request-row>*:nth-child(n+3){grid-column:2}
+  }
+  @media(max-width:620px){
+    .request-form-grid,.request-context-grid{grid-template-columns:1fr}
+    .request-form-field.full{grid-column:auto}
+    .lifecycle{grid-template-columns:repeat(2,1fr)}
+    .life-step:nth-child(odd){border-right:1px solid var(--hair)}
+    .life-step:nth-child(even){border-right:none}
+    .life-step:nth-child(-n+4){border-bottom:1px solid var(--hair)}
+  }
+
 </style>
 
 </head>
@@ -1101,7 +1158,7 @@ function seed(){return {
   requests:[
     {id:'rq1',rid:'REQ-001',studentId:'s1',type:'ATO',status:'Approved',start:'2026-07-15',end:'2026-07-15',notes:'Allowable time off.'},
     {id:'rq2',rid:'REQ-002',studentId:'s2',type:'DNP',status:'Approved',start:'2026-07-06',end:'2026-07-06',notes:'DNP project day.'},
-    {id:'rq3',rid:'REQ-003',studentId:'s5',type:'MOVE',status:'Needs Review',start:'2026-07-13',end:'2026-07-17',notes:'Move Highland Park OB rotation from Jul 6–10 to Jul 13–17; preceptor confirmation pending.'},
+    {id:'rq3',rid:'REQ-003',studentId:'s5',assignmentId:'a5',type:'MOVE',status:'Needs Review',start:'2026-07-13',end:'2026-07-17',reason:'Personal scheduling conflict',source:'Student portal',submittedAt:'2026-07-28T09:14:00',originalText:'I need to move my Highland Park OB rotation from July 6–10 to July 13–17. My preceptor may be different, and I am not sure whether the site has capacity.',notes:'Move Highland Park OB rotation from Jul 6–10 to Jul 13–17; preceptor confirmation pending.'},
     {id:'rq4',rid:'REQ-004',studentId:'s4',type:'MTG',status:'Requested',start:'2026-07-20',end:'2026-07-21',notes:'Professional meeting.'},
     {id:'rq5',rid:'REQ-005',studentId:'s1',type:'ATO',status:'Approved',start:'2026-06-08',end:'2026-06-12',notes:'Spring vacation week.'},
     {id:'rq6',rid:'REQ-006',studentId:'s3',type:'ATO',status:'Approved',start:'2026-06-22',end:'2026-06-26',notes:'Vacation.'},
@@ -1165,7 +1222,7 @@ var STATUS={
   'Not Checked':{text:'#475569',bg:'#EAEEED',dot:'#94A3B8'}
 };
 var SEV={High:{text:'#B91C1C',bg:'#FEE2E2'},Medium:{text:'#92400E',bg:'#FEF3C7'},Low:{text:'#475569',bg:'#EAEEED'}};
-var RQS={'Approved':{text:'#15803D',bg:'#DCFCE7'},'Requested':{text:'#475569',bg:'#EAEEED'},'Denied':{text:'#B91C1C',bg:'#FEE2E2'},'Needs Review':{text:'#92400E',bg:'#FEF3C7'}};
+var RQS={'Approved':{text:'#15803D',bg:'#DCFCE7'},'Requested':{text:'#475569',bg:'#EAEEED'},'Returned':{text:'#92400E',bg:'#FEF3C7'},'Denied':{text:'#B91C1C',bg:'#FEE2E2'},'Needs Review':{text:'#92400E',bg:'#FEF3C7'}};
 var SPEC={
   'General':{code:'GEN',text:'#475569',bg:'#EEF1F0'},
   'OB':{code:'OB',text:'#9d174d',bg:'#fce7f0'},
@@ -1175,7 +1232,7 @@ var SPEC={
 };
 function specPill(s){var c=SPEC[s]||SPEC['General'];return '<span class="pill" style="color:'+c.text+';background:'+c.bg+'" title="'+esc(s)+'">'+c.code+'</span>';}
 var ALLOW={ATO:35,DNP:3,MTG:2,STDY:2};
-var TYPE_LABEL={ATO:'ATO (vacation)',DNP:'DNP project day',MTG:'Meeting day',STDY:'Study day',MOVE:'Move assignment'};
+var TYPE_LABEL={ATO:'ATO (vacation)',DNP:'DNP project day',MTG:'Meeting day',STDY:'Study day',MOVE:'Move assignment',SWAP:'Swap assignment',CANCEL:'Cancel assignment',ADD:'Add assignment'};
 function reqDays(r){return overlapDays(r.start,r.end,r.start,r.end);}
 function bankFor(studentId){
   var used={ATO:0,DNP:0,MTG:0,STDY:0};
@@ -1187,7 +1244,7 @@ function bankFor(studentId){
 function badgeSt(s,sm){var c=STATUS[s]||STATUS['Not Checked'];return '<span class="badge-st'+(sm?' sm':'')+'" style="color:'+c.text+';background:'+c.bg+'"><span class="dot" style="background:'+c.dot+'"></span>'+s+'</span>';}
 function sevBadge(s){var c=SEV[s]||SEV.Low;return '<span class="sev" style="color:'+c.text+';background:'+c.bg+'">'+s+'</span>';}
 
-var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,operatorModelOpen:false,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4'};
+var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,requestFocus:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,operatorModelOpen:false,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4'};
 var lastFocusedElement=null;
 
 function openChecks(){var all=generateChecks(ST.data),rv=ST.reviewed;return all.filter(function(c){return rv.indexOf(c.key)<0;});}
@@ -1200,6 +1257,38 @@ function rows(){return ST.data.assignments.map(function(a){
 });}
 function counts(){var r=rows();return {ready:r.filter(function(x){return x.status==='Ready';}).length,review:r.filter(function(x){return x.status==='Needs Review';}).length};}
 function pendingReq(){return ST.data.requests.filter(function(r){return r.status==='Requested'||r.status==='Needs Review';});}
+
+function requestById(id){return ST.data.requests.filter(function(r){return r.id===id;})[0]||null;}
+function assignmentById(id){return ST.data.assignments.filter(function(a){return a.id===id;})[0]||null;}
+function priyaRequest(){return ST.data.requests.filter(function(r){return r.studentId==='s5'&&r.type==='MOVE';})[0]||null;}
+function priyaAssignment(){return ST.data.assignments.filter(function(a){return a.id==='a5';})[0]||null;}
+function requestTone(status){return RQS[status]||RQS.Requested;}
+function requestStatusText(rq){
+  if(!rq)return 'Not submitted';
+  if(rq.status==='Approved'&&rq.published)return 'Approved · Published';
+  if(rq.status==='Returned')return 'Returned to student';
+  if(rq.status==='Denied')return 'Denied';
+  if(rq.status==='Needs Review')return 'Needs review';
+  return rq.status;
+}
+function lifecycleHtml(rq){
+  var asg=priyaAssignment();
+  var submitted=!!rq;
+  var structured=!!rq;
+  var checked=!!rq;
+  var confirmed=!!(asg&&asg.preceptorConfirmed);
+  var approved=!!(rq&&rq.status==='Approved');
+  var published=!!(rq&&rq.published);
+  var denied=!!(rq&&(rq.status==='Denied'||rq.status==='Returned'));
+  var states=[submitted,structured,checked,confirmed,approved,published];
+  var labels=['Submitted','Structured','Checked','Confirmed','Approved','Published'];
+  var firstOpen=states.indexOf(false);
+  return '<div class="lifecycle" aria-label="Request lifecycle">'+labels.map(function(label,i){
+    var cls=states[i]?' done':(!denied&&i===firstOpen?' current':'');
+    if(denied&&!states[i]&&i===firstOpen)cls=' denied';
+    return '<div class="life-step'+cls+'"><span class="life-dot">'+(states[i]?ic('check',11,'#fff'):(i+1))+'</span>'+label+'</div>';
+  }).join('')+'</div>';
+}
 
 function secHead(title,hint,cnt){return '<div class="sec-head"><div class="ttl"><h2>'+esc(title)+'</h2>'+(cnt!=null?'<span class="cnt mono">'+cnt+'</span>':'')+'</div>'+(hint?'<p class="hint">'+esc(hint)+'</p>':'')+'</div>';}
 function emptyState(t,b){return '<div class="empty"><span class="ec">'+ic('checkc',22)+'</span><div style="font-weight:600;font-size:14px">'+esc(t)+'</div><div style="font-size:13px;color:var(--muted);margin-top:2px">'+esc(b)+'</div></div>';}
@@ -1217,26 +1306,34 @@ function legend(){
 }
 
 function viewDashboard(){
+  var rq=priyaRequest(), asg=priyaAssignment();
+  var completed=!!(rq&&rq.status==='Approved'&&rq.published);
+  var confirmed=!!(asg&&asg.preceptorConfirmed);
+  var issueCount=openChecks().length;
+  var pending=pendingReq().length;
   var kpis=[
-    ['shield','#FEF2F2','#EF4444','Readiness issues','4','Reasons identified',2],
-    ['alert','#FFF7ED','#F97316','Coverage gaps','1','Highland Park · Jul 13–17',1],
-    ['inbox','#F5F3FF','#8B5CF6','Pending approvals','2','Active change requests',3],
+    ['shield','#FEF2F2','#EF4444','Readiness issues',String(issueCount),issueCount===1?'Reason identified':'Reasons identified',2],
+    ['alert','#FFF7ED','#F97316','Coverage gaps',completed?'0':'1',completed?'Priya move reconciled':'Highland Park · Jul 13–17',1],
+    ['inbox','#F5F3FF','#8B5CF6','Pending approvals',String(pending),'Active change requests',3],
     ['calendar','#EAF4FF','#1683E8','Program schedule','42','5 records shown',0]
   ];
   var kpiHtml=kpis.map(function(k){return '<button class="cc-kpi" type="button" aria-label="Open '+esc(k[3])+' detail" data-act="kpi" data-k="'+k[6]+'"><span class="cc-kpi-ic" style="background:'+k[1]+';color:'+k[2]+'">'+ic(k[0],22)+'</span><div><div class="lab">'+esc(k[3])+'</div><div class="num">'+esc(k[4])+'</div><div class="delta">'+esc(k[5])+'</div></div></button>';}).join('');
-  var nextAction='<button type="button" class="next-action-hero primary-click-card" data-act="democard" data-id="review" aria-label="Review Priya Shah OB rotation change"><div><div class="k">Next recommended action</div><div class="v">Confirm Priya Shah’s OB preceptor before approving the July 13–17 move.</div><div class="s">Site capacity is available · final human confirmation is still required</div></div><span class="next-action-cta">Review request</span></button>';
-  var brief='<aside class="weekly-brief"><div class="brief-head"><div><div class="brief-title">Since the last review</div><div class="brief-sub">Priya Shah steel thread · Jul 6–17, 2026</div></div></div>'+ 
-    '<div class="brief-change-list"><div class="brief-change"><span class="bc-num">1</span><span class="bc-copy">new schedule-change request captured</span></div><div class="brief-change"><span class="bc-num">1</span><span class="bc-copy">preceptor confirmation still missing</span></div><div class="brief-change"><span class="bc-num">1</span><span class="bc-copy">coverage gap exposed for the requested week</span></div><div class="brief-change"><span class="bc-num">0</span><span class="bc-copy">new student-eligibility issues</span></div></div>'+ 
-    '<div class="brief-block"><div class="brief-label">Highest-priority issue</div><div class="brief-risk"><b>Priya Shah — Highland Park OB move</b><span>Requested dates: Jul 13–17</span><span>Preceptor confirmation pending</span></div></div>'+ 
-    '<div class="brief-block"><div class="brief-label">Recommended focus</div><ol class="brief-focus"><li>Confirm the OB preceptor</li><li>Approve or return Priya’s change request</li><li>Publish the reconciled schedule and notifications</li></ol></div></aside>';
+  var nextAction=completed
+    ? '<button type="button" class="next-action-hero primary-click-card" data-act="democard" data-id="review" aria-label="View completed Priya Shah schedule change"><div><div class="k">Steel thread completed</div><div class="v">Priya Shah’s OB move is approved, reconciled, published, and closed.</div><div class="s">Assignment updated to July 13–17 · three notifications queued</div></div><span class="next-action-cta">View completed request</span></button>'
+    : '<button type="button" class="next-action-hero primary-click-card" data-act="democard" data-id="review" aria-label="Review Priya Shah OB rotation change"><div><div class="k">Next recommended action</div><div class="v">'+(confirmed?'Approve Priya Shah’s July 13–17 OB move and publish the reconciled schedule.':'Confirm Priya Shah’s OB preceptor before approving the July 13–17 move.')+'</div><div class="s">Site capacity is available · '+(confirmed?'all required checks are now clear':'final human confirmation is still required')+'</div></div><span class="next-action-cta">'+(confirmed?'Approve change':'Review request')+'</span></button>';
+  var brief='<aside class="weekly-brief"><div class="brief-head"><div><div class="brief-title">'+(completed?'Completed since last review':'Since the last review')+'</div><div class="brief-sub">Priya Shah steel thread · Jul 6–17, 2026</div></div></div>'+
+    '<div class="brief-change-list"><div class="brief-change"><span class="bc-num">1</span><span class="bc-copy">student schedule-change request captured</span></div><div class="brief-change"><span class="bc-num">'+(confirmed?'0':'1')+'</span><span class="bc-copy">preceptor confirmation still missing</span></div><div class="brief-change"><span class="bc-num">'+(completed?'0':'1')+'</span><span class="bc-copy">coverage gap exposed for requested week</span></div><div class="brief-change"><span class="bc-num">'+(completed?'3':'0')+'</span><span class="bc-copy">stakeholder notifications queued</span></div></div>'+
+    '<div class="brief-block"><div class="brief-label">'+(completed?'Resolved request':'Highest-priority issue')+'</div><div class="brief-risk" style="'+(completed?'border-left-color:#16A34A;background:#F0FDF4':'')+'"><b>Priya Shah — Highland Park OB move</b><span>Requested dates: Jul 13–17</span><span>'+(completed?'Approved and published':'Preceptor confirmation '+(confirmed?'received':'pending'))+'</span></div></div>'+
+    '<div class="brief-block"><div class="brief-label">'+(completed?'Completed actions':'Recommended focus')+'</div><ol class="brief-focus">'+(completed?'<li>Assignment dates reconciled</li><li>Schedule published</li><li>Priya, preceptor, and site notified</li>':'<li>Confirm the OB preceptor</li><li>Approve or return Priya’s change request</li><li>Publish the reconciled schedule and notifications</li>')+'</ol></div></aside>';
   var lower='<div class="ops-lower">'+
-    '<section class="ops-panel"><h2>Weekly capacity</h2><p>Assignment pressure across the same network view.</p><div class="ops-line"><span>Evanston Hospital</span><b>8 / 10</b></div><div class="ops-line"><span>Highland Park</span><b style="color:#D97706">9 / 10</b></div><div class="ops-line"><span>Children’s Rotation</span><b>8 / 10</b></div></section>'+ 
-    '<section class="ops-panel"><h2>System activity</h2><p>What Arc processed for this review.</p><div class="ops-line"><span>Checks performed</span><b>168</b></div><div class="ops-line"><span>Readiness reasons</span><b>4</b></div><div class="ops-line"><span>Records shown</span><b>5 of 42</b></div></section>'+ 
-    '<section class="ops-panel"><h2>Recent human decisions</h2><p>Latest operator-controlled outcomes.</p><div class="ops-line"><span>Approved</span><b style="color:#16A34A">6</b></div><div class="ops-line"><span>Returned for review</span><b style="color:#D97706">2</b></div><div class="ops-line"><span>Notifications sent</span><b>11</b></div></section></div>';
+    '<section class="ops-panel"><h2>Weekly capacity</h2><p>Assignment pressure across the same network view.</p><div class="ops-line"><span>Evanston Hospital</span><b>8 / 10</b></div><div class="ops-line"><span>Highland Park</span><b style="color:'+(completed?'#15803D':'#D97706')+'">'+(completed?'8 / 10':'9 / 10')+'</b></div><div class="ops-line"><span>Children’s Rotation</span><b>8 / 10</b></div></section>'+
+    '<section class="ops-panel"><h2>System activity</h2><p>What Arc processed for this review.</p><div class="ops-line"><span>Checks performed</span><b>168</b></div><div class="ops-line"><span>Readiness reasons</span><b>'+issueCount+'</b></div><div class="ops-line"><span>Records shown</span><b>5 of 42</b></div></section>'+
+    '<section class="ops-panel"><h2>Recent human decisions</h2><p>Latest operator-controlled outcomes.</p><div class="ops-line"><span>Approved</span><b style="color:#16A34A">'+(completed?'7':'6')+'</b></div><div class="ops-line"><span>Returned for review</span><b style="color:#D97706">2</b></div><div class="ops-line"><span>Notifications sent</span><b>'+(completed?'14':'11')+'</b></div></section></div>';
   return '<div class="cc"><div class="ops-top"><div class="cc-focus"><div class="cc-toolbar"><div class="cc-title"><h1>Operations Review</h1><p>What changed, what is at risk, what requires judgment, and what should happen next.</p></div><div class="cc-tools"><button class="tbtn">'+ic('back',14)+' Jul 6–17, 2026</button><button class="tbtn">Today</button><button class="tbtn">All sites '+ic('chevr',13)+'</button></div></div>'+nextAction+'<div class="cc-kpis">'+kpiHtml+'</div></div>'+brief+'</div><div style="margin-top:18px">'+viewChecks()+'</div><div style="margin-top:18px">'+legend()+'</div><div style="margin-top:18px">'+lower+'</div></div>';
 }
 
 function viewCalendar2(){
+  var rq=priyaRequest(), gapOpen=!(rq&&rq.status==='Approved'&&rq.published);
   var names=['A. Patel','M. Chen','J. Smith','K. Lee','D. Brown','S. Davis','T. Wilson','R. Garcia','E. Johnson','L. Martinez','P. Nguyen','Dr. Carter','Dr. Allen','Dr. Blake'];
   var sites=[
     ['Evanston Hospital','General OR','assigned'],
@@ -1254,7 +1351,7 @@ function viewCalendar2(){
     cells+='<div class="wg-site"><b>'+si[0]+'</b><small>'+si[1]+'</small></div>';
     for(var j=0;j<14;j++){
       var type='assigned', text=names[(r*2+j)%names.length];
-      if(r===1&&j===5){type='conflict';text='Coverage gap';}
+      if(r===1&&j===5){type=gapOpen?'conflict':'assigned';text=gapOpen?'Coverage gap':'Priya Shah';}
       if(r===4&&(j===5||j===11)){type='pto';text='PTO';}
       if(r===6&&(j%3===1)){type='oncall';text='Dr. Carter';}
       var dayLabel=days[Math.floor(j/2)]+' '+(j%2===0?'AM':'PM');
@@ -1263,7 +1360,7 @@ function viewCalendar2(){
       cells+='<div class="wg-cell"><button class="shift '+type+'" style="'+(hide?'opacity:.12;pointer-events:none;':'')+'" data-act="calendarcell" data-name="'+esc(text)+'" data-site="'+esc(si[0])+'" data-rotation="'+esc(si[1])+'" data-when="'+esc(dayLabel)+'" data-type="'+esc(type)+'">'+label+'</button></div>';
     }
   });
-  var summary='<div class="coverage-summary"><span class="coverage-chip"><strong>91</strong> covered shifts</span><span class="coverage-chip" style="color:#B91C1C"><strong style="color:#B91C1C">1</strong> open gap</span><span class="coverage-chip" style="color:#6D28D9"><strong style="color:#6D28D9">2</strong> PTO blocks</span><span class="coverage-chip" style="color:#C2410C"><strong style="color:#C2410C">5</strong> on-call shifts</span></div>';
+  var summary='<div class="coverage-summary"><span class="coverage-chip"><strong>'+(gapOpen?'91':'92')+'</strong> covered shifts</span><span class="coverage-chip" style="color:'+(gapOpen?'#B91C1C':'#15803D')+'"><strong style="color:'+(gapOpen?'#B91C1C':'#15803D')+'">'+(gapOpen?'1':'0')+'</strong> open gap</span><span class="coverage-chip" style="color:#6D28D9"><strong style="color:#6D28D9">2</strong> PTO blocks</span><span class="coverage-chip" style="color:#C2410C"><strong style="color:#C2410C">5</strong> on-call shifts</span></div>';
   return '<div class="stack"><div><h1>Coverage Calendar</h1><p class="sub">Site- and shift-centered coverage with assignments, open gaps, PTO, and on-call coverage.</p>'+summary+'</div>'+ 
     '<div class="cc-panel"><div class="cc-panel-head"><div class="cc-panel-title">'+ic('calendar',15,'#1683E8')+' Coverage Calendar</div><div class="cc-panel-tools"><button class="coverage-toggle'+(ST.coverageGapOnly?' on':'')+'" data-act="coveragetoggle">'+ic('alert',13,ST.coverageGapOnly?'#B91C1C':'#64748B')+' Show gaps only</button><div class="seg"><button class="on">Week</button><button>Day</button></div><div class="cc-legend"><span><i class="cc-swatch" style="background:#86EFAC"></i>Assigned</span><span><i class="cc-swatch" style="background:#FCA5A5"></i>Gap / conflict</span><span><i class="cc-swatch" style="background:#C4B5FD"></i>PTO</span><span><i class="cc-swatch" style="background:#FDBA74"></i>On call</span></div></div></div><div class="week-wrap"><div class="week-grid">'+header+cells+'</div></div></div></div>';
 }
@@ -1304,35 +1401,48 @@ function viewAssignments(){
 }
 
 function viewChecks(){
+  var rq=priyaRequest(), asg=priyaAssignment();
+  var complete=!!(rq&&rq.status==='Approved'&&rq.published);
+  var confirmed=!!(asg&&asg.preceptorConfirmed);
   var cards=[
+    {id:'review',tone:complete?'#16A34A':'#D97706',bg:complete?'#DCFCE7':'#FEF3C7',status:complete?'Ready':'Needs Review',student:'Priya Shah',request:'OB Rotation Schedule Change',risk:complete?'The requested move is reconciled and all required checks are clear.':(confirmed?'All automated checks are clear and preceptor coverage is confirmed.':'The July 13–17 move fits site capacity, but the revised preceptor has not confirmed.'),next:complete?'View the completed decision, schedule update, and notification record.':(confirmed?'Approve the change and publish the reconciled schedule.':'Confirm preceptor availability, then approve or return the move.'),time:complete?'Completed · published':'Review within 24 hours',button:complete?'View Completed Request':(confirmed?'Approve Change':'Review Request'),steel:true},
     {id:'blocked',tone:'#DC2626',bg:'#FEE2E2',status:'Blocked',student:'Daniel Brooks',request:'OB Placement Exception',risk:'Daniel is a junior student assigned to a senior-only Highland Park OB placement.',next:'Move Daniel to a junior-eligible OB site before publishing the assignment.',time:'Resolve before schedule publication',button:'Resolve Conflict'},
-    {id:'review',tone:'#D97706',bg:'#FEF3C7',status:'Needs Review',student:'Priya Shah',request:'OB Rotation Schedule Change',risk:'The July 13–17 move fits site capacity, but the revised preceptor has not confirmed.',next:'Confirm preceptor availability, then approve or return the move.',time:'Review within 24 hours',button:'Review Request'},
     {id:'ready',tone:'#16A34A',bg:'#DCFCE7',status:'Ready',student:'Marcus Hill',request:'OB Schedule Reconciliation',risk:'The DNP-day overlap has a documented coverage plan and replacement clinical time.',next:'Approve the reconciled assignment and send the final notifications.',time:'Routine — approve by end of day',button:'Approve & Notify'}
   ];
-  var html=cards.map(function(c){return '<button type="button" class="demo-work-card primary-click-card" data-act="democard" data-id="'+c.id+'" aria-label="Open '+esc(c.student)+' '+esc(c.request)+' detail" style="--tone:'+c.tone+';--tonebg:'+c.bg+'"><span class="demo-badges"><span class="demo-status">'+esc(c.status)+'</span>'+(c.id==='review'?'<span class="steel-thread-pill">Steel Thread</span>':'')+'</span><h3>'+esc(c.student)+' — '+esc(c.request)+'</h3><div class="demo-field"><b>Risk reason</b><p>'+esc(c.risk)+'</p></div><div class="demo-field"><b>Recommended next action</b><p>'+esc(c.next)+'</p></div><div class="demo-time">'+esc(c.time)+'</div><span class="demo-owner" aria-hidden="true">'+esc(c.button)+'</span></button>';}).join('');
-  return '<div class="stack"><div><h2 class="attention-heading">Attention queue</h2><p class="sub">The same schedule-change records ranked by readiness, urgency, and next action.</p></div><div class="queue-summary"><strong>3 active records</strong><span class="queue-chip" style="background:#FEE2E2;color:#B91C1C">1 blocked</span><span class="queue-chip" style="background:#FEF3C7;color:#92400E">1 awaiting review</span><span class="queue-chip" style="background:#DCFCE7;color:#15803D">1 ready</span></div><div class="demo-card-grid">'+html+'</div><p class="note">Inspect the operational context and complete the human decision without leaving the viewer.</p></div>';
+  var html=cards.map(function(c){return '<button type="button" class="demo-work-card primary-click-card'+(c.steel?' steel-thread-card':'')+'" data-act="democard" data-id="'+c.id+'" aria-label="Open '+esc(c.student)+' '+esc(c.request)+' detail" style="--tone:'+c.tone+';--tonebg:'+c.bg+'"><span class="demo-badges"><span class="demo-status">'+esc(c.status)+'</span>'+(c.steel?'<span class="steel-thread-pill">Steel Thread</span>':'')+'</span><h3>'+esc(c.student)+' — '+esc(c.request)+'</h3><div class="demo-field"><b>Risk reason</b><p>'+esc(c.risk)+'</p></div><div class="demo-field"><b>Recommended next action</b><p>'+esc(c.next)+'</p></div><div class="demo-time">'+esc(c.time)+'</div><span class="demo-owner" aria-hidden="true">'+esc(c.button)+'</span></button>';}).join('');
+  return '<div class="stack"><div><h2 class="attention-heading">Attention queue</h2><p class="sub">Priya’s steel thread is shown first; other records demonstrate adjacent readiness states.</p></div><div class="queue-summary"><strong>3 representative records</strong><span class="queue-chip" style="background:#FEE2E2;color:#B91C1C">1 blocked</span><span class="queue-chip" style="background:'+(complete?'#DCFCE7':'#FEF3C7')+';color:'+(complete?'#15803D':'#92400E')+'">Priya '+(complete?'completed':'awaiting decision')+'</span><span class="queue-chip" style="background:#DCFCE7;color:#15803D">1 ready</span></div><div class="demo-card-grid">'+html+'</div><p class="note">Open Priya’s record to complete the human decision and watch the schedule reconcile.</p></div>';
 }
 
 function viewRequests(){
+  var rqHero=priyaRequest(), asg=priyaAssignment();
   var ordered=ST.data.requests.slice().sort(function(a,b){
-    var rank={'Needs Review':0,'Requested':1,'Approved':2,'Denied':3};
+    if(a.id==='rq3')return -1;if(b.id==='rq3')return 1;
+    var rank={'Needs Review':0,'Requested':1,'Returned':2,'Approved':3,'Denied':4};
     return (rank[a.status]||9)-(rank[b.status]||9) || (a.start<b.start?1:-1);
   });
+  var hero='';
+  if(rqHero){
+    var tone=requestTone(rqHero.status);
+    hero='<section class="request-hero"><div class="request-hero-head"><div><span class="steel-thread-pill">Primary steel thread</span><h2>Priya Shah — move Highland Park OB rotation</h2><p>The same submitted request moves through capture, readiness review, human decision, schedule reconciliation, and publication.</p></div><span class="badge-st" style="color:'+tone.text+';background:'+tone.bg+'">'+requestStatusText(rqHero)+'</span></div>'+
+      lifecycleHtml(rqHero)+
+      '<div class="request-context-grid"><div class="request-context"><div class="k">Current assignment</div><div class="v">'+(rqHero.status==='Approved'?'Jul 13–17':'Jul 6–10')+'</div></div><div class="request-context"><div class="k">Requested dates</div><div class="v">Jul 13–17</div></div><div class="request-context"><div class="k">Preceptor</div><div class="v">'+(asg&&asg.preceptorConfirmed?'Confirmed':'Confirmation pending')+'</div></div><div class="request-context"><div class="k">Next action</div><div class="v">'+(rqHero.status==='Approved'?'Closed':(asg&&asg.preceptorConfirmed?'Approve and publish':'Confirm coverage'))+'</div></div></div>'+
+      '<div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="gate-cta on" data-act="democard" data-id="review">'+(rqHero.status==='Approved'?'View completed request':'Open decision workspace')+' '+ic('arrowr',14,'#fff')+'</button></div></section>';
+  }
   var html=ordered.map(function(rq){
     var st=ST.data.students.filter(function(s){return s.id===rq.studentId;})[0];
-    var approved=rq.status==='Approved';
     var typeLabel=TYPE_LABEL[rq.type]||rq.type;
     var isMove=rq.type==='MOVE';
-    return '<div class="row">'+avatar(st.name,32)+
+    var c=requestTone(rq.status);
+    return '<div class="request-row'+(rq.id==='rq3'?' is-steel':'')+'">'+avatar(st.name,32)+
       '<div class="grow"><div style="font-size:14px;font-weight:600">'+esc(st.name)+' <span class="mono" style="font-size:11px;color:var(--muted2);font-weight:400">'+esc(rq.rid)+'</span></div>'+
       '<div style="font-size:12.5px;color:var(--muted)">'+esc(typeLabel)+' <span style="color:#cbd5d2">·</span> <span class="mono">'+(rq.start===rq.end?fmtFull(rq.start):fmtRange(rq.start,rq.end))+'</span></div>'+
       '<div style="font-size:12px;color:var(--muted2);margin-top:3px">'+esc(rq.notes||'')+'</div></div>'+
-      (isMove?'<span class="source-chip">'+ic('layers',11)+' Schedule change</span>':'')+
-      '<span class="badge-st sm" style="color:'+RQS[rq.status].text+';background:'+RQS[rq.status].bg+'">'+(approved?'Approved':(rq.status==='Needs Review'?'Needs review':'Awaiting confirmation'))+'</span>'+
-      (!approved?'<button class="mini" data-act="req" data-id="'+rq.id+'" data-s="Approved" style="background:#DCFCE7;color:#15803D;border:none">'+ic('check',13)+' Mark approved</button>':'<span class="note" style="min-width:72px;text-align:right">Recorded</span>')+
+      (isMove?'<span class="source-chip">'+ic('layers',11)+' Student schedule change</span>':'<span class="pill">'+esc(rq.source||'Program request')+'</span>')+
+      '<span class="badge-st sm" style="color:'+c.text+';background:'+c.bg+'">'+requestStatusText(rq)+'</span>'+
+      '<button class="mini go" data-act="requestopen" data-id="'+rq.id+'">'+(rq.status==='Approved'?'View':'Review request')+' '+ic('chevr',13)+'</button>'+
       '</div>';
   }).join('');
-  return '<div class="stack"><div><h1>Change Requests</h1><p class="sub">Schedule changes, time off, and program requests that can affect assignment readiness.</p></div><div class="rowlist">'+html+'</div><p class="note">Approvals become part of the readiness review whenever they affect an assignment, site, preceptor, or program constraint.</p></div>';
+  return '<div class="stack"><div><h1>Change Requests</h1><p class="sub">Submitted changes are structured, checked against the schedule, and routed to a human decision.</p></div>'+hero+'<div class="rowlist">'+html+'</div><p class="note">A schedule-changing request is never approved from the list. Open the decision workspace to inspect impact, record judgment, and close the loop.</p></div>';
 }
 
 function viewCalendar(){
@@ -1539,6 +1649,8 @@ function viewStudentPortal(){
   var mine=r.filter(function(x){return x.studentId===st.id;});
   var bank=bankFor(st.id);
   var reqs=ST.data.requests.filter(function(rq){return rq.studentId===st.id;});
+  var primary=mine[0]||null;
+  var moveReq=reqs.filter(function(rq){return rq.type==='MOVE';})[0]||null;
 
   function sLabel(status){return status==='Ready'?{t:'Confirmed',c:'#15803D',b:'#DCFCE7'}:{t:'Pending program review',c:'#92400E',b:'#FEF3C7'};}
 
@@ -1548,17 +1660,30 @@ function viewStudentPortal(){
         return '<div class="card" style="padding:16px;display:flex;align-items:center;gap:14px">'+
           '<span style="display:grid;place-items:center;width:38px;height:38px;border-radius:10px;background:var(--teal-soft);color:var(--teal-deep)">'+ic('building',18)+'</span>'+
           '<div class="grow"><div style="font-weight:600;font-size:14px">'+esc(x.site.name)+'</div>'+
-          '<div style="font-size:12.5px;color:var(--muted);margin-top:2px">'+specPill(x.rotation)+' <span class="mono">'+fmtRange(x.start,x.end)+'</span> <span style="color:#cbd5d2">\u00b7</span> '+x.site.miles+' mi</div></div>'+
+          '<div style="font-size:12.5px;color:var(--muted);margin-top:2px">'+specPill(x.rotation)+' <span class="mono">'+fmtRange(x.start,x.end)+'</span> <span style="color:#cbd5d2">·</span> '+x.site.miles+' mi</div></div>'+
           '<span class="badge-st sm" style="color:'+L.c+';background:'+L.b+'"><span class="dot" style="background:'+L.c+'"></span>'+L.t+'</span></div>';
       }).join('');
+
+  var assignmentOpts=mine.map(function(x){return '<option value="'+x.id+'">'+esc(x.site.name)+' · '+esc(x.rotation)+' · '+fmtRange(x.start,x.end)+'</option>';}).join('');
+  var changeForm='<section class="request-form"><div class="request-form-head"><div><span class="steel-thread-pill">Steel thread front door</span><h2 style="margin-top:8px">Request a schedule change</h2><p>Submit the change once. Arc will preserve the request, structure it, and route it to program review.</p></div>'+(moveReq?'<span class="badge-st sm" style="color:'+requestTone(moveReq.status).text+';background:'+requestTone(moveReq.status).bg+'">'+requestStatusText(moveReq)+'</span>':'')+'</div>'+
+    (moveReq?lifecycleHtml(moveReq):'')+
+    '<div class="request-form-grid">'+
+      '<div class="request-form-field full"><label>Current assignment</label><select id="chg-assignment">'+assignmentOpts+'</select></div>'+
+      '<div class="request-form-field"><label>Change requested</label><select id="chg-type"><option value="MOVE">Move scheduled week</option><option value="SWAP">Swap assignment</option><option value="CANCEL">Cancel assignment</option><option value="ADD">Add assignment</option></select></div>'+
+      '<div class="request-form-field"><label>Reason</label><select id="chg-reason"><option>Personal scheduling conflict</option><option>Clinical requirement</option><option>Travel or site issue</option><option>Other</option></select></div>'+
+      '<div class="request-form-field"><label>Requested start</label><input id="chg-start" type="date" value="'+(moveReq?moveReq.start:'2026-07-13')+'"></div>'+
+      '<div class="request-form-field"><label>Requested end</label><input id="chg-end" type="date" value="'+(moveReq?moveReq.end:'2026-07-17')+'"></div>'+
+      '<div class="request-form-field full"><label>Details for the program</label><textarea id="chg-note">'+esc(moveReq&&moveReq.originalText?moveReq.originalText:(primary?'I need to move my '+primary.site.name+' '+primary.rotation+' rotation from '+fmtRange(primary.start,primary.end)+' to July 13–17. My preceptor may be different, and I am not sure whether the site has capacity.':'Describe the requested change.') )+'</textarea></div>'+
+    '</div>'+
+    '<div class="request-form-actions"><span class="note">Final approval remains with the program leader.</span><button class="gate-cta on" data-act="reqchange">'+ic('send',14,'#fff')+' '+(moveReq?'Submit updated request':'Submit schedule change')+'</button></div></section>';
 
   var bankChips=bank.map(function(b){var low=b.left<=Math.max(1,Math.round(b.allow*0.15));return '<div class="kv" style="text-align:center"><div class="v" style="color:'+(low?'#92400E':'var(--ink)')+'">'+b.left+'<span style="font-size:11px;color:var(--muted2);font-weight:400">/'+b.allow+'</span></div><div class="k">'+b.type+' left</div></div>';}).join('');
 
   var reqList = reqs.length===0 ? '<div style="font-size:13px;color:var(--muted2);padding:6px 0">No requests yet.</div>' :
     reqs.slice().sort(function(a,b){return a.start<b.start?1:-1;}).map(function(rq){
-      var label=rq.status==='Approved'?{t:'Approved',c:RQS.Approved}:rq.status==='Denied'?{t:'Denied',c:RQS.Denied}:{t:'Awaiting program approval',c:RQS['Needs Review']};
-      return '<div class="row" style="padding:10px 0"><div class="grow"><div style="font-size:13.5px;font-weight:500">'+esc(rq.type)+' <span style="font-weight:400;color:var(--muted)">\u00b7 '+esc(TYPE_LABEL[rq.type]||'')+'</span></div><div class="mono" style="font-size:12px;color:var(--muted)">'+(rq.start===rq.end?fmtFull(rq.start):fmtRange(rq.start,rq.end))+'</div></div>'+
-        '<span class="badge-st sm" style="color:'+label.c.text+';background:'+label.c.bg+'">'+label.t+'</span></div>';
+      var c=requestTone(rq.status);
+      return '<div class="row" style="padding:10px 0"><div class="grow"><div style="font-size:13.5px;font-weight:500">'+esc(TYPE_LABEL[rq.type]||rq.type)+'</div><div class="mono" style="font-size:12px;color:var(--muted)">'+(rq.start===rq.end?fmtFull(rq.start):fmtRange(rq.start,rq.end))+'</div></div>'+
+        '<span class="badge-st sm" style="color:'+c.text+';background:'+c.bg+'">'+requestStatusText(rq)+'</span></div>';
     }).join('');
 
   var typeOpts=Object.keys(ALLOW).map(function(k){return '<option value="'+k+'">'+esc(TYPE_LABEL[k])+'</option>';}).join('');
@@ -1570,16 +1695,17 @@ function viewStudentPortal(){
       '<div><div class="k" style="margin-bottom:3px">End</div><input id="tof-end" type="date" class="tofield" value="2026-07-27"></div>'+
       '<button class="mini" data-act="reqoff" style="background:var(--teal);color:#fff;border:none;padding:9px 14px">'+ic('send',14,'#fff')+' Submit request</button>'+
     '</div>'+
-    '<p class="note" style="margin-top:10px">Requests go to the program leader for approval. Approved days count against your bank and are checked against your rotations.</p></div>';
+    '<p class="note" style="margin-top:10px">Time-off requests remain a secondary workflow and are checked against active rotations.</p></div>';
 
   var strip='<div class="tlscroll"><div class="tlinner">'+tlHeader()+tlSchoolLane()+
     '<div class="tlgrid tlrow"><div class="tllabel">'+avatar(st.name,28)+'<div><div class="nm">'+esc(st.name.split(' ')[0])+'</div><div class="mt">'+esc(st.level)+'</div></div></div>'+tlEmptyCells()+tlBars(mine,'student',{simple:true})+'</div>'+
     '</div></div>';
 
   return '<div class="stack">'+
-    roleNote('Resident view \u2014 part of the full platform vision. The MVP ships the program-leader workspace first.')+
-    '<div><div class="eyebrow">My residency</div><h1 style="margin-top:2px">Hi '+esc(st.name.split(' ')[0])+', here\u2019s your schedule</h1><p class="sub">See your placements, track time-off approvals, and request days off. '+esc(st.cohort)+' \u00b7 '+esc(st.level)+'.</p></div>'+
-    '<section>'+secHead('My rotations','Set by the program. Pending items are still being reviewed.')+'<div style="display:flex;flex-direction:column;gap:10px">'+asgCards+'</div></section>'+
+    roleNote('Student submission is the front door of the Arc steel thread; the program-leader workspace remains the MVP decision surface.')+
+    '<div><div class="eyebrow">My residency</div><h1 style="margin-top:2px">Hi '+esc(st.name.split(' ')[0])+', here’s your schedule</h1><p class="sub">See placements, submit schedule changes, and track program decisions. '+esc(st.cohort)+' · '+esc(st.level)+'.</p></div>'+
+    changeForm+
+    '<section>'+secHead('My rotations','Current placements and their readiness state.')+'<div style="display:flex;flex-direction:column;gap:10px">'+asgCards+'</div></section>'+
     '<section>'+secHead('My month','Your placements across July. Green is confirmed, amber is pending.')+strip+'</section>'+
     '<section>'+secHead('My time-off bank','Days remaining by category.')+'<div class="grid4">'+bankChips+'</div>'+form+'</section>'+
     '<section>'+secHead('My requests',null,reqs.length)+'<div class="card" style="padding:6px 16px">'+reqList+'</div></section>'+
@@ -1630,6 +1756,7 @@ function viewHospitalFeed(){
 
 function closeTopOverlay(){
   if(ST.operatorModelOpen){ST.operatorModelOpen=false;}
+  else if(ST.requestFocus){ST.requestFocus=null;}
   else if(ST.demoCard){ST.demoCard=null;ST.demoStage=1;}
   else if(ST.calendarCell){ST.calendarCell=null;}
   else if(ST.coverageSub || ST.coverageView!==null){ST.coverageSub=false;ST.coverageView=null;}
@@ -1646,18 +1773,34 @@ function renderOverlay(){
   var o=document.getElementById('overlay'); var html='';
   if(ST.operatorModelOpen){
     html='<div class="modal-wrap"><div class="scrim" data-act="closeoperatormodel" style="position:absolute"></div><div class="operator-model-modal"><button class="close-model" data-act="closeoperatormodel" aria-label="Close operator model">'+ic('x',20)+'</button><div class="operator-model-frame">'+operatorDiagram('operator-map-full')+'</div></div></div>';
+  } else if(ST.requestFocus){
+    var grq=requestById(ST.requestFocus);
+    if(grq){
+      var gst=ST.data.students.filter(function(s){return s.id===grq.studentId;})[0];
+      var gc=requestTone(grq.status);
+      html='<div class="modal-wrap"><div class="scrim" data-act="closerequest" style="position:absolute"></div><div class="modal" style="max-width:640px"><button class="close" data-act="closerequest" aria-label="Close request">'+ic('x',18)+'</button>'+
+        '<span class="badge-st sm" style="color:'+gc.text+';background:'+gc.bg+'">'+requestStatusText(grq)+'</span><h2 style="margin-top:10px">'+esc(gst.name)+' — '+esc(TYPE_LABEL[grq.type]||grq.type)+'</h2><p class="sub">Review the submitted request before recording a program decision.</p>'+
+        '<div class="grid2" style="margin-top:18px"><div class="kv"><div class="k">Request ID</div><div class="v">'+esc(grq.rid)+'</div></div><div class="kv"><div class="k">Dates</div><div class="v">'+(grq.start===grq.end?fmtFull(grq.start):fmtRange(grq.start,grq.end))+'</div></div></div>'+
+        '<div class="card" style="padding:14px;margin-top:16px"><div class="lbl-mini">Submitted context</div><p style="font-size:13px;color:#475569;margin:6px 0 0">'+esc(grq.notes||'No additional context supplied.')+'</p></div>'+
+        '<div class="review-actions" style="margin-top:16px"><button class="review-action primary" data-act="reqdecision" data-id="'+grq.id+'" data-status="Approved"><span>Approve request</span><span class="action-meta">Decision</span></button><button class="review-action" data-act="reqdecision" data-id="'+grq.id+'" data-status="Returned"><span>Return for detail</span><span class="action-meta">Decision</span></button><button class="review-action" data-act="reqdecision" data-id="'+grq.id+'" data-status="Denied"><span>Deny request</span><span class="action-meta">Decision</span></button></div>'+
+      '</div></div>';
+    }
   } else if(ST.demoCard){
+    var priyaRq=priyaRequest(), priyaAsg=priyaAssignment();
+    var priyaConfirmed=!!(priyaAsg&&priyaAsg.preceptorConfirmed);
+    var priyaComplete=!!(priyaRq&&priyaRq.status==='Approved'&&priyaRq.published);
     var demos={
       blocked:{tone:'#DC2626',bg:'#FEE2E2',status:'Blocked',title:'Daniel Brooks — OB Placement Exception',changed:'Daniel is assigned to Highland Park Hospital for July 8–14.',matters:'Daniel is a junior student and the current Highland Park OB placement is senior-only.',assignment:'ASN-004 — OB Rotation',site:'Highland Park Hospital',preceptor:'Not evaluated until eligibility is resolved',confidence:'97%',summary:'The assignment should not be published until Daniel is moved to a junior-eligible OB site.',note:'Student level does not meet the current site rule. Reassign Daniel to a junior-eligible OB placement before publication.',checks:[['Student eligibility','Blocked','Junior assigned to senior-only site','risk'],['Site capacity','Available','Capacity is not the blocker','clear'],['Specialty match','Confirmed','OB is supported at the site','clear']],actions:['Find eligible site','Notify coordinator','Add review note']},
-      review:{tone:'#D97706',bg:'#FEF3C7',status:'Needs Review',title:'Priya Shah — OB Rotation Schedule Change',changed:'Priya requested moving her Highland Park OB rotation from July 6–10 to July 13–17.',matters:'The requested week fits site capacity, but the revised preceptor has not confirmed availability.',assignment:'ASN-005 — OB Rotation',site:'Highland Park Hospital',preceptor:'Melissa Grant, CRNA — confirmation pending',confidence:'88%',summary:'The move is operationally feasible once the human operator confirms preceptor coverage.',note:'Site capacity is available for July 13–17. Approval remains pending until the revised OB preceptor confirms coverage.',checks:[['Site capacity','Available','The requested week remains within capacity','clear'],['Student eligibility','Confirmed','Priya is eligible for the OB placement','clear'],['Preceptor confirmation','Pending','Human confirmation is still required','pending']],actions:['Request preceptor confirmation','Approve after confirmation','Notify Priya','Add review note']},
+
+      review:{tone:priyaComplete?'#16A34A':'#D97706',bg:priyaComplete?'#DCFCE7':'#FEF3C7',status:priyaComplete?'Approved · Published':'Needs Review',title:'Priya Shah — OB Rotation Schedule Change',changed:'Priya requested moving her Highland Park OB rotation from July 6–10 to July 13–17.',matters:priyaComplete?'The assignment, coverage view, request status, and stakeholder notifications now reflect the approved change.':(priyaConfirmed?'All automated checks are clear and the revised preceptor has confirmed availability.':'The requested week fits site capacity, but the revised preceptor has not confirmed availability.'),assignment:'ASN-005 — OB Rotation',site:'Highland Park Hospital',preceptor:priyaComplete?'Melissa Grant, CRNA — confirmed and notified':(priyaConfirmed?'Melissa Grant, CRNA — confirmed':'Melissa Grant, CRNA — confirmation pending'),confidence:priyaComplete?'100% closed':'88%',summary:priyaComplete?'The move is reconciled, published, and closed. Priya, the preceptor, and the site have been notified.':(priyaConfirmed?'The move is operationally feasible and ready for Ryan’s approval.':'The move is operationally feasible once the human operator confirms preceptor coverage.'),note:priyaComplete?'Approved Priya Shah’s Highland Park OB move to July 13–17. Preceptor coverage confirmed; schedule published and notifications sent.':(priyaConfirmed?'Preceptor coverage is confirmed. Approve the July 13–17 move and publish the reconciled schedule.':'Site capacity is available for July 13–17. Approval remains pending until the revised OB preceptor confirms coverage.'),checks:[['Site capacity','Available','The requested week remains within capacity','clear'],['Student eligibility','Confirmed','Priya is eligible for the OB placement','clear'],['Preceptor confirmation',priyaConfirmed?'Confirmed':'Pending',priyaConfirmed?'Melissa Grant confirmed coverage':'Human confirmation is still required',priyaConfirmed?'clear':'pending']],actions:priyaComplete?[]:(priyaConfirmed?[[ 'Approve change & publish','approve',false],['Return to student','return',false],['Deny change','deny',false],['Add review note','note',false]]:[[ 'Request preceptor confirmation','confirm',false],['Approve change','approve',true],['Return to student','return',false],['Deny change','deny',false]]),complete:priyaComplete},
       ready:{tone:'#16A34A',bg:'#DCFCE7',status:'Ready',title:'Marcus Hill — OB Schedule Reconciliation',changed:'Marcus’s approved DNP day overlaps the original OB assignment week.',matters:'Replacement clinical time and site coverage are documented, so the reconciled assignment preserves requirements.',assignment:'ASN-002 — OB Rotation',site:'Highland Park Hospital',preceptor:'Coverage plan documented',confidence:'96%',summary:'The reconciled assignment is ready for approval and final notifications.',note:'DNP-day coverage and replacement clinical time are documented. Approve the reconciled assignment and notify Marcus and the site.',checks:[['Time-off impact','Resolved','Replacement clinical time documented','clear'],['Site capacity','Available','No additional capacity issue created','clear'],['Program requirements','Confirmed','Required hours are preserved','clear']],actions:['Approve reconciliation','Notify Marcus','Notify site','Close request']}
     };
     var d=demos[ST.demoCard]||demos.review, stage=ST.demoStage||1;
-    var details='<div class="demo-detail-grid"><div class="demo-detail"><b>What changed</b><p>'+esc(d.changed)+'</p></div><div class="demo-detail"><b>Why it matters</b><p>'+esc(d.matters)+'</p></div><div class="demo-detail"><b>Affected assignment</b><p>'+esc(d.assignment)+'</p></div><div class="demo-detail"><b>Clinical site</b><p>'+esc(d.site)+'</p></div><div class="demo-detail"><b>Preceptor / coverage</b><p>'+esc(d.preceptor)+'</p></div><div class="demo-detail"><b>AI confidence</b><p>'+esc(d.confidence)+'</p></div></div><div class="demo-note"><b>AI summary</b><br>'+esc(d.summary)+'</div>';
+    var details='<div class="demo-detail-grid"><div class="demo-detail"><b>What changed</b><p>'+esc(d.changed)+'</p></div><div class="demo-detail"><b>Why it matters</b><p>'+esc(d.matters)+'</p></div><div class="demo-detail"><b>Affected assignment</b><p>'+esc(d.assignment)+'</p></div><div class="demo-detail"><b>Clinical site</b><p>'+esc(d.site)+'</p></div><div class="demo-detail"><b>Preceptor / coverage</b><p>'+esc(d.preceptor)+'</p></div><div class="demo-detail"><b>AI confidence</b><p>'+esc(d.confidence)+'</p></div></div>'+(ST.demoCard==='review'?lifecycleHtml(priyaRq):'')+'<div class="demo-note"><b>AI summary</b><br>'+esc(d.summary)+'</div>';
     var checkCards=d.checks.map(function(c){return '<div class="review-status-card '+c[3]+'"><div class="rk">'+esc(c[0])+'</div><div class="rv">'+esc(c[1])+'</div><div class="rs">'+esc(c[2])+'</div></div>';}).join('');
-    var actionButtons=d.actions.map(function(a,i){return '<button class="review-action'+(i===0?' primary':'')+'" data-act="demoaction" data-label="'+esc(a)+'"><span>'+esc(a)+'</span><span class="action-meta">'+(i===0?'Recommended':'Optional')+'</span></button>';}).join('');
-    var stageWorkspace='<div class="review-workspace"><div class="review-status-grid">'+checkCards+'</div><div class="review-decision '+(d.status==='Blocked'?'critical':(d.status==='Ready'?'success':''))+'"><div class="rk">Human decision</div><strong>'+esc(d.status==='Blocked'?'Resolve the blocker before publishing.':(d.status==='Ready'?'Approve and close the loop.':'Confirm the missing detail, then decide.'))+'</strong><p>'+esc(d.summary)+'</p></div><div class="review-actions">'+actionButtons+'</div><div class="demo-note"><b>Suggested review note</b><br>“'+esc(d.note)+'”</div></div>';
-    var demoSecond='<button class="second-level-card" data-act="demostage" data-stage="2" style="--tone:'+d.tone+';background:linear-gradient(135deg,#fff 0%,'+d.bg+' 100%)"><span class="second-level-copy"><span class="second-level-kicker">Human decision required</span><span class="second-level-title">Open the decision workspace</span><span class="second-level-desc">Review the checks, record the decision, coordinate the notifications, and close the request.</span></span><span class="cc-kpi-ic" style="background:'+d.tone+';color:#fff">'+ic('arrowr',18,'#fff')+'</span></button>';
+    var actionButtons=d.actions.map(function(a,i){var label=Array.isArray(a)?a[0]:a,code=Array.isArray(a)?a[1]:'note',disabled=Array.isArray(a)&&a[2];return '<button class="review-action'+(i===0?' primary':'')+'" data-act="demoaction" data-action="'+esc(code)+'" data-label="'+esc(label)+'"'+(disabled?' disabled aria-disabled="true"':'')+'><span>'+esc(label)+'</span><span class="action-meta">'+(i===0?'Recommended':'Optional')+'</span></button>';}).join('');
+    var stageWorkspace=d.complete?'<div class="decision-complete"><strong>Request approved, published, and closed.</strong><p>The assignment now runs July 13–17. Arc re-ran readiness, removed the coverage gap, and queued notifications to Priya, Melissa Grant, and Highland Park Hospital.</p></div>':'<div class="review-workspace"><div class="review-status-grid">'+checkCards+'</div><div class="review-decision '+(d.status==='Blocked'?'critical':(d.status==='Ready'?'success':''))+'"><div class="rk">Human decision</div><strong>'+esc(d.status==='Blocked'?'Resolve the blocker before publishing.':(priyaConfirmed?'Approve the reconciled change.':'Confirm the missing detail, then decide.'))+'</strong><p>'+esc(d.summary)+'</p></div><div class="review-actions">'+actionButtons+'</div><div class="demo-note"><b>Suggested review note</b><br>“'+esc(d.note)+'”</div></div>';
+    var demoSecond=d.complete?'<div class="decision-complete" style="margin-top:16px"><strong>Steel thread complete</strong><p>Submitted → structured → checked → confirmed → approved → published.</p></div>':'<button class="second-level-card" data-act="demostage" data-stage="2" style="--tone:'+d.tone+';background:linear-gradient(135deg,#fff 0%,'+d.bg+' 100%)"><span class="second-level-copy"><span class="second-level-kicker">Human decision required</span><span class="second-level-title">Open the decision workspace</span><span class="second-level-desc">Review the checks, record the decision, coordinate the notifications, and close the request.</span></span><span class="cc-kpi-ic" style="background:'+d.tone+';color:#fff">'+ic('arrowr',18,'#fff')+'</span></button>';
     html='<div class="modal-wrap"><div class="scrim" data-act="closedemocard" style="position:absolute"></div><div class="modal" style="max-width:780px;--tone:'+d.tone+';--tonebg:'+d.bg+'"><button class="close" data-act="closedemocard" aria-label="Close detail card">'+ic('x',18)+'</button><span class="demo-status" style="--tone:'+d.tone+';--tonebg:'+d.bg+'">'+d.status+'</span><h2 style="margin-top:10px">'+esc(d.title)+'</h2><p class="sub">'+(stage===1?'Expanded detail — what changed, why it matters, and the reconciled context.':'Action view — complete the human decision and move the request forward.')+'</p>'+(stage===1?details+demoSecond:stageWorkspace)+(stage===2?'<div style="display:flex;justify-content:flex-start;gap:10px;margin-top:18px"><button class="mini" data-act="demostage" data-stage="1">'+ic('back',13)+' Back to detail</button></div>':'')+'</div></div>';
   } else if(ST.calendarCell){
     var cc=ST.calendarCell;
@@ -2117,13 +2260,13 @@ function viewProductThesis(){
 
 function viewCapture(){
   return '<div class="capture-page">'+
-    '<div><span class="placement-note">'+ic('inbox',13)+' Operating views · Capture</span></div>'+
+    '<div><span class="placement-note">'+ic('inbox',13)+' Product foundation · Capture model</span></div>'+
     '<section class="capture-hero" id="captureExperience" aria-labelledby="capture-title">'+
       '<header class="capture-head"><div class="capture-kicker">From fragmented request to trusted schedule-change event</div><h1 id="capture-title">Capture the change before evaluating the schedule.</h1><p>Arc preserves the original request, connects it to the right student and assignment, identifies the requested dates, affected site, and missing details, and converts scattered input into a structured record that Review can reliably use.</p></header>'+
       '<div class="capture-flow">'+
         '<div class="capture-progress" aria-hidden="true"><span class="capture-progress-bar"></span></div>'+
         '<article class="capture-panel">'+
-          '<div class="capture-panel-head"><b>Capture input</b><span class="capture-source">'+ic('inbox',11)+' Email</span></div>'+
+          '<div class="capture-panel-head"><b>Submitted request</b><span class="capture-source">'+ic('inbox',11)+' Student portal</span></div>'+
           '<div class="capture-input-body">'+
             '<div class="capture-structured-entry" aria-label="Structured entry example">'+
               '<div class="capture-entry-label"><strong>Enter structured details</strong><span>Optional</span></div>'+
@@ -2136,9 +2279,9 @@ function viewCapture(){
             '</div>'+
             '<div class="capture-or">or</div>'+
             '<div class="capture-unstructured">'+
-              '<div class="capture-unstructured-label">Paste or forward an unstructured request</div>'+
+              '<div class="capture-unstructured-label">Student-provided request details</div>'+
               '<div class="capture-message">“<span class="capture-token" data-capture-stage="identify" data-capture-step="student" data-capture-target="student">Priya Shah</span> needs to <span class="capture-token" data-capture-stage="recognize" data-capture-step="type" data-capture-target="type">move</span> her <span class="capture-token" data-capture-stage="identify" data-capture-step="assignment" data-capture-target="site">Highland Park OB rotation</span> from <span class="capture-token" data-capture-stage="extract" data-capture-step="current" data-capture-target="current">July 6–10</span> to <span class="capture-token" data-capture-stage="extract" data-capture-step="requested" data-capture-target="requested">July 13–17</span>. Her <span class="capture-token" data-capture-stage="flag" data-capture-step="missing" data-capture-target="missing">preceptor may be different</span>, and I am not sure whether the site has capacity.”</div>'+
-              '<div class="capture-origin"><span>Original text preserved</span><span>Submitted 9:14 AM</span><span>Source linked</span></div>'+
+              '<div class="capture-origin"><span>Original text preserved</span><span>Submitted by Priya · 9:14 AM</span><span>Source linked</span></div>'+
             '</div>'+
           '</div>'+
         '</article>'+
@@ -2189,27 +2332,30 @@ function viewOperatorModel(){
 
 var VIEWS={thesis:viewProductThesis,capture:viewCapture,operators:viewOperatorModel,dashboard:viewDashboard,assignments:viewAssignments,timeline:viewTimeline,calendar2:viewCalendar2,checks:viewChecks,requests:viewRequests,calendar:viewCalendar,sites:viewSites,students:viewStudents};
 function nav(){
-  var c=counts(), oc=openChecks().length, pr=pendingReq().length;
-  var foundation=[
-    ['thesis','Arc overview','info',null],
-    ['operators','Operator model','layers',null]
-  ];
-  var operations=[
+  var c=counts(), pr=pendingReq().length;
+  var workflow=[
     ['dashboard','Operations Review','shield',null],
-    ['capture','Capture','inbox',null],
     ['requests','Change Requests','inbox',pr||null],
     ['assignments','Assignment Readiness','layers',c.review||null],
-    ['timeline','Assignment Timeline','calendar',null],
-    ['calendar2','Coverage Calendar','calendar',null],
+    ['calendar2','Coverage Calendar','calendar',null]
+  ];
+  var reference=[
+    ['students','Students','users',null],
     ['sites','Clinical sites','building',null],
-    ['students','Students','users',null]
+    ['timeline','Assignment Timeline','calendar',null]
+  ];
+  var foundation=[
+    ['thesis','Arc overview','info',null],
+    ['capture','Capture model','inbox',null],
+    ['operators','Operator model','layers',null]
   ];
   function navItems(items){return items.map(function(it){
     var active=ST.view===it[0];
     return '<button class="nav'+(active?' active':'')+'" data-act="goto" data-v="'+it[0]+'"'+(active?' aria-current="page"':'')+'><span class="nico">'+ic(it[2],17)+'</span><span class="lbl">'+it[1]+'</span>'+(it[3]?'<span class="badge">'+it[3]+'</span>':'')+'</button>';
   }).join('');}
-  return '<div class="nav-group">Operating views</div>'+navItems(operations)+'<div class="nav-group">Product foundation</div>'+navItems(foundation);
+  return '<div class="nav-group">Primary workflow</div>'+navItems(workflow)+'<div class="nav-group">Reference data</div>'+navItems(reference)+'<div class="nav-group">Product foundation</div>'+navItems(foundation);
 }
+
 function render(){
   var app=document.getElementById('app');
   if(ST.role==='leader' && VIEWS[ST.view]){
@@ -2338,16 +2484,60 @@ document.addEventListener('click',function(e){
   else if(act==='captureplay'){runArcCapture();}
   else if(act==='openoperatormodel'){ST.operatorModelOpen=true;renderOverlay();}
   else if(act==='closeoperatormodel'){ST.operatorModelOpen=false;renderOverlay();}
-  else if(act==='home'){ST.role='leader';ST.view='dashboard';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;render();}
+  else if(act==='home'){ST.role='leader';ST.view='dashboard';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;render();}
   else if(act==='open'){ST.openStudentId=null;ST.openId=t.getAttribute('data-id');renderOverlay();}
   else if(act==='openstudent'){ST.openId=null;ST.openStudentId=t.getAttribute('data-id');renderOverlay();}
   else if(act==='closedrawer'){ST.openId=null;renderOverlay();}
   else if(act==='closestudent'){ST.openStudentId=null;renderOverlay();}
   else if(act==='about'){ST.about=true;renderOverlay();}
+  else if(act==='requestopen'){var ro=requestById(t.getAttribute('data-id'));if(ro&&ro.type==='MOVE'){ST.demoCard='review';ST.demoStage=1;renderOverlay();}else{ST.requestFocus=ro?ro.id:null;renderOverlay();}}
+  else if(act==='closerequest'){ST.requestFocus=null;renderOverlay();}
+  else if(act==='reqdecision'){var qr=requestById(t.getAttribute('data-id'));if(qr){qr.status=t.getAttribute('data-status')||'Needs Review';toast('Request '+qr.status.toLowerCase()+'.');}ST.requestFocus=null;render();}
   else if(act==='democard'){ST.demoCard=t.getAttribute('data-id');ST.demoStage=1;renderOverlay();}
   else if(act==='demostage'){ST.demoStage=parseInt(t.getAttribute('data-stage'),10)||1;renderOverlay();}
   else if(act==='closedemocard'){ST.demoCard=null;ST.demoStage=1;renderOverlay();}
-  else if(act==='demoaction'){toast((t.getAttribute('data-label')||'Action')+' recorded in demo.');}
+  else if(act==='demoaction'){
+    if(t.hasAttribute('disabled'))return;
+    var action=t.getAttribute('data-action')||'note';
+    if(ST.demoCard==='review'){
+      var rq=priyaRequest(), asg=priyaAssignment();
+      if(action==='confirm'){
+        if(asg)asg.preceptorConfirmed=true;
+        if(rq){rq.confirmedAt='2026-07-28T10:02:00';rq.status='Needs Review';}
+        ST.reviewed=ST.reviewed.filter(function(k){return k.indexOf('a5|')!==0;});
+        toast('Preceptor confirmation recorded. Readiness re-checked.');
+        render();return;
+      }
+      if(action==='approve'){
+        if(!asg||!asg.preceptorConfirmed){toast('Preceptor confirmation is required before approval.');return;}
+        if(rq){
+          asg.start=rq.start;asg.end=rq.end;asg.preceptorConfirmed=true;asg.published=true;
+          asg.notes='Approved schedule change from Jul 6–10 to Jul 13–17. Preceptor confirmed; published.';
+          rq.status='Approved';rq.published=true;rq.closed=true;rq.approvedAt='2026-07-28T10:08:00';rq.notificationsSent=3;
+          rq.notes='Approved move to Jul 13–17; preceptor confirmed; schedule published and notifications sent.';
+        }
+        ST.reviewed=ST.reviewed.filter(function(k){return k.indexOf('a5|')!==0;});
+        ST.demoStage=1;
+        toast('Change approved. Schedule updated and three notifications queued.');
+        render();return;
+      }
+      if(action==='return'){
+        if(rq){rq.status='Returned';rq.notes='Returned to Priya for additional details before review can continue.';}
+        ST.demoCard=null;ST.demoStage=1;
+        toast('Request returned to Priya for additional detail.');
+        render();return;
+      }
+      if(action==='deny'){
+        if(rq){rq.status='Denied';rq.closed=true;rq.notes='Schedule change denied by the program leader.';}
+        ST.demoCard=null;ST.demoStage=1;
+        toast('Schedule change denied and recorded.');
+        render();return;
+      }
+      toast('Review note added to Priya’s request.');
+      return;
+    }
+    toast((t.getAttribute('data-label')||'Action')+' recorded in demo.');
+  }
   else if(act==='coveragetoggle'){ST.coverageGapOnly=!ST.coverageGapOnly;render();}
   else if(act==='calendarcell'){ST.calendarCell={name:t.getAttribute('data-name'),site:t.getAttribute('data-site'),rotation:t.getAttribute('data-rotation'),when:t.getAttribute('data-when'),type:t.getAttribute('data-type')};renderOverlay();}
   else if(act==='closecalendarcell'){ST.calendarCell=null;renderOverlay();}
@@ -2371,7 +2561,26 @@ document.addEventListener('click',function(e){
   else if(act==='closeabout'){ST.about=false;renderOverlay();}
   else if(act==='filter'){ST.filter=t.getAttribute('data-f');render();}
   else if(act==='tlby'){ST.tlBy=t.getAttribute('data-by');render();}
-  else if(act==='role'){ST.role=t.getAttribute('data-r');ST.openId=null;ST.openStudentId=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.about=false;ST.siteFocus=null;ST.view='dashboard';render();}
+  else if(act==='role'){ST.role=t.getAttribute('data-r');ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.requestFocus=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.about=false;ST.siteFocus=null;ST.view='dashboard';render();}
+  else if(act==='reqchange'){
+    var aid=document.getElementById('chg-assignment').value;
+    var ty=document.getElementById('chg-type').value;
+    var sd=document.getElementById('chg-start').value;
+    var ed=document.getElementById('chg-end').value||sd;
+    var reason=document.getElementById('chg-reason').value;
+    var note=document.getElementById('chg-note').value.trim();
+    if(!aid||!sd){toast('Choose an assignment and requested dates.');return;}
+    if(ed<sd){toast('Requested end date is before the start date.');return;}
+    var existing=ST.data.requests.filter(function(r){return r.studentId===ST.asStudent&&r.type==='MOVE';})[0];
+    var num=ST.data.requests.length+1, rid='REQ-0'+(num<10?'0'+num:num);
+    var payload={id:existing?existing.id:'rq'+Date.now(),rid:existing?existing.rid:rid,studentId:ST.asStudent,assignmentId:aid,type:ty,status:'Needs Review',start:sd,end:ed,reason:reason,source:'Student portal',submittedAt:new Date().toISOString(),originalText:note,notes:(TYPE_LABEL[ty]||ty)+' requested for '+fmtRange(sd,ed)+'; program review required.'};
+    if(existing)ST.data.requests=ST.data.requests.map(function(r){return r.id===existing.id?Object.assign({},r,payload,{published:false,closed:false}):r;});
+    else ST.data.requests.push(payload);
+    ST.data.assignments=ST.data.assignments.map(function(a){return a.id===aid?Object.assign({},a,{preceptorConfirmed:false,published:false}):a;});
+    ST.reviewed=ST.reviewed.filter(function(k){return k.indexOf(aid+'|')!==0;});
+    toast('Schedule-change request submitted to program review.');
+    render();
+  }
   else if(act==='reqoff'){
     var ty=document.getElementById('tof-type').value, sd=document.getElementById('tof-start').value, ed=document.getElementById('tof-end').value||sd;
     if(!sd){toast('Pick a start date.');return;}
@@ -2392,7 +2601,7 @@ document.addEventListener('click',function(e){
     toast(s==='Approved'?'Request approved \u2014 re-checking the schedule.':'Request marked '+s.toLowerCase()+'.');
     render();
   }
-  else if(act==='reset'){ST.data=seed();ST.view='dashboard';ST.openId=null;ST.openStudentId=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';toast('Demo reset to starting data.');render();}
+  else if(act==='reset'){ST.data=seed();ST.view='dashboard';ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';toast('Demo reset to starting data.');render();}
 });
 document.addEventListener('change',function(e){
   var t=e.target.closest('[data-act="reassign"]');
@@ -2433,6 +2642,7 @@ function startArc(){
   ST.siteFocus=null;
   ST.openId=null;
   ST.openStudentId=null;
+  ST.requestFocus=null;
   ST.kpi=null;
   ST.kpiDeep=null;
   ST.aiInsight=null;
@@ -2572,4 +2782,4 @@ window.addEventListener('hashchange',function(){
 })();
 </script>
 
-</body></html>
+</body></html><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_5cuxfQpFTmENqTBe7KWAm69EVeWd" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
