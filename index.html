@@ -938,6 +938,87 @@
 
 </style>
 
+
+<style>
+  /* Arc Operations Review — primetime main view */
+  .ops-prime{display:flex;flex-direction:column;gap:18px;min-width:0;}
+  .ops-header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+  .ops-title p{margin:5px 0 0;font-size:13px;color:var(--muted);max-width:720px;}
+  .ops-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .ops-overview-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(320px,1fr);gap:14px;align-items:stretch;}
+  .ops-hero-card,.ops-health-card,.ops-section-card,.ops-focus-band,.ops-support-panel{background:#fff;border:1px solid var(--hair);border-radius:16px;box-shadow:0 3px 14px rgba(16,35,31,.045);}
+  .ops-hero-card{padding:18px;display:flex;flex-direction:column;gap:14px;}
+  .ops-kicker{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 10px;font-size:11px;font-weight:700;letter-spacing:.03em;width:max-content;background:#ECFDF5;color:#0F766E;border:1px solid #A7F3D0;}
+  .ops-hero-main{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+  .ops-hero-main h2{font-size:24px;line-height:1.2;margin:0 0 6px;max-width:720px;}
+  .ops-hero-main p{margin:0;font-size:13.5px;color:#475569;max-width:740px;}
+  .ops-hero-action{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+  .ops-hero-action .gate-cta{margin-left:0;}
+  .ops-kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
+  .ops-kpi{display:flex;align-items:flex-start;gap:10px;text-align:left;padding:13px 14px;border:1px solid var(--hair);border-radius:13px;background:#FCFEFD;box-shadow:0 1px 2px rgba(16,35,31,.03);cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;}
+  .ops-kpi:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(16,35,31,.07);border-color:#cbd5d2;}
+  .ops-kpi-ic{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;flex:0 0 auto;}
+  .ops-kpi-copy{min-width:0;}
+  .ops-kpi-copy .lab{font-size:11px;font-weight:700;color:#334155;line-height:1.3;}
+  .ops-kpi-copy .num{font-size:24px;font-weight:800;line-height:1.05;margin-top:4px;}
+  .ops-kpi-copy .delta{font-size:11px;color:var(--muted);margin-top:4px;}
+  .ops-health-card{padding:18px;display:flex;flex-direction:column;gap:14px;}
+  .ops-panel-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+  .ops-panel-top h3{margin:0;font-size:16px;}
+  .ops-panel-top p{margin:4px 0 0;font-size:12px;color:var(--muted);}
+  .ops-health-meter{display:flex;align-items:center;gap:16px;}
+  .ops-health-donut{--pct:82;position:relative;width:98px;height:98px;border-radius:50%;background:conic-gradient(var(--teal) calc(var(--pct) * 1%), #E5E7EB 0);display:grid;place-items:center;flex:0 0 auto;}
+  .ops-health-donut::after{content:"";position:absolute;inset:12px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1px #EEF1F0;}
+  .ops-health-donut .val{position:relative;z-index:1;font-size:23px;font-weight:800;color:var(--ink);}
+  .ops-health-summary strong{display:block;font-size:15px;}
+  .ops-health-summary span{display:block;font-size:12px;color:var(--muted);margin-top:4px;}
+  .ops-trend{display:flex;align-items:flex-end;gap:7px;height:76px;padding-top:4px;}
+  .ops-trend-col{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;min-width:0;}
+  .ops-trend-bar{width:100%;max-width:32px;border-radius:9px 9px 4px 4px;background:linear-gradient(180deg,#A7F3D0 0%, #0E6E63 100%);min-height:14px;}
+  .ops-trend-col small{font-size:10px;color:var(--muted2);}
+  .ops-focus-band{padding:16px 18px;display:grid;grid-template-columns:minmax(180px,.8fr) minmax(0,2fr) auto;gap:14px;align-items:center;}
+  .ops-focus-band h3{margin:0;font-size:16px;}
+  .ops-focus-band p{margin:4px 0 0;font-size:12.5px;color:var(--muted);}
+  .focus-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+  .focus-step{border:1px solid var(--hair);background:#F8FAFC;border-radius:12px;padding:12px;}
+  .focus-step .n{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:999px;background:var(--teal-soft);color:var(--teal-deep);font-size:11px;font-weight:800;margin-bottom:8px;}
+  .focus-step b{display:block;font-size:12.5px;line-height:1.3;}
+  .focus-step span{display:block;font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.4;}
+  .ops-main-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start;}
+  .ops-section-card{padding:16px;}
+  .ops-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px;}
+  .ops-section-head h3{margin:0;font-size:16px;}
+  .ops-section-head p{margin:4px 0 0;font-size:12px;color:var(--muted);}
+  .ops-pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:700;background:#F8FAFC;color:#475569;border:1px solid var(--hair);white-space:nowrap;}
+  .ops-mini-list{display:flex;flex-direction:column;gap:10px;}
+  .ops-mini-row{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--hair);border-radius:12px;padding:11px 12px;background:#FCFEFD;}
+  .ops-mini-row .grow{min-width:0;}
+  .ops-mini-row .ttl{font-size:13px;font-weight:700;line-height:1.3;}
+  .ops-mini-row .meta{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.4;}
+  .ops-mini-row .sub{font-size:12px;color:#475569;margin-top:6px;line-height:1.45;}
+  .ops-mini-row .tail{display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex-shrink:0;}
+  .ops-mini-row .tail .mono{font-size:10.5px;color:var(--muted2);}
+  .ops-inline-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .ops-support-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+  .ops-support-panel{padding:15px;}
+  .ops-support-panel h3{margin:0 0 3px;font-size:14px;}
+  .ops-support-panel p{margin:0 0 10px;font-size:11.5px;color:var(--muted);}
+  .ops-support-line{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid #EEF1F0;font-size:11.5px;}
+  .ops-support-line:first-of-type{border-top:none;}
+  .ops-support-line b{margin-left:auto;font-size:12px;}
+  .ops-note{font-size:11.5px;color:var(--muted2);}
+  @media (max-width:1180px){
+    .ops-overview-grid,.ops-main-grid,.ops-support-grid{grid-template-columns:1fr;}
+    .ops-kpi-row{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .ops-focus-band{grid-template-columns:1fr;}
+  }
+  @media (max-width:760px){
+    .ops-kpi-row,.focus-steps{grid-template-columns:1fr;}
+    .ops-health-meter{flex-direction:column;align-items:flex-start;}
+    .ops-hero-main{flex-direction:column;}
+  }
+</style>
+
 </head>
 <body>
 <!-- Arc operational workspace. Capture now sits directly beneath Operations Review in the primary workflow. -->
@@ -1161,30 +1242,75 @@ function legend(){
 
 function viewDashboard(){
   var rq=priyaRequest(), asg=priyaAssignment();
-  var completed=!!(rq&&rq.status==='Approved'&&rq.published);
+  var complete=!!(rq&&rq.status==='Approved'&&rq.published);
   var confirmed=!!(asg&&asg.preceptorConfirmed);
-  var issueCount=openChecks().length;
-  var pending=pendingReq().length;
-  var kpis=[
-    ['shield','#FEF2F2','#EF4444','Readiness issues',String(issueCount),issueCount===1?'Reason identified':'Reasons identified',2],
-    ['alert','#FFF7ED','#F97316','Coverage gaps',completed?'0':'1',completed?'Priya move reconciled':'Highland Park · Jul 13–17',1],
-    ['inbox','#F5F3FF','#8B5CF6','Pending approvals',String(pending),'Active change requests',3],
-    ['calendar','#EAF4FF','#1683E8','Program schedule','42','5 records shown',0]
-  ];
-  var kpiHtml=kpis.map(function(k){return '<button class="cc-kpi" type="button" aria-label="Open '+esc(k[3])+' detail" data-act="kpi" data-k="'+k[6]+'"><span class="cc-kpi-ic" style="background:'+k[1]+';color:'+k[2]+'">'+ic(k[0],22)+'</span><div><div class="lab">'+esc(k[3])+'</div><div class="num">'+esc(k[4])+'</div><div class="delta">'+esc(k[5])+'</div></div></button>';}).join('');
-  var nextAction=completed
-    ? '<button type="button" class="next-action-hero primary-click-card" data-act="democard" data-id="review" aria-label="View completed Priya Shah schedule change"><div><div class="k">Steel thread completed</div><div class="v">Priya Shah’s OB move is approved, reconciled, published, and closed.</div><div class="s">Assignment updated to July 13–17 · three notifications queued</div></div><span class="next-action-cta">View completed request</span></button>'
-    : '<button type="button" class="next-action-hero primary-click-card" data-act="democard" data-id="review" aria-label="Review Priya Shah OB rotation change"><div><div class="k">Next recommended action</div><div class="v">'+(confirmed?'Approve Priya Shah’s July 13–17 OB move and publish the reconciled schedule.':'Confirm Priya Shah’s OB preceptor before approving the July 13–17 move.')+'</div><div class="s">Site capacity is available · '+(confirmed?'all required checks are now clear':'final human confirmation is still required')+'</div></div><span class="next-action-cta">'+(confirmed?'Approve change':'Review request')+'</span></button>';
-  var brief='<aside class="weekly-brief"><div class="brief-head"><div><div class="brief-title">'+(completed?'Completed since last review':'Since the last review')+'</div><div class="brief-sub">Priya Shah steel thread · Jul 6–17, 2026</div></div></div>'+
-    '<div class="brief-change-list"><div class="brief-change"><span class="bc-num">1</span><span class="bc-copy">student schedule-change request captured</span></div><div class="brief-change"><span class="bc-num">'+(confirmed?'0':'1')+'</span><span class="bc-copy">preceptor confirmation still missing</span></div><div class="brief-change"><span class="bc-num">'+(completed?'0':'1')+'</span><span class="bc-copy">coverage gap exposed for requested week</span></div><div class="brief-change"><span class="bc-num">'+(completed?'3':'0')+'</span><span class="bc-copy">stakeholder notifications queued</span></div></div>'+
-    '<div class="brief-block"><div class="brief-label">'+(completed?'Resolved request':'Highest-priority issue')+'</div><div class="brief-risk" style="'+(completed?'border-left-color:#16A34A;background:#F0FDF4':'')+'"><b>Priya Shah — Highland Park OB move</b><span>Requested dates: Jul 13–17</span><span>'+(completed?'Approved and published':'Preceptor confirmation '+(confirmed?'received':'pending'))+'</span></div></div>'+
-    '<div class="brief-block"><div class="brief-label">'+(completed?'Completed actions':'Recommended focus')+'</div><ol class="brief-focus">'+(completed?'<li>Assignment dates reconciled</li><li>Schedule published</li><li>Priya, preceptor, and site notified</li>':'<li>Confirm the OB preceptor</li><li>Approve or return Priya’s change request</li><li>Publish the reconciled schedule and notifications</li>')+'</ol></div></aside>';
-  var lower='<div class="ops-lower">'+
-    '<section class="ops-panel"><h2>Weekly capacity</h2><p>Assignment pressure across the same network view.</p><div class="ops-line"><span>Evanston Hospital</span><b>8 / 10</b></div><div class="ops-line"><span>Highland Park</span><b style="color:'+(completed?'#15803D':'#D97706')+'">'+(completed?'8 / 10':'9 / 10')+'</b></div><div class="ops-line"><span>Children’s Rotation</span><b>8 / 10</b></div></section>'+
-    '<section class="ops-panel"><h2>System activity</h2><p>What Arc processed for this review.</p><div class="ops-line"><span>Checks performed</span><b>168</b></div><div class="ops-line"><span>Readiness reasons</span><b>'+issueCount+'</b></div><div class="ops-line"><span>Records shown</span><b>5 of 42</b></div></section>'+
-    '<section class="ops-panel"><h2>Recent human decisions</h2><p>Latest operator-controlled outcomes.</p><div class="ops-line"><span>Approved</span><b style="color:#16A34A">'+(completed?'7':'6')+'</b></div><div class="ops-line"><span>Returned for review</span><b style="color:#D97706">2</b></div><div class="ops-line"><span>Notifications sent</span><b>'+(completed?'14':'11')+'</b></div></section></div>';
-  return '<div class="cc"><div class="ops-top"><div class="cc-focus"><div class="cc-toolbar"><div class="cc-title"><h1>Operations Review</h1><p>What changed, what is at risk, what requires judgment, and what should happen next.</p></div><div class="cc-tools"><button class="tbtn">'+ic('back',14)+' Jul 6–17, 2026</button><button class="tbtn">Today</button><button class="tbtn">All sites '+ic('chevr',13)+'</button></div></div>'+nextAction+'<div class="cc-kpis">'+kpiHtml+'</div></div>'+brief+'</div><div style="margin-top:18px">'+viewChecks()+'</div><div style="margin-top:18px">'+legend()+'</div><div style="margin-top:18px">'+lower+'</div></div>';
+  var rws=rows();
+  var c=counts();
+  var oc=openChecks();
+  var pending=pendingReq();
+  var healthScore=complete?96:(confirmed?88:74);
+  var healthLabel=complete?'Stable and published':(confirmed?'Ready for decision':'Attention required');
+  var coverageOpen=complete?0:1;
+  var highlandUtil=complete?'8 / 10':'9 / 10';
+  var orderedRequests=ST.data.requests.slice().sort(function(a,b){
+    if(a.id==='rq3')return -1;if(b.id==='rq3')return 1;
+    var rank={'Needs Review':0,'Requested':1,'Returned':2,'Approved':3,'Denied':4};
+    return (rank[a.status]||9)-(rank[b.status]||9) || (a.start<b.start?1:-1);
+  }).slice(0,3);
+  var requestItems=orderedRequests.map(function(rq){
+    var st=ST.data.students.filter(function(s){return s.id===rq.studentId;})[0];
+    var tone=requestTone(rq.status);
+    var typeLabel=TYPE_LABEL[rq.type]||rq.type;
+    return '<div class="ops-mini-row"><span class="avatar" style="width:34px;height:34px">'+esc((st&&st.name)||'?').split(' ').map(function(n){return n[0]||'';}).join('').slice(0,2)+'</span><div class="grow"><div class="ttl">'+esc(st.name)+' — '+esc(typeLabel)+'</div><div class="meta">'+(rq.start===rq.end?fmtFull(rq.start):fmtRange(rq.start,rq.end))+'</div><div class="sub">'+esc(rq.notes||'Program review required.')+'</div></div><div class="tail"><span class="badge-st sm" style="color:'+tone.text+';background:'+tone.bg+'">'+requestStatusText(rq)+'</span><button class="mini go" data-act="requestopen" data-id="'+rq.id+'">Open '+ic('chevr',12)+'</button></div></div>';
+  }).join('');
+  var readinessRows=rws.slice().sort(function(a,b){
+    if(a.status!==b.status)return a.status==='Needs Review'?-1:1;
+    return b.open.length-a.open.length;
+  }).slice(0,3);
+  var readinessItems=readinessRows.map(function(x){
+    var first=x.open[0];
+    var summary=first?first.summary:'No open readiness issues.';
+    return '<div class="ops-mini-row"><span class="avatar" style="width:34px;height:34px">'+esc(x.student.name).split(' ').map(function(n){return n[0]||'';}).join('').slice(0,2)+'</span><div class="grow"><div class="ttl">'+esc(x.student.name)+' <span class="mono" style="font-size:10.5px;color:var(--muted2)">'+x.aid+'</span></div><div class="meta">'+esc(x.site.name)+' · '+specPill(x.rotation)+' · <span class="mono">'+fmtRange(x.start,x.end)+'</span></div><div class="sub">'+esc(summary)+'</div></div><div class="tail">'+badgeSt(x.status,true)+'<button class="mini go" data-act="open" data-id="'+x.id+'">Inspect '+ic('chevr',12)+'</button></div></div>';
+  }).join('');
+  var impactItems=''+
+    '<div class="ops-mini-row"><span style="display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:'+(complete?'#DCFCE7':'#FEE2E2')+';color:'+(complete?'#15803D':'#B91C1C')+'">'+ic('alert',16,complete?'#15803D':'#B91C1C')+'</span><div class="grow"><div class="ttl">Highland Park OB week</div><div class="meta">Jul 13–17 · primary schedule impact</div><div class="sub">'+(complete?'Coverage is reconciled and Priya’s reassignment has been published.':'A requested move exposes one coverage gap until the leader confirms and publishes the updated assignment.')+'</div></div><div class="tail"><span class="ops-pill" style="background:'+(complete?'#ECFDF5':'#FEF2F2')+';color:'+(complete?'#15803D':'#B91C1C')+';border-color:'+(complete?'#BBF7D0':'#FECACA')+'">'+(complete?'Resolved':'1 open gap')+'</span><button class="mini go" data-act="kpi" data-k="1">Review '+ic('chevr',12)+'</button></div></div>'+
+    '<div class="ops-mini-row"><span style="display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#EFF6FF;color:#2563EB">'+ic('building',16,'#2563EB')+'</span><div class="grow"><div class="ttl">Network capacity</div><div class="meta">Same weekly network view</div><div class="sub">Highland Park is running at <b>'+highlandUtil+'</b> utilized, while Evanston and Children’s remain within planned capacity.</div></div><div class="tail"><span class="ops-pill">3 sites tracked</span></div></div>'+
+    '<div class="ops-mini-row"><span style="display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#FFF7ED;color:#C2410C">'+ic('send',16,'#C2410C')+'</span><div class="grow"><div class="ttl">Downstream communications</div><div class="meta">What happens after the decision</div><div class="sub">'+(complete?'Three stakeholder notifications are queued from the approved move.':'Notifications remain on hold until the human decision is recorded and the schedule is published.')+'</div></div><div class="tail"><span class="ops-pill">'+(complete?'3 queued':'Awaiting publish')+'</span></div></div>';
+  var trendData=[72,76,79,74,81,84,healthScore];
+  var trendHtml=trendData.map(function(v,i){return '<div class="ops-trend-col"><div class="ops-trend-bar" style="height:'+Math.max(16,Math.round(v*0.62))+'px;opacity:'+(i===trendData.length-1?'1':'.72')+'"></div><small>'+(i===trendData.length-1?'Now':'W'+(i+1))+'</small></div>';}).join('');
+  var nextActionTitle=complete?'Priya Shah’s OB move is approved, reconciled, and published.':(confirmed?'Approve Priya Shah’s July 13–17 OB move and publish the reconciled schedule.':'Confirm Priya Shah’s OB preceptor before approving the July 13–17 move.');
+  var nextActionCopy=complete?'Assignment dates are updated to Jul 13–17, coverage is reconciled, and three notifications are ready to send.':(confirmed?'All automated checks are clear; the final human decision will close the loop and release the updated schedule.':'Site capacity is available, but Arc is still waiting on the final preceptor confirmation before the leader can approve the move.');
+  var focusButton=complete?'<button class="gate-cta on" data-act="democard" data-id="review">View completed request '+ic('arrowr',14,'#fff')+'</button>':'<button class="gate-cta on" data-act="democard" data-id="review">'+(confirmed?'Approve change':'Review request')+' '+ic('arrowr',14,'#fff')+'</button>';
+  var support=''+
+    '<div class="ops-support-grid">'+
+      '<section class="ops-support-panel"><h3>Weekly capacity</h3><p>Assignment pressure across the same network view.</p><div class="ops-support-line"><span>Evanston Hospital</span><b>8 / 10</b></div><div class="ops-support-line"><span>Highland Park</span><b style="color:'+(complete?'#15803D':'#D97706')+'">'+highlandUtil+'</b></div><div class="ops-support-line"><span>Children’s Rotation</span><b>8 / 10</b></div></section>'+
+      '<section class="ops-support-panel"><h3>System activity</h3><p>What Arc processed for this review.</p><div class="ops-support-line"><span>Checks performed</span><b>168</b></div><div class="ops-support-line"><span>Open readiness reasons</span><b>'+oc.length+'</b></div><div class="ops-support-line"><span>Records shown</span><b>5 of 42</b></div></section>'+
+      '<section class="ops-support-panel"><h3>Recent human decisions</h3><p>Latest operator-controlled outcomes.</p><div class="ops-support-line"><span>Approved</span><b style="color:#16A34A">'+(complete?'7':'6')+'</b></div><div class="ops-support-line"><span>Returned for review</span><b style="color:#D97706">2</b></div><div class="ops-support-line"><span>Notifications sent</span><b>'+(complete?'14':'11')+'</b></div></section>'+
+    '</div>';
+
+  return '<div class="ops-prime">'+
+    '<div class="ops-header"><div class="ops-title"><h1>Operations Review</h1><p>See what changed, where the schedule is impacted, what needs human judgment, and what Arc recommends next.</p></div><div class="ops-controls"><button class="tbtn">'+ic('back',14)+' Jul 6–17, 2026</button><button class="tbtn">Today</button><button class="tbtn">All sites '+ic('chevr',13)+'</button></div></div>'+
+    '<div class="ops-overview-grid">'+
+      '<section class="ops-hero-card"><span class="ops-kicker">'+ic('shield',12,'#0F766E')+' Operations priority</span><div class="ops-hero-main"><div><h2>'+nextActionTitle+'</h2><p>'+nextActionCopy+'</p></div><div class="ops-hero-action">'+focusButton+'<button class="mini" data-act="goto" data-v="requests">Open queue</button></div></div><div class="ops-kpi-row">'+
+        '<button class="ops-kpi" data-act="kpi" data-k="1"><span class="ops-kpi-ic" style="background:#FEF2F2;color:#EF4444">'+ic('alert',20,'#EF4444')+'</span><div class="ops-kpi-copy"><div class="lab">Today&rsquo;s Schedule Impact</div><div class="num">'+coverageOpen+'</div><div class="delta">'+(coverageOpen?'Highland Park · Jul 13–17':'No open coverage gaps')+'</div></div></button>'+
+        '<button class="ops-kpi" data-act="kpi" data-k="3"><span class="ops-kpi-ic" style="background:#F5F3FF;color:#8B5CF6">'+ic('inbox',20,'#8B5CF6')+'</span><div class="ops-kpi-copy"><div class="lab">Recent Change Requests</div><div class="num">'+pending.length+'</div><div class="delta">'+(pending.length?'Awaiting review or approval':'Queue is clear')+'</div></div></button>'+
+        '<button class="ops-kpi" data-act="kpi" data-k="0"><span class="ops-kpi-ic" style="background:#EAF4FF;color:#1683E8">'+ic('layers',20,'#1683E8')+'</span><div class="ops-kpi-copy"><div class="lab">Assignment Readiness</div><div class="num">'+c.review+'</div><div class="delta">'+c.ready+' ready · '+rws.length+' total assignments</div></div></button>'+
+        '<button class="ops-kpi" data-act="kpi" data-k="2"><span class="ops-kpi-ic" style="background:#FFF7ED;color:#F97316">'+ic('shield',20,'#F97316')+'</span><div class="ops-kpi-copy"><div class="lab">Open Readiness Issues</div><div class="num">'+oc.length+'</div><div class="delta">Reasons Arc surfaced for review</div></div></button>'+
+      '</div></section>'+
+      '<aside class="ops-health-card"><div class="ops-panel-top"><div><h3>Schedule health</h3><p>Simple pulse on the current review window.</p></div><span class="ops-pill">Updated just now</span></div><div class="ops-health-meter"><div class="ops-health-donut" style="--pct:'+healthScore+'"><span class="val">'+healthScore+'</span></div><div class="ops-health-summary"><strong>'+healthLabel+'</strong><span>'+(complete?'The primary schedule change is resolved and the command-center week is stable.':(confirmed?'Arc has cleared the automated checks; the final step is a human approval.':'The week is operable, but one unresolved move is holding up full schedule confidence.'))+'</span></div></div><div><div class="ops-panel-top"><div><h3 style="font-size:13px">Trend</h3><p>Recent weekly operating contour</p></div></div><div class="ops-trend">'+trendHtml+'</div></div></aside>'+
+    '</div>'+
+    '<section class="ops-focus-band"><div><h3>Today&rsquo;s Focus</h3><p>The shortest path from signal to decision.</p></div><div class="focus-steps"><div class="focus-step"><span class="n">1</span><b>Review schedule impact</b><span>Confirm what changed and whether a coverage gap or utilization issue remains.</span></div><div class="focus-step"><span class="n">2</span><b>Inspect the change request</b><span>Use the structured request record to validate dates, context, and stakeholder intent.</span></div><div class="focus-step"><span class="n">3</span><b>Close readiness and publish</b><span>Record the decision, reconcile the assignment, and release notifications.</span></div></div><div>'+focusButton+'</div></section>'+
+    '<div class="ops-main-grid">'+
+      '<section class="ops-section-card"><div class="ops-section-head"><div><h3>Today&rsquo;s Schedule Impact</h3><p>Start with the operational consequence.</p></div><span class="ops-pill" style="background:'+(complete?'#ECFDF5':'#FEF2F2')+';color:'+(complete?'#15803D':'#B91C1C')+';border-color:'+(complete?'#BBF7D0':'#FECACA')+'">'+(complete?'Resolved':'Needs attention')+'</span></div><div class="ops-mini-list">'+impactItems+'</div><div class="ops-inline-actions"><button class="mini" data-act="kpi" data-k="1">Open impact detail</button><button class="mini" data-act="goto" data-v="calendar2">View coverage calendar</button></div></section>'+
+      '<section class="ops-section-card"><div class="ops-section-head"><div><h3>Recent Change Requests</h3><p>What entered the queue most recently.</p></div><span class="ops-pill">'+pending.length+' active</span></div><div class="ops-mini-list">'+requestItems+'</div><div class="ops-inline-actions"><button class="mini" data-act="goto" data-v="requests">Open request queue</button></div></section>'+
+      '<section class="ops-section-card"><div class="ops-section-head"><div><h3>Assignment Readiness</h3><p>What is clear versus what still needs judgment.</p></div><span class="ops-pill">'+c.ready+' ready · '+c.review+' review</span></div><div class="ops-mini-list">'+readinessItems+'</div><div class="ops-inline-actions"><button class="mini" data-act="goto" data-v="assignments">Open readiness workspace</button></div></section>'+
+    '</div>'+
+    '<div>'+legend()+'</div>'+
+    '<div>'+viewChecks()+'</div>'+
+    support+
+  '</div>';
 }
+
 
 function viewCalendar2(){
   var rq=priyaRequest(), gapOpen=!(rq&&rq.status==='Approved'&&rq.published);
@@ -2579,4 +2705,4 @@ window.addEventListener('hashchange',function(){
 })();
 </script>
 
-</body></html><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_5cuxfQpFTmENqTBe7KWAm69EVeWd" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_9DPG9A5JcUpawGtRDrv6MLb8bW5z" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
+</body></html>
