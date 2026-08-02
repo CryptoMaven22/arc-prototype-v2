@@ -1051,7 +1051,7 @@
   .money-view-head h2{font-size:19px;margin:0;}
   .money-view-head p{margin:4px 0 0;font-size:12.5px;color:var(--muted);max-width:720px;}
   .money-view-tag{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;background:#ECFDF5;color:#0F766E;border:1px solid #A7F3D0;font-size:10.5px;font-weight:800;letter-spacing:.03em;white-space:nowrap;}
-  .money-grid{display:grid;grid-template-columns:minmax(330px,.95fr) minmax(0,1.55fr);gap:14px;align-items:stretch;}
+  .money-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(330px,.95fr);gap:14px;align-items:stretch;}
   .money-health-card{border:1px solid #DCE8E5;border-radius:15px;background:linear-gradient(145deg,#F7FCFA 0%,#FFFFFF 58%);padding:17px;display:flex;flex-direction:column;gap:14px;}
   .money-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
   .money-card-head h3{font-size:15px;margin:0;}
@@ -1415,6 +1415,25 @@ function renderOpsKpiPanel(){
       '<div class="ops-kpi-inline-row"><span style="display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:'+(complete?'#DCFCE7':'#FEE2E2')+';color:'+(complete?'#15803D':'#B91C1C')+'">'+ic('alert',16,complete?'#15803D':'#B91C1C')+'</span><div class="grow"><div class="ttl">Highland Park OB week</div><div class="meta">Jul 13–17 · primary schedule impact</div><div class="sub">'+(complete?'Coverage is reconciled and Priya’s reassignment has been published.':'A requested move exposes one coverage gap until the leader confirms and publishes the updated assignment.')+'</div></div><div class="tail"><span class="ops-pill" style="background:'+(complete?'#ECFDF5':'#FEF2F2')+';color:'+(complete?'#15803D':'#B91C1C')+';border-color:'+(complete?'#BBF7D0':'#FECACA')+'">'+(complete?'Resolved':'1 open gap')+'</span></div></div>'+
       '<div class="ops-kpi-inline-row"><span style="display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#EFF6FF;color:#2563EB">'+ic('building',16,'#2563EB')+'</span><div class="grow"><div class="ttl">Network capacity</div><div class="meta">Same weekly network view</div><div class="sub">Highland Park is running at <b>'+(complete?'8 / 10':'9 / 10')+'</b> utilized, while Evanston and Children\'s remain within planned capacity.</div></div><div class="tail"><span class="ops-pill">3 sites tracked</span></div></div>'+
       '<div class="ops-kpi-inline-row"><span style="display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#FFF7ED;color:#C2410C">'+ic('send',16,'#C2410C')+'</span><div class="grow"><div class="ttl">Downstream communications</div><div class="meta">What happens after the decision</div><div class="sub">'+(complete?'Three stakeholder notifications are queued from the approved move.':'Notifications remain on hold until the human decision is recorded and the schedule is published.')+'</div></div><div class="tail"><span class="ops-pill">'+(complete?'3 queued':'Awaiting publish')+'</span></div></div>';
+  } else if(ST.kpi===4){
+    var capacityRows=[
+      {name:'Highland Park',service:'OB / General',used:complete?8:9,total:10,state:complete?'Within plan':'Near capacity',tone:complete?'#15803D':'#D97706',bg:complete?'#ECFDF5':'#FFF7ED'},
+      {name:'Evanston Hospital',service:'General OR',used:8,total:10,state:'Within plan',tone:'#15803D',bg:'#ECFDF5'},
+      {name:"Children's Rotation",service:'Pediatrics',used:8,total:10,state:'Within plan',tone:'#15803D',bg:'#ECFDF5'}
+    ];
+    var totalUsed=capacityRows.reduce(function(sum,s){return sum+s.used;},0);
+    var totalCapacity=capacityRows.reduce(function(sum,s){return sum+s.total;},0);
+    cfg={tone:'#F97316',icon:'building',title:'Site Capacity',summary:'Current utilization across the tracked clinical sites. This detail stays in the operating view so capacity can be checked without leaving the dashboard.',cta:'Open clinical sites',view:'sites'};
+    cfg.stats=[
+      stat((complete?'8 / 10':'9 / 10'),'Highest utilization','Highland Park'),
+      stat(capacityRows.length,'Sites tracked','Current network view'),
+      stat(totalUsed+' / '+totalCapacity,'Network utilization','Filled assignment capacity'),
+      stat(complete?0:1,'Near limit',complete?'All sites within plan':'Highland Park needs watching')
+    ].join('');
+    cfg.rows=capacityRows.map(function(s){
+      var pct=Math.round((s.used/s.total)*100);
+      return '<div class="ops-kpi-inline-row"><span style="display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#FFF7ED;color:#F97316">'+ic('building',16,'#F97316')+'</span><div class="grow"><div class="ttl">'+esc(s.name)+'</div><div class="meta">'+esc(s.service)+' · '+s.used+' of '+s.total+' utilized</div><div class="sub"><div style="height:6px;background:#EEF2F1;border-radius:999px;overflow:hidden;margin-top:7px"><span style="display:block;height:100%;width:'+pct+'%;background:'+(pct>=90?'#F59E0B':'#0E6E63')+';border-radius:999px"></span></div></div></div><div class="tail"><span class="ops-pill" style="background:'+s.bg+';color:'+s.tone+';border-color:'+s.tone+'33">'+s.state+'</span><span class="ops-note">'+pct+'% utilized</span></div></div>';
+    }).join('');
   } else if(ST.kpi===3){
     var awaitingReview=pr.filter(function(x){return x.status==='Needs Review';}).length;
     var requested=pr.filter(function(x){return x.status==='Requested';}).length;
@@ -1518,21 +1537,21 @@ function viewDashboard(){
     '<section class="money-view">'+
       '<div class="money-view-head"><div><h2>Today&rsquo;s Picture</h2><p>See whether the schedule is stable, where pressure is building, and what needs attention.</p></div><span class="money-view-tag">'+ic('shield',12,'#0F766E')+' Daily command view</span></div>'+
       '<div class="money-grid">'+
+        '<div class="money-right">'+
+          '<div class="money-kpi-grid">'+
+            '<button class="money-kpi'+(ST.kpi===1?' is-open':'')+'" data-act="kpi" data-k="1"><div class="money-kpi-top"><span class="money-kpi-ic" style="background:#FEF2F2;color:#EF4444">'+ic('alert',18,'#EF4444')+'</span><span class="ops-pill">Coverage</span></div><div class="value">'+coverageOpen+'</div><div class="label">Open coverage gaps</div><div class="detail">'+(coverageOpen?'Highland Park · Jul 13–17':'No uncovered schedule segments')+'</div></button>'+
+            '<button class="money-kpi'+(ST.kpi===4?' is-open':'')+'" data-act="kpi" data-k="4"><div class="money-kpi-top"><span class="money-kpi-ic" style="background:#FFF7ED;color:#F97316">'+ic('building',18,'#F97316')+'</span><span class="ops-pill">Capacity</span></div><div class="value">'+highlandUtil+'</div><div class="label">Highest site utilization</div><div class="detail">Highland Park; other tracked sites remain within plan</div></button>'+
+            '<button class="money-kpi'+(ST.kpi===0?' is-open':'')+'" data-act="kpi" data-k="0"><div class="money-kpi-top"><span class="money-kpi-ic" style="background:#EAF4FF;color:#1683E8">'+ic('layers',18,'#1683E8')+'</span><span class="ops-pill">Readiness</span></div><div class="value">'+c.ready+' / '+rws.length+'</div><div class="label">Assignments ready</div><div class="detail">'+c.review+' still require review or confirmation</div></button>'+
+            '<button class="money-kpi'+(ST.kpi===2?' is-open':'')+'" data-act="kpi" data-k="2"><div class="money-kpi-top"><span class="money-kpi-ic" style="background:#F5F3FF;color:#8B5CF6">'+ic('shield',18,'#8B5CF6')+'</span><span class="ops-pill">Today</span></div><div class="value">'+oc.length+'</div><div class="label">Items requiring attention</div><div class="detail">Underlying readiness reasons surfaced by Arc</div></button>'+
+          '</div>'+
+          '<div class="money-attention-card"><div><div class="eyebrow">What requires attention today</div><h3>'+nextActionTitle+'</h3><p>'+nextActionCopy+'</p></div><div class="money-attention-actions">'+focusButton+'<button class="mini" data-act="goto" data-v="requests">Open all changes</button></div></div>'+
+        '</div>'+
         '<article class="money-health-card">'+
           '<div class="money-card-head"><div><h3>Schedule health</h3><p>Current confidence across the review window.</p></div><span class="ops-pill">Updated just now</span></div>'+
           '<div class="money-health-main"><div class="ops-health-donut" style="--pct:'+healthScore+'"><span class="val">'+healthScore+'</span></div><div class="money-health-copy"><strong>'+healthLabel+'</strong><span>'+(complete?'The active schedule is reconciled, published, and stable.':(confirmed?'Automated checks are clear; one human approval remains.':'The schedule is operable, but unresolved readiness issues are lowering confidence.'))+'</span></div></div>'+
           '<div><div class="money-card-head"><div><h3 style="font-size:12px">Seven-week contour</h3><p>Recent schedule-health trend</p></div></div><div class="ops-trend">'+trendHtml+'</div></div>'+
           '<div class="money-health-note">'+ic('checkc',14,'#0F766E')+' <span><b>'+c.ready+' of '+rws.length+' assignments ready</b> · '+coverageOpen+' open coverage gap'+(coverageOpen===1?'':'s')+'</span></div>'+
         '</article>'+
-        '<div class="money-right">'+
-          '<div class="money-kpi-grid">'+
-            '<button class="money-kpi'+(ST.kpi===1?' is-open':'')+'" data-act="kpi" data-k="1"><div class="money-kpi-top"><span class="money-kpi-ic" style="background:#FEF2F2;color:#EF4444">'+ic('alert',18,'#EF4444')+'</span><span class="ops-pill">Coverage</span></div><div class="value">'+coverageOpen+'</div><div class="label">Open coverage gaps</div><div class="detail">'+(coverageOpen?'Highland Park · Jul 13–17':'No uncovered schedule segments')+'</div></button>'+
-            '<button class="money-kpi" data-act="goto" data-v="sites"><div class="money-kpi-top"><span class="money-kpi-ic" style="background:#FFF7ED;color:#F97316">'+ic('building',18,'#F97316')+'</span><span class="ops-pill">Capacity</span></div><div class="value">'+highlandUtil+'</div><div class="label">Highest site utilization</div><div class="detail">Highland Park; other tracked sites remain within plan</div></button>'+
-            '<button class="money-kpi'+(ST.kpi===0?' is-open':'')+'" data-act="kpi" data-k="0"><div class="money-kpi-top"><span class="money-kpi-ic" style="background:#EAF4FF;color:#1683E8">'+ic('layers',18,'#1683E8')+'</span><span class="ops-pill">Readiness</span></div><div class="value">'+c.ready+' / '+rws.length+'</div><div class="label">Assignments ready</div><div class="detail">'+c.review+' still require review or confirmation</div></button>'+
-            '<button class="money-kpi'+(ST.kpi===2?' is-open':'')+'" data-act="kpi" data-k="2"><div class="money-kpi-top"><span class="money-kpi-ic" style="background:#F5F3FF;color:#8B5CF6">'+ic('shield',18,'#8B5CF6')+'</span><span class="ops-pill">Today</span></div><div class="value">'+oc.length+'</div><div class="label">Items requiring attention</div><div class="detail">Underlying readiness reasons surfaced by Arc</div></button>'+
-          '</div>'+
-          '<div class="money-attention-card"><div><div class="eyebrow">What requires attention today</div><h3>'+nextActionTitle+'</h3><p>'+nextActionCopy+'</p></div><div class="money-attention-actions">'+focusButton+'<button class="mini" data-act="goto" data-v="requests">Open all changes</button></div></div>'+
-        '</div>'+
       '</div>'+
       (ST.kpi!==null?renderOpsKpiPanel():'')+
       '<div class="money-activity-strip"><div class="money-activity-item"><b>168 checks run</b><span>Across assignments and requests</span></div><div class="money-activity-item"><b>'+pending.length+' recent changes</b><span>Awaiting review or approval</span></div><div class="money-activity-item"><b>'+(complete?'14':'11')+' notifications sent</b><span>Latest operating cycle</span></div><div class="money-activity-item"><b>'+c.ready+' ready assignments</b><span>'+c.review+' still need judgment</span></div></div>'+
@@ -3081,4 +3100,4 @@ window.addEventListener('hashchange',function(){
 </script>
 
 </body></html>
-<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_HtmuNRAFgACSejK4nZwcpVrDkLzN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_Cp3YwdBSW58B2z4jMHyYwq3SS7FM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_212ZZKQ76m76PK6skyQFHKYfEu4u" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
+<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_HtmuNRAFgACSejK4nZwcpVrDkLzN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_Cp3YwdBSW58B2z4jMHyYwq3SS7FM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_212ZZKQ76m76PK6skyQFHKYfEu4u" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_13psNXaeV1hSn2rjNH7xb6kKBVTL" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
