@@ -1017,6 +1017,34 @@
     .ops-health-meter{flex-direction:column;align-items:flex-start;}
     .ops-hero-main{flex-direction:column;}
   }
+
+  .ops-kpi.is-open{border-color:#9CCBC3;box-shadow:0 8px 20px rgba(16,35,31,.08);background:#F7FCFB;}
+  .ops-kpi-inline{margin-top:12px;border:1px solid var(--hair);border-radius:14px;background:#F8FCFB;box-shadow:0 4px 14px rgba(16,35,31,.05);overflow:hidden;}
+  .ops-kpi-inline-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 16px 12px;border-bottom:1px solid #E7EFED;}
+  .ops-kpi-inline-id{display:flex;align-items:center;gap:10px;color:var(--ink);}
+  .ops-kpi-inline-id .ico{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;flex:0 0 auto;}
+  .ops-kpi-inline-id .eyebrow{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted2);}
+  .ops-kpi-inline-id h4{margin:3px 0 0;font-size:18px;line-height:1.25;}
+  .ops-kpi-inline-sub{margin:5px 0 0;font-size:12.5px;color:var(--muted);max-width:760px;}
+  .ops-kpi-inline-close{border:none;background:transparent;color:var(--muted2);cursor:pointer;display:grid;place-items:center;width:34px;height:34px;border-radius:10px;}
+  .ops-kpi-inline-close:hover{background:#EEF6F4;color:var(--ink);}
+  .ops-kpi-inline-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:14px;}
+  .ops-kpi-inline-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
+  .ops-kpi-inline-stat{border:1px solid var(--hair);border-radius:12px;background:#fff;padding:12px;}
+  .ops-kpi-inline-stat .num{font-size:22px;font-weight:800;line-height:1.05;}
+  .ops-kpi-inline-stat .lab{font-size:11px;font-weight:700;color:#334155;margin-top:5px;}
+  .ops-kpi-inline-stat .sub{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.35;}
+  .ops-kpi-inline-list{display:flex;flex-direction:column;gap:10px;}
+  .ops-kpi-inline-row{display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid var(--hair);border-radius:12px;background:#fff;}
+  .ops-kpi-inline-row .grow{min-width:0;}
+  .ops-kpi-inline-row .ttl{font-size:13px;font-weight:700;line-height:1.3;}
+  .ops-kpi-inline-row .meta{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.35;}
+  .ops-kpi-inline-row .sub{font-size:12px;color:#475569;margin-top:6px;line-height:1.45;}
+  .ops-kpi-inline-row .tail{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;}
+  .ops-kpi-inline-foot{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;}
+  @media (max-width:900px){.ops-kpi-inline-stats{grid-template-columns:repeat(2,minmax(0,1fr));}}
+  @media (max-width:640px){.ops-kpi-inline-stats{grid-template-columns:1fr;}.ops-kpi-inline-head,.ops-kpi-inline-row{flex-direction:column;}.ops-kpi-inline-row .tail{align-items:flex-start;}}
+
 </style>
 
 </head>
@@ -1240,6 +1268,76 @@ function legend(){
   return '<div class="readiness-proof"><div class="proof-head"><div><h2>Readiness engine activity</h2><p>Checks Arc ran across the same assignments and change requests shown in this review.</p></div></div><div class="proof-grid">'+items+'</div></div>';
 }
 
+
+function renderOpsKpiPanel(){
+  if(ST.kpi===null) return '';
+  var rws=rows(), c=counts(), oc=openChecks(), pr=pendingReq();
+  var rq=priyaRequest(), asg=priyaAssignment();
+  var confirmed=!!(asg&&asg.preceptorConfirmed);
+  var complete=!!(rq&&rq.status==='Approved'&&rq.published);
+  var cfg={tone:'#0F766E',icon:'shield',title:'Command-center detail',summary:'',stats:[],rows:'',cta:'',view:'dashboard'};
+  function stat(num,lab,sub){return '<div class="ops-kpi-inline-stat"><div class="num">'+num+'</div><div class="lab">'+lab+'</div><div class="sub">'+sub+'</div></div>';}
+  if(ST.kpi===1){
+    cfg={tone:'#EF4444',icon:'alert',title:'Today\'s Schedule Impact',summary:'Expanded detail for the current command-center week. This stays anchored beneath the KPI row so the operator can explore detail without losing context.',cta:'View coverage calendar',view:'calendar2'};
+    cfg.stats=[
+      stat(complete?0:1,'Open gaps',complete?'Coverage is reconciled':'Highland Park OB week'),
+      stat(3,'Sites tracked','Current network view'),
+      stat(complete?3:0,'Notifications',complete?'Queued to send':'Held until publish'),
+      stat(complete?96:(confirmed?88:74),'Health score',complete?'Stable week':(confirmed?'Ready for decision':'Attention required'))
+    ].join('');
+    cfg.rows=''+
+      '<div class="ops-kpi-inline-row"><span style="display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:'+(complete?'#DCFCE7':'#FEE2E2')+';color:'+(complete?'#15803D':'#B91C1C')+'">'+ic('alert',16,complete?'#15803D':'#B91C1C')+'</span><div class="grow"><div class="ttl">Highland Park OB week</div><div class="meta">Jul 13–17 · primary schedule impact</div><div class="sub">'+(complete?'Coverage is reconciled and Priya’s reassignment has been published.':'A requested move exposes one coverage gap until the leader confirms and publishes the updated assignment.')+'</div></div><div class="tail"><span class="ops-pill" style="background:'+(complete?'#ECFDF5':'#FEF2F2')+';color:'+(complete?'#15803D':'#B91C1C')+';border-color:'+(complete?'#BBF7D0':'#FECACA')+'">'+(complete?'Resolved':'1 open gap')+'</span></div></div>'+
+      '<div class="ops-kpi-inline-row"><span style="display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#EFF6FF;color:#2563EB">'+ic('building',16,'#2563EB')+'</span><div class="grow"><div class="ttl">Network capacity</div><div class="meta">Same weekly network view</div><div class="sub">Highland Park is running at <b>'+(complete?'8 / 10':'9 / 10')+'</b> utilized, while Evanston and Children\'s remain within planned capacity.</div></div><div class="tail"><span class="ops-pill">3 sites tracked</span></div></div>'+
+      '<div class="ops-kpi-inline-row"><span style="display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#FFF7ED;color:#C2410C">'+ic('send',16,'#C2410C')+'</span><div class="grow"><div class="ttl">Downstream communications</div><div class="meta">What happens after the decision</div><div class="sub">'+(complete?'Three stakeholder notifications are queued from the approved move.':'Notifications remain on hold until the human decision is recorded and the schedule is published.')+'</div></div><div class="tail"><span class="ops-pill">'+(complete?'3 queued':'Awaiting publish')+'</span></div></div>';
+  } else if(ST.kpi===3){
+    var awaitingReview=pr.filter(function(x){return x.status==='Needs Review';}).length;
+    var requested=pr.filter(function(x){return x.status==='Requested';}).length;
+    cfg={tone:'#8B5CF6',icon:'inbox',title:'Recent Change Requests',summary:'A simple queue for change requests and approvals. Open one from here, then return to the dashboard without losing your place.',cta:'Open request queue',view:'requests'};
+    cfg.stats=[
+      stat(pr.length,'Pending','Requests awaiting action'),
+      stat(requested,'Requested','New items in queue'),
+      stat(awaitingReview,'Needs review','Require a judgment call'),
+      stat(pr.filter(function(rq){return rws.some(function(a){return a.studentId===rq.studentId&&overlaps(a.start,a.end,rq.start,rq.end);});}).length,'Schedule impact','Would touch an active assignment')
+    ].join('');
+    cfg.rows=pr.slice(0,3).map(function(req){
+      var st=ST.data.students.filter(function(s){return s.id===req.studentId;})[0];
+      var tone=requestTone(req.status);
+      var impacted=rws.filter(function(a){return a.studentId===req.studentId&&overlaps(a.start,a.end,req.start,req.end);}).length;
+      return '<div class="ops-kpi-inline-row">'+avatar(st.name,34)+'<div class="grow"><div class="ttl">'+esc(st.name)+' — '+esc(TYPE_LABEL[req.type]||req.type)+'</div><div class="meta">'+(req.start===req.end?fmtFull(req.start):fmtRange(req.start,req.end))+'</div><div class="sub">'+esc(req.notes||'No additional context supplied.')+'</div></div><div class="tail"><span class="badge-st sm" style="color:'+tone.text+';background:'+tone.bg+'">'+requestStatusText(req)+'</span><span class="ops-note">'+(impacted?('Touches '+impacted+' active assignment'+(impacted>1?'s':'')):'No active-assignment overlap')+'</span><button class="mini" data-act="requestopen" data-id="'+req.id+'">Open request</button></div></div>';
+    }).join('');
+  } else if(ST.kpi===0){
+    cfg={tone:'#1683E8',icon:'layers',title:'Assignment Readiness',summary:'Readiness rolls up what is clear and what still needs human judgment before the schedule should go out.',cta:'Open readiness workspace',view:'assignments'};
+    cfg.stats=[
+      stat(rws.length,'Assignments','Visible in this review'),
+      stat(c.ready,'Ready','Clear to move forward'),
+      stat(c.review,'Need review','Carry open reasons'),
+      stat(oc.length,'Open reasons','Underlying readiness issues')
+    ].join('');
+    cfg.rows=rws.slice().sort(function(a,b){ if(a.status!==b.status) return a.status==='Needs Review'?-1:1; return b.open.length-a.open.length;}).slice(0,3).map(function(x){
+      var first=x.open[0];
+      return '<div class="ops-kpi-inline-row">'+avatar(x.student.name,34)+'<div class="grow"><div class="ttl">'+esc(x.student.name)+' <span class="mono" style="font-size:11px;color:var(--muted2)">'+x.aid+'</span></div><div class="meta">'+esc(x.site.name)+' · '+esc(x.rotation)+' · '+fmtRange(x.start,x.end)+'</div><div class="sub">'+esc(first?first.summary:'No open readiness issues.')+'</div></div><div class="tail">'+badgeSt(x.status,true)+'<button class="mini" data-act="open" data-id="'+x.id+'">Open assignment</button></div></div>';
+    }).join('');
+  } else if(ST.kpi===2){
+    var highCount=oc.filter(function(c){return c.severity==='High';}).length;
+    var affectedAssignments=(function(){var m={}; oc.forEach(function(ch){m[ch.assignmentId]=1;}); return Object.keys(m).length;})();
+    var byType={}; oc.forEach(function(ch){byType[ch.type]=(byType[ch.type]||0)+1;});
+    cfg={tone:'#F97316',icon:'shield',title:'Open Readiness Issues',summary:'Each issue explains why it needs attention and what Arc recommends next.',cta:'Review readiness issues',view:'checks'};
+    cfg.stats=[
+      stat(oc.length,'Open reasons','Total unresolved reasons'),
+      stat(highCount,'High severity','Require immediate review'),
+      stat(affectedAssignments,'Assignments hit','Records touched by issues'),
+      stat(Object.keys(byType).length,'Issue types','Distinct rule categories')
+    ].join('');
+    cfg.rows=oc.slice(0,4).map(function(ch,idx){
+      var row=rws.filter(function(x){return x.id===ch.assignmentId;})[0];
+      return '<div class="ops-kpi-inline-row"><span style="display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#FFF7ED;color:#F97316">'+ic('alert',16,'#F97316')+'</span><div class="grow"><div class="ttl">'+esc(ch.type)+'</div><div class="meta">'+esc(row.student.name)+' · '+esc(row.site.name)+' · '+fmtRange(row.start,row.end)+'</div><div class="sub">'+esc(ch.summary)+'<br><span style="color:var(--teal)">'+esc(ch.action)+'</span></div></div><div class="tail">'+sevBadge(ch.severity)+'<button class="mini" data-act="open" data-id="'+row.id+'">Open assignment</button></div></div>';
+    }).join('');
+  }
+  return '<div class="ops-kpi-inline">'+
+    '<div class="ops-kpi-inline-head"><div><div class="ops-kpi-inline-id"><span class="ico" style="background:'+cfg.tone+'18;color:'+cfg.tone+'">'+ic(cfg.icon,18,cfg.tone)+'</span><div><div class="eyebrow">Inline detail</div><h4>'+cfg.title+'</h4></div></div><p class="ops-kpi-inline-sub">'+cfg.summary+'</p></div><button class="ops-kpi-inline-close" data-act="closekpi" aria-label="Close detail">'+ic('x',16)+'</button></div>'+
+    '<div class="ops-kpi-inline-body"><div class="ops-kpi-inline-stats">'+cfg.stats+'</div><div class="ops-kpi-inline-list">'+cfg.rows+'</div><div class="ops-kpi-inline-foot"><button class="mini" data-act="closekpi">Collapse</button><button class="gate-cta on" data-act="kpigoto" data-v="'+cfg.view+'">'+cfg.cta+' '+ic('arrowr',14,'#fff')+'</button></div></div></div>';
+}
+
 function viewDashboard(){
   var rq=priyaRequest(), asg=priyaAssignment();
   var complete=!!(rq&&rq.status==='Approved'&&rq.published);
@@ -1292,11 +1390,11 @@ function viewDashboard(){
     '<div class="ops-header"><div class="ops-title"><h1>Operations Review</h1><p>See what changed, where the schedule is impacted, what needs human judgment, and what Arc recommends next.</p></div><div class="ops-controls"><button class="tbtn">'+ic('back',14)+' Jul 6–17, 2026</button><button class="tbtn">Today</button><button class="tbtn">All sites '+ic('chevr',13)+'</button></div></div>'+
     '<div class="ops-overview-grid">'+
       '<section class="ops-hero-card"><span class="ops-kicker">'+ic('shield',12,'#0F766E')+' Operations priority</span><div class="ops-hero-main"><div><h2>'+nextActionTitle+'</h2><p>'+nextActionCopy+'</p></div><div class="ops-hero-action">'+focusButton+'<button class="mini" data-act="goto" data-v="requests">Open queue</button></div></div><div class="ops-kpi-row">'+
-        '<button class="ops-kpi" data-act="kpi" data-k="1"><span class="ops-kpi-ic" style="background:#FEF2F2;color:#EF4444">'+ic('alert',20,'#EF4444')+'</span><div class="ops-kpi-copy"><div class="lab">Today&rsquo;s Schedule Impact</div><div class="num">'+coverageOpen+'</div><div class="delta">'+(coverageOpen?'Highland Park · Jul 13–17':'No open coverage gaps')+'</div></div></button>'+
-        '<button class="ops-kpi" data-act="kpi" data-k="3"><span class="ops-kpi-ic" style="background:#F5F3FF;color:#8B5CF6">'+ic('inbox',20,'#8B5CF6')+'</span><div class="ops-kpi-copy"><div class="lab">Recent Change Requests</div><div class="num">'+pending.length+'</div><div class="delta">'+(pending.length?'Awaiting review or approval':'Queue is clear')+'</div></div></button>'+
-        '<button class="ops-kpi" data-act="kpi" data-k="0"><span class="ops-kpi-ic" style="background:#EAF4FF;color:#1683E8">'+ic('layers',20,'#1683E8')+'</span><div class="ops-kpi-copy"><div class="lab">Assignment Readiness</div><div class="num">'+c.review+'</div><div class="delta">'+c.ready+' ready · '+rws.length+' total assignments</div></div></button>'+
-        '<button class="ops-kpi" data-act="kpi" data-k="2"><span class="ops-kpi-ic" style="background:#FFF7ED;color:#F97316">'+ic('shield',20,'#F97316')+'</span><div class="ops-kpi-copy"><div class="lab">Open Readiness Issues</div><div class="num">'+oc.length+'</div><div class="delta">Reasons Arc surfaced for review</div></div></button>'+
-      '</div></section>'+
+        '<button class="ops-kpi'+(ST.kpi===1?' is-open':'')+'" data-act="kpi" data-k="1"><span class="ops-kpi-ic" style="background:#FEF2F2;color:#EF4444">'+ic('alert',20,'#EF4444')+'</span><div class="ops-kpi-copy"><div class="lab">Today&rsquo;s Schedule Impact</div><div class="num">'+coverageOpen+'</div><div class="delta">'+(coverageOpen?'Highland Park · Jul 13–17':'No open coverage gaps')+'</div></div></button>'+
+        '<button class="ops-kpi'+(ST.kpi===3?' is-open':'')+'" data-act="kpi" data-k="3"><span class="ops-kpi-ic" style="background:#F5F3FF;color:#8B5CF6">'+ic('inbox',20,'#8B5CF6')+'</span><div class="ops-kpi-copy"><div class="lab">Recent Change Requests</div><div class="num">'+pending.length+'</div><div class="delta">'+(pending.length?'Awaiting review or approval':'Queue is clear')+'</div></div></button>'+
+        '<button class="ops-kpi'+(ST.kpi===0?' is-open':'')+'" data-act="kpi" data-k="0"><span class="ops-kpi-ic" style="background:#EAF4FF;color:#1683E8">'+ic('layers',20,'#1683E8')+'</span><div class="ops-kpi-copy"><div class="lab">Assignment Readiness</div><div class="num">'+c.review+'</div><div class="delta">'+c.ready+' ready · '+rws.length+' total assignments</div></div></button>'+
+        '<button class="ops-kpi'+(ST.kpi===2?' is-open':'')+'" data-act="kpi" data-k="2"><span class="ops-kpi-ic" style="background:#FFF7ED;color:#F97316">'+ic('shield',20,'#F97316')+'</span><div class="ops-kpi-copy"><div class="lab">Open Readiness Issues</div><div class="num">'+oc.length+'</div><div class="delta">Reasons Arc surfaced for review</div></div></button>'+
+      '</div>'+(ST.kpi!==null?renderOpsKpiPanel():'')+'</section>'+
       '<aside class="ops-health-card"><div class="ops-panel-top"><div><h3>Schedule health</h3><p>Simple pulse on the current review window.</p></div><span class="ops-pill">Updated just now</span></div><div class="ops-health-meter"><div class="ops-health-donut" style="--pct:'+healthScore+'"><span class="val">'+healthScore+'</span></div><div class="ops-health-summary"><strong>'+healthLabel+'</strong><span>'+(complete?'The primary schedule change is resolved and the command-center week is stable.':(confirmed?'Arc has cleared the automated checks; the final step is a human approval.':'The week is operable, but one unresolved move is holding up full schedule confidence.'))+'</span></div></div><div><div class="ops-panel-top"><div><h3 style="font-size:13px">Trend</h3><p>Recent weekly operating contour</p></div></div><div class="ops-trend">'+trendHtml+'</div></div></aside>'+
     '</div>'+
     '<section class="ops-focus-band"><div><h3>Today&rsquo;s Focus</h3><p>The shortest path from signal to decision.</p></div><div class="focus-steps"><div class="focus-step"><span class="n">1</span><b>Review schedule impact</b><span>Confirm what changed and whether a coverage gap or utilization issue remains.</span></div><div class="focus-step"><span class="n">2</span><b>Inspect the change request</b><span>Use the structured request record to validate dates, context, and stakeholder intent.</span></div><div class="focus-step"><span class="n">3</span><b>Close readiness and publish</b><span>Record the decision, reconcile the assignment, and release notifications.</span></div></div><div>'+focusButton+'</div></section>'+
@@ -2017,7 +2115,7 @@ function renderOverlay(){
       '<div class="card" style="padding:16px;margin-top:18px"><div class="lbl-mini" style="margin-bottom:8px">Why this matters</div><div style="font-size:13px;color:#475569">'+dd.note+'</div></div>'+
       '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:18px"><button class="mini" data-act="closekpideep">'+ic('back',13)+' Back</button><button class="gate-cta on" data-act="kpigoto" data-v="'+(['assignments','timeline','checks','requests','students','sites'][ST.kpi]||'dashboard')+'">Open related view '+ic('arrowr',14,'#fff')+'</button></div>'+
     '</div></div>';
-  } else if(ST.kpi!==null){
+  } else if(ST.kpi!==null && ST.view!=='dashboard'){
     var rws=rows(), oc=openChecks(), pr=pendingReq();
     var coverageGaps=[
       {site:'Highland Park Hospital', when:'Wed PM', detail:'OB coverage gap in the afternoon block.', reason:'Senior-only placement needs eligible backfill.', action:'Review OB-eligible seniors and reassign the least disruptive fit.'},
@@ -2476,11 +2574,11 @@ document.addEventListener('click',function(e){
   else if(act==='aiinsight'){ST.aiInsight=t.getAttribute('data-key')||'overview';renderOverlay();}
   else if(act==='closeai'){ST.aiInsight=null;renderOverlay();}
   else if(act==='aigoto'){ST.aiInsight=null;ST.view=t.getAttribute('data-v')||'checks';render();}
-  else if(act==='kpi'){ST.kpi=parseInt(t.getAttribute('data-k'),10);ST.kpiDeep=null;renderOverlay();}
+  else if(act==='kpi'){var nk=parseInt(t.getAttribute('data-k'),10);ST.kpi=(ST.kpi===nk?null:nk);ST.kpiDeep=null;render();}
   else if(act==='kpideep'){ST.kpiDeep=t.getAttribute('data-key');renderOverlay();}
   else if(act==='closekpideep'){ST.kpiDeep=null;renderOverlay();}
-  else if(act==='closekpiall'){ST.kpiDeep=null;ST.kpi=null;renderOverlay();}
-  else if(act==='closekpi'){ST.kpiDeep=null;ST.kpi=null;renderOverlay();}
+  else if(act==='closekpiall'){ST.kpiDeep=null;ST.kpi=null;render();}
+  else if(act==='closekpi'){ST.kpiDeep=null;ST.kpi=null;render();}
   else if(act==='kpigoto'){ST.kpiDeep=null;ST.kpi=null;ST.view=t.getAttribute('data-v');render();}
   else if(act==='closeabout'){ST.about=false;renderOverlay();}
   else if(act==='filter'){ST.filter=t.getAttribute('data-f');render();}
@@ -2706,3 +2804,4 @@ window.addEventListener('hashchange',function(){
 </script>
 
 </body></html>
+<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_HtmuNRAFgACSejK4nZwcpVrDkLzN" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
