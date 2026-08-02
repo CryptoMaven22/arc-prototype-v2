@@ -1045,6 +1045,59 @@
   @media (max-width:900px){.ops-kpi-inline-stats{grid-template-columns:repeat(2,minmax(0,1fr));}}
   @media (max-width:640px){.ops-kpi-inline-stats{grid-template-columns:1fr;}.ops-kpi-inline-head,.ops-kpi-inline-row{flex-direction:column;}.ops-kpi-inline-row .tail{align-items:flex-start;}}
 
+  /* Arc money view — daily operating value first */
+  .money-view{background:#fff;border:1px solid var(--hair);border-radius:18px;padding:18px;box-shadow:0 5px 20px rgba(16,35,31,.055);display:flex;flex-direction:column;gap:14px;}
+  .money-view-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+  .money-view-head h2{font-size:19px;margin:0;}
+  .money-view-head p{margin:4px 0 0;font-size:12.5px;color:var(--muted);max-width:720px;}
+  .money-view-tag{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;background:#ECFDF5;color:#0F766E;border:1px solid #A7F3D0;font-size:10.5px;font-weight:800;letter-spacing:.03em;white-space:nowrap;}
+  .money-grid{display:grid;grid-template-columns:minmax(330px,.95fr) minmax(0,1.55fr);gap:14px;align-items:stretch;}
+  .money-health-card{border:1px solid #DCE8E5;border-radius:15px;background:linear-gradient(145deg,#F7FCFA 0%,#FFFFFF 58%);padding:17px;display:flex;flex-direction:column;gap:14px;}
+  .money-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+  .money-card-head h3{font-size:15px;margin:0;}
+  .money-card-head p{font-size:11.5px;color:var(--muted);margin:3px 0 0;}
+  .money-health-main{display:flex;align-items:center;gap:18px;}
+  .money-health-copy strong{display:block;font-size:18px;line-height:1.2;}
+  .money-health-copy span{display:block;font-size:12px;color:var(--muted);line-height:1.45;margin-top:5px;max-width:360px;}
+  .money-health-note{display:flex;align-items:center;gap:8px;border-top:1px solid #E6EFED;padding-top:12px;font-size:11.5px;color:#475569;}
+  .money-health-note b{color:var(--ink);}
+  .money-right{display:flex;flex-direction:column;gap:12px;min-width:0;}
+  .money-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
+  .money-kpi{display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;border:1px solid var(--hair);border-radius:13px;padding:13px;background:#FCFEFD;min-height:112px;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;}
+  .money-kpi:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(16,35,31,.07);border-color:#B9CBC7;}
+  .money-kpi.is-open{border-color:#7CB9AE;background:#F3FBF9;box-shadow:0 8px 20px rgba(14,110,99,.09);}
+  .money-kpi-top{display:flex;align-items:center;justify-content:space-between;width:100%;gap:8px;}
+  .money-kpi-ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;}
+  .money-kpi .value{font-size:24px;font-weight:800;line-height:1;}
+  .money-kpi .label{font-size:11px;font-weight:750;color:#334155;line-height:1.25;}
+  .money-kpi .detail{font-size:10.5px;color:var(--muted);line-height:1.35;}
+  .money-attention-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;border:1px solid #FED7AA;border-left:4px solid #F97316;border-radius:13px;background:#FFFBF5;padding:14px 15px;}
+  .money-attention-card .eyebrow{font-size:9.5px;letter-spacing:.1em;color:#C2410C;font-weight:800;}
+  .money-attention-card h3{font-size:15px;line-height:1.3;margin:4px 0 0;}
+  .money-attention-card p{font-size:11.5px;color:var(--muted);margin:4px 0 0;line-height:1.45;}
+  .money-attention-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+  .money-activity-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--hair);border-radius:12px;background:#F8FAFC;overflow:hidden;}
+  .money-activity-item{padding:10px 12px;border-right:1px solid var(--hair);}
+  .money-activity-item:last-child{border-right:none;}
+  .money-activity-item b{display:block;font-size:12px;color:#334155;}
+  .money-activity-item span{display:block;font-size:10.5px;color:var(--muted);margin-top:2px;}
+  .money-queue{border:1px solid var(--hair);background:#fff;border-radius:16px;padding:16px;box-shadow:0 3px 14px rgba(16,35,31,.04);}
+  .money-queue .stack{gap:14px;display:flex;flex-direction:column;}
+  .money-queue .queue-summary{margin:0;}
+  .money-queue .demo-card-grid{margin-top:0;}
+  @media(max-width:1180px){
+    .money-grid{grid-template-columns:1fr;}
+    .money-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  }
+  @media(max-width:760px){
+    .money-kpi-grid,.money-activity-strip{grid-template-columns:1fr;}
+    .money-activity-item{border-right:none;border-bottom:1px solid var(--hair);}
+    .money-activity-item:last-child{border-bottom:none;}
+    .money-attention-card{grid-template-columns:1fr;}
+    .money-attention-actions{justify-content:flex-start;}
+    .money-health-main{align-items:flex-start;flex-direction:column;}
+  }
+
 </style>
 
 <style>
@@ -1460,28 +1513,44 @@ function viewDashboard(){
     '</div>';
 
   return '<div class="ops-prime">'+
-    '<div class="ops-header"><div class="ops-title"><h1>Operations Review</h1><p>See what changed, where the schedule is impacted, what needs human judgment, and what Arc recommends next.</p></div><div class="ops-controls"><button class="tbtn">'+ic('back',14)+' Jul 6–17, 2026</button><button class="tbtn">Today</button><button class="tbtn">All sites '+ic('chevr',13)+'</button></div></div>'+
-    '<div class="ops-overview-grid">'+
-      '<section class="ops-hero-card"><span class="ops-kicker">'+ic('shield',12,'#0F766E')+' Operations priority</span><div class="ops-hero-main"><div><h2>'+nextActionTitle+'</h2><p>'+nextActionCopy+'</p></div><div class="ops-hero-action">'+focusButton+'<button class="mini" data-act="goto" data-v="requests">Open queue</button></div></div><div class="ops-kpi-row">'+
-        '<button class="ops-kpi'+(ST.kpi===1?' is-open':'')+'" data-act="kpi" data-k="1"><span class="ops-kpi-ic" style="background:#FEF2F2;color:#EF4444">'+ic('alert',20,'#EF4444')+'</span><div class="ops-kpi-copy"><div class="lab">Today&rsquo;s Schedule Impact</div><div class="num">'+coverageOpen+'</div><div class="delta">'+(coverageOpen?'Highland Park · Jul 13–17':'No open coverage gaps')+'</div></div></button>'+
-        '<button class="ops-kpi'+(ST.kpi===3?' is-open':'')+'" data-act="kpi" data-k="3"><span class="ops-kpi-ic" style="background:#F5F3FF;color:#8B5CF6">'+ic('inbox',20,'#8B5CF6')+'</span><div class="ops-kpi-copy"><div class="lab">Recent Change Requests</div><div class="num">'+pending.length+'</div><div class="delta">'+(pending.length?'Awaiting review or approval':'Queue is clear')+'</div></div></button>'+
-        '<button class="ops-kpi'+(ST.kpi===0?' is-open':'')+'" data-act="kpi" data-k="0"><span class="ops-kpi-ic" style="background:#EAF4FF;color:#1683E8">'+ic('layers',20,'#1683E8')+'</span><div class="ops-kpi-copy"><div class="lab">Assignment Readiness</div><div class="num">'+c.review+'</div><div class="delta">'+c.ready+' ready · '+rws.length+' total assignments</div></div></button>'+
-        '<button class="ops-kpi'+(ST.kpi===2?' is-open':'')+'" data-act="kpi" data-k="2"><span class="ops-kpi-ic" style="background:#FFF7ED;color:#F97316">'+ic('shield',20,'#F97316')+'</span><div class="ops-kpi-copy"><div class="lab">Open Readiness Issues</div><div class="num">'+oc.length+'</div><div class="delta">Reasons Arc surfaced for review</div></div></button>'+
-      '</div>'+(ST.kpi!==null?renderOpsKpiPanel():'')+'</section>'+
-      '<aside class="ops-health-card"><div class="ops-panel-top"><div><h3>Schedule health</h3><p>Simple pulse on the current review window.</p></div><span class="ops-pill">Updated just now</span></div><div class="ops-health-meter"><div class="ops-health-donut" style="--pct:'+healthScore+'"><span class="val">'+healthScore+'</span></div><div class="ops-health-summary"><strong>'+healthLabel+'</strong><span>'+(complete?'The primary schedule change is resolved and the command-center week is stable.':(confirmed?'Arc has cleared the automated checks; the final step is a human approval.':'The week is operable, but one unresolved move is holding up full schedule confidence.'))+'</span></div></div><div><div class="ops-panel-top"><div><h3 style="font-size:13px">Trend</h3><p>Recent weekly operating contour</p></div></div><div class="ops-trend">'+trendHtml+'</div></div></aside>'+
-    '</div>'+
-    '<section class="ops-focus-band"><div><h3>Today&rsquo;s Focus</h3><p>The shortest path from signal to decision.</p></div><div class="focus-steps"><div class="focus-step"><span class="n">1</span><b>Review schedule impact</b><span>Confirm what changed and whether a coverage gap or utilization issue remains.</span></div><div class="focus-step"><span class="n">2</span><b>Inspect the change request</b><span>Use the structured request record to validate dates, context, and stakeholder intent.</span></div><div class="focus-step"><span class="n">3</span><b>Close readiness and publish</b><span>Record the decision, reconcile the assignment, and release notifications.</span></div></div><div>'+focusButton+'</div></section>'+
+    '<div class="ops-header"><div class="ops-title"><h1>Operations Review</h1><p>Daily schedule health, coverage pressure, assignment readiness, and the exceptions that require human action.</p></div><div class="ops-controls"><button class="tbtn">'+ic('back',14)+' Jul 6–17, 2026</button><button class="tbtn">Today</button><button class="tbtn">All sites '+ic('chevr',13)+'</button></div></div>'+
+
+    '<section class="money-view">'+
+      '<div class="money-view-head"><div><h2>The operating view</h2><p>The everyday value of Arc: know whether the schedule is healthy, where coverage is tight, and whether assignments are ready before exceptions become emergencies.</p></div><span class="money-view-tag">'+ic('shield',12,'#0F766E')+' Daily command view</span></div>'+
+      '<div class="money-grid">'+
+        '<article class="money-health-card">'+
+          '<div class="money-card-head"><div><h3>Schedule health</h3><p>Current confidence across the review window.</p></div><span class="ops-pill">Updated just now</span></div>'+
+          '<div class="money-health-main"><div class="ops-health-donut" style="--pct:'+healthScore+'"><span class="val">'+healthScore+'</span></div><div class="money-health-copy"><strong>'+healthLabel+'</strong><span>'+(complete?'The active schedule is reconciled, published, and stable.':(confirmed?'Automated checks are clear; one human approval remains.':'The schedule is operable, but unresolved readiness issues are lowering confidence.'))+'</span></div></div>'+
+          '<div><div class="money-card-head"><div><h3 style="font-size:12px">Seven-week contour</h3><p>Recent schedule-health trend</p></div></div><div class="ops-trend">'+trendHtml+'</div></div>'+
+          '<div class="money-health-note">'+ic('checkc',14,'#0F766E')+' <span><b>'+c.ready+' of '+rws.length+' assignments ready</b> · '+coverageOpen+' open coverage gap'+(coverageOpen===1?'':'s')+'</span></div>'+
+        '</article>'+
+        '<div class="money-right">'+
+          '<div class="money-kpi-grid">'+
+            '<button class="money-kpi'+(ST.kpi===1?' is-open':'')+'" data-act="kpi" data-k="1"><div class="money-kpi-top"><span class="money-kpi-ic" style="background:#FEF2F2;color:#EF4444">'+ic('alert',18,'#EF4444')+'</span><span class="ops-pill">Coverage</span></div><div class="value">'+coverageOpen+'</div><div class="label">Open coverage gaps</div><div class="detail">'+(coverageOpen?'Highland Park · Jul 13–17':'No uncovered schedule segments')+'</div></button>'+
+            '<button class="money-kpi" data-act="goto" data-v="sites"><div class="money-kpi-top"><span class="money-kpi-ic" style="background:#FFF7ED;color:#F97316">'+ic('building',18,'#F97316')+'</span><span class="ops-pill">Capacity</span></div><div class="value">'+highlandUtil+'</div><div class="label">Highest site utilization</div><div class="detail">Highland Park; other tracked sites remain within plan</div></button>'+
+            '<button class="money-kpi'+(ST.kpi===0?' is-open':'')+'" data-act="kpi" data-k="0"><div class="money-kpi-top"><span class="money-kpi-ic" style="background:#EAF4FF;color:#1683E8">'+ic('layers',18,'#1683E8')+'</span><span class="ops-pill">Readiness</span></div><div class="value">'+c.ready+' / '+rws.length+'</div><div class="label">Assignments ready</div><div class="detail">'+c.review+' still require review or confirmation</div></button>'+
+            '<button class="money-kpi'+(ST.kpi===2?' is-open':'')+'" data-act="kpi" data-k="2"><div class="money-kpi-top"><span class="money-kpi-ic" style="background:#F5F3FF;color:#8B5CF6">'+ic('shield',18,'#8B5CF6')+'</span><span class="ops-pill">Today</span></div><div class="value">'+oc.length+'</div><div class="label">Items requiring attention</div><div class="detail">Underlying readiness reasons surfaced by Arc</div></button>'+
+          '</div>'+
+          '<div class="money-attention-card"><div><div class="eyebrow">What requires attention today</div><h3>'+nextActionTitle+'</h3><p>'+nextActionCopy+'</p></div><div class="money-attention-actions">'+focusButton+'<button class="mini" data-act="goto" data-v="requests">Open all changes</button></div></div>'+
+        '</div>'+
+      '</div>'+
+      (ST.kpi!==null?renderOpsKpiPanel():'')+
+      '<div class="money-activity-strip"><div class="money-activity-item"><b>168 checks run</b><span>Across assignments and requests</span></div><div class="money-activity-item"><b>'+pending.length+' recent changes</b><span>Awaiting review or approval</span></div><div class="money-activity-item"><b>'+(complete?'14':'11')+' notifications sent</b><span>Latest operating cycle</span></div><div class="money-activity-item"><b>'+c.ready+' ready assignments</b><span>'+c.review+' still need judgment</span></div></div>'+
+    '</section>'+
+
+    '<section class="money-queue">'+viewChecks()+'</section>'+
+
+    '<section class="ops-focus-band"><div><h3>When an exception needs action</h3><p>The steel thread proves how Arc moves from signal to controlled resolution.</p></div><div class="focus-steps"><div class="focus-step"><span class="n">1</span><b>Understand the impact</b><span>See the affected dates, site capacity, and readiness reason.</span></div><div class="focus-step"><span class="n">2</span><b>Make the human decision</b><span>Confirm, return, deny, or add context without losing the record trail.</span></div><div class="focus-step"><span class="n">3</span><b>Reconcile and publish</b><span>Update the schedule, release notifications, and close the audit trail.</span></div></div><div>'+focusButton+'</div></section>'+
+
     '<div class="ops-main-grid">'+
-      '<section class="ops-section-card"><div class="ops-section-head"><div><h3>Today&rsquo;s Schedule Impact</h3><p>Start with the operational consequence.</p></div><span class="ops-pill" style="background:'+(complete?'#ECFDF5':'#FEF2F2')+';color:'+(complete?'#15803D':'#B91C1C')+';border-color:'+(complete?'#BBF7D0':'#FECACA')+'">'+(complete?'Resolved':'Needs attention')+'</span></div><div class="ops-mini-list">'+impactItems+'</div><div class="ops-inline-actions"><button class="mini" data-act="kpi" data-k="1">Open impact detail</button><button class="mini" data-act="goto" data-v="calendar2">View coverage calendar</button></div></section>'+
-      '<section class="ops-section-card"><div class="ops-section-head"><div><h3>Recent Change Requests</h3><p>What entered the queue most recently.</p></div><span class="ops-pill">'+pending.length+' active</span></div><div class="ops-mini-list">'+requestItems+'</div><div class="ops-inline-actions"><button class="mini" data-act="goto" data-v="requests">Open request queue</button></div></section>'+
+      '<section class="ops-section-card"><div class="ops-section-head"><div><h3>Today&rsquo;s Schedule Impact</h3><p>Operational consequences across the active schedule.</p></div><span class="ops-pill" style="background:'+(complete?'#ECFDF5':'#FEF2F2')+';color:'+(complete?'#15803D':'#B91C1C')+';border-color:'+(complete?'#BBF7D0':'#FECACA')+'">'+(complete?'Resolved':'Needs attention')+'</span></div><div class="ops-mini-list">'+impactItems+'</div><div class="ops-inline-actions"><button class="mini" data-act="kpi" data-k="1">Open impact detail</button><button class="mini" data-act="goto" data-v="calendar2">View coverage calendar</button></div></section>'+
       '<section class="ops-section-card"><div class="ops-section-head"><div><h3>Assignment Readiness</h3><p>What is clear versus what still needs judgment.</p></div><span class="ops-pill">'+c.ready+' ready · '+c.review+' review</span></div><div class="ops-mini-list">'+readinessItems+'</div><div class="ops-inline-actions"><button class="mini" data-act="goto" data-v="assignments">Open readiness workspace</button></div></section>'+
+      '<section class="ops-section-card"><div class="ops-section-head"><div><h3>Recent Changes & Activity</h3><p>Exceptions are less frequent, but remain fully traceable.</p></div><span class="ops-pill">'+pending.length+' active</span></div><div class="ops-mini-list">'+requestItems+'</div><div class="ops-inline-actions"><button class="mini" data-act="goto" data-v="requests">Open request queue</button></div></section>'+
     '</div>'+
     '<div>'+legend()+'</div>'+
-    '<div>'+viewChecks()+'</div>'+
     support+
   '</div>';
 }
-
 
 function viewCalendar2(){
   var rq=priyaRequest(), gapOpen=!(rq&&rq.status==='Approved'&&rq.published);
@@ -3012,4 +3081,4 @@ window.addEventListener('hashchange',function(){
 </script>
 
 </body></html>
-<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_HtmuNRAFgACSejK4nZwcpVrDkLzN" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
+<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_HtmuNRAFgACSejK4nZwcpVrDkLzN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_Cp3YwdBSW58B2z4jMHyYwq3SS7FM" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
