@@ -1979,12 +1979,12 @@ function renderOverlay(){
       } else if(stage===6){
         content=demoProgress(4,['Record detail','Decision','Approve + publish','Complete'])+'<div class="demo-success"><div class="demo-success-head"><span class="demo-success-icon">'+ic('check',20,'#fff')+'</span><div><h3>Change approved and published</h3><p>Priya’s assignment now runs July 13–17. Arc re-ran readiness, removed the coverage gap, and queued three stakeholder notifications.</p></div></div><div class="demo-timeline"><div class="demo-timeline-item"><b>Preceptor confirmed</b><span>Melissa Grant · today, 1:36 PM</span></div><div class="demo-timeline-item"><b>Human decision recorded</b><span>Ryan approved the reconciled move.</span></div><div class="demo-timeline-item"><b>Schedule published</b><span>Assignment ASN-005 updated to Jul 13–17.</span></div><div class="demo-timeline-item"><b>Notifications queued</b><span>Priya, Melissa, and Highland Park Hospital.</span></div></div></div><div class="demo-flow-actions"><div class="left">'+flowClose('Close record')+'</div><div class="right"><button class="mini" data-act="demostage" data-stage="1">View audit detail</button></div></div>';
       } else if(stage===7){
-        content=demoProgress(3,['Record detail','Decision','Return request','Complete'])+'<div class="demo-form-card"><h3>Return request to Priya</h3><p>Explain exactly what additional information is required before the request can re-enter review.</p><div class="demo-form-grid"><div class="demo-form-field full"><label>Reason for return</label><textarea id="returnReason">Please confirm the revised preceptor and provide any site-coordinator communication related to the July 13–17 request.</textarea></div><div class="demo-form-field"><label>Delivery</label><select><option>Student portal + email</option><option>Student portal only</option></select></div><div class="demo-form-field"><label>Status after send</label><input value="Returned · awaiting student" readonly></div></div></div><div class="demo-flow-actions"><div class="left">'+flowBack(2,'Back to decision')+'</div><div class="right"><button class="gate-cta on" data-act="flowreturnsubmit">Return to student '+ic('send',14,'#fff')+'</button></div></div>';
+        content=demoProgress(3,['Record detail','Decision','Return request','Complete'])+'<div class="demo-form-card"><h3>Return request to Priya</h3><p>Explain exactly what additional information is required before the request can re-enter review.</p><div class="demo-form-grid"><div class="demo-form-field full"><label>Reason for return</label><textarea id="returnReason">Please confirm the revised preceptor and provide any site-coordinator communication related to the July 13–17 request.</textarea></div><div class="demo-form-field"><label>Delivery</label><select><option>Student portal + email</option><option>Student portal only</option></select></div><div class="demo-form-field"><label>Status after send</label><input value="Returned · awaiting student" readonly></div></div></div><div class="demo-flow-actions"><div class="left">'+flowBack(2,'Back to decision')+'</div><div class="right"><button class="gate-cta on" data-act="flowreturnsubmit">Notify student '+ic('send',14,'#fff')+'</button></div></div>';
       } else if(stage===8){
         content=demoProgress(3,['Record detail','Decision','Deny request','Complete'])+'<div class="demo-form-card" style="border-color:#FECACA;background:#FFF7F7"><h3>Deny schedule-change request</h3><p>Record the decision basis. The original assignment will remain in place.</p><div class="demo-form-grid"><div class="demo-form-field full"><label>Decision reason</label><textarea id="denyReason">The requested dates cannot be approved because confirmed preceptor coverage is unavailable for the revised week.</textarea></div><div class="demo-form-field"><label>Assignment outcome</label><input value="Original Jul 6–10 placement retained" readonly></div><div class="demo-form-field"><label>Notification</label><input value="Priya Shah + program record" readonly></div></div></div><div class="demo-flow-actions"><div class="left">'+flowBack(2,'Back to decision')+'</div><div class="right"><button class="gate-cta on demo-danger" data-act="flowdenysubmit">Confirm denial</button></div></div>';
       } else if(stage===9){
         var returned=flow.review.outcome==='returned';
-        content=demoProgress(4,['Record detail','Decision',returned?'Return request':'Deny request','Complete'])+'<div class="demo-success" style="border-color:'+(returned?'#FDE68A':'#FECACA')+';background:'+(returned?'#FFFBEB':'#FFF7F7')+'"><div class="demo-success-head"><span class="demo-success-icon" style="background:'+(returned?'#D97706':'#B91C1C')+'">'+ic(returned?'back':'x',20,'#fff')+'</span><div><h3>'+(returned?'Request returned to student':'Request denied and recorded')+'</h3><p>'+(returned?'Priya received the requested follow-up items and the request is paused until she resubmits.':'The original Jul 6–10 assignment remains in place and Priya was notified of the decision.')+'</p></div></div></div><div class="demo-flow-actions"><div class="left">'+flowClose('Close record')+'</div></div>';
+        content=demoProgress(4,['Record detail','Decision',returned?'Return request':'Deny request','Complete'])+'<div class="demo-success" style="border-color:'+(returned?'#FDE68A':'#FECACA')+';background:'+(returned?'#FFFBEB':'#FFF7F7')+'"><div class="demo-success-head"><span class="demo-success-icon" style="background:'+(returned?'#D97706':'#B91C1C')+'">'+ic(returned?'back':'x',20,'#fff')+'</span><div><h3>'+(returned?'Student notified — request returned':'Request denied and recorded')+'</h3><p>'+(returned?'Priya received the requested follow-up items and the request is paused until she resubmits.':'The original Jul 6–10 assignment remains in place and Priya was notified of the decision.')+'</p></div></div></div><div class="demo-flow-actions"><div class="left">'+flowClose('Close record')+'</div></div>';
       }
     } else if(ST.demoCard==='blocked'){
       if(stage===2){
@@ -2681,8 +2681,24 @@ document.addEventListener('click',function(e){
   }
   else if(act==='flowreturnsubmit'){
     var rret=priyaRequest(), rv=document.getElementById('returnReason');
-    if(rret){rret.status='Returned';rret.notes=(rv&&rv.value.trim())||'Returned to Priya for additional detail.';}
-    demoFlow().review.outcome='returned';ST.demoStage=9;toast('Request returned to Priya.');renderOverlay();
+    if(rret){
+      rret.status='Returned';
+      rret.closed=false;
+      rret.returnedAt='2026-08-02T13:54:00';
+      rret.notificationsSent=1;
+      rret.notes=(rv&&rv.value.trim())||'Returned to Priya for additional detail.';
+    }
+    demoFlow().review.outcome='returned';
+    ST.demoStage=9;
+    renderOverlay();
+    window.setTimeout(function(){
+      if(ST.demoCard==='review' && ST.demoStage===9 && demoFlow().review.outcome==='returned'){
+        ST.demoCard=null;
+        ST.demoStage=1;
+        render();
+        toast('Priya was notified. The request is returned and awaiting resubmission.');
+      }
+    },1600);
   }
   else if(act==='flowdenysubmit'){
     var rden=priyaRequest(), dv=document.getElementById('denyReason');
