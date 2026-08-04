@@ -698,25 +698,25 @@
   .queue-detail-head h2{order:1;flex:1 1 100%;}
   .queue-detail-actions{margin-left:0;}
 }
-.queue-detail-grid{display:grid;grid-template-columns:1.12fr 1fr .82fr;gap:18px;margin-top:18px;align-items:stretch;}
+.queue-detail-grid{display:grid;grid-template-columns:1fr 1fr .82fr;gap:18px;margin-top:18px;align-items:stretch;}
 .queue-panel{border:1px solid #D9E2DF;border-radius:14px;background:#FCFEFD;padding:14px 15px;min-height:100%;}
 .queue-panel .lbl-mini{margin-bottom:10px;}
-.queue-action-stack{display:flex;flex-direction:column;gap:10px;}
-.queue-action-stack .gate-cta{justify-content:center;width:100%;}
-.queue-choice-stack{display:flex;flex-direction:column;gap:10px;}
-.queue-choice-stack .queue-choice{min-height:0;padding:12px 13px;}
-.queue-choice-stack .queue-choice.is-muted{opacity:.6;cursor:default;box-shadow:none;transform:none;}
-.queue-choice-stack .queue-choice.is-muted:hover{border-color:var(--hair);box-shadow:none;transform:none;}
 .kv-line{padding:9px 0;border-bottom:1px dashed #E5ECE9;}
 .kv-line:last-child{border-bottom:none;padding-bottom:0;}
 .kv-line .k{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted2);font-weight:700;}
 .kv-line .v{font-size:13px;font-weight:600;color:#334155;margin-top:2px;}
+.queue-request-note{margin-top:10px;padding-top:10px;border-top:1px dashed #E5ECE9;font-size:12px;color:var(--muted);line-height:1.45;}
 .queue-risk-note{margin-top:12px;padding-top:12px;border-top:1px dashed #E5ECE9;}
 .queue-risk-note .k{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted2);font-weight:700;}
 .queue-risk-note p{font-size:12.5px;color:var(--muted);line-height:1.45;margin:4px 0 0;}
+.next-action-box{display:flex;gap:10px;align-items:flex-start;margin-top:10px;padding:12px;border:1px solid #DCE8E4;border-radius:12px;background:#fff;}
+.next-action-box b{font-size:14px;color:#1f2937;}
+.next-action-box p{font-size:12.5px;color:var(--muted);margin:4px 0 0;line-height:1.45;}
+.next-action-ic{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--teal-soft);color:var(--teal-deep);flex-shrink:0;}
 .queue-meter-panel{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;}
 .queue-meter-panel .status{font-weight:700;margin-top:8px;}
 .queue-meter-panel .sub{font-size:12px;color:var(--muted);line-height:1.45;margin:8px 0 0;max-width:220px;}
+.queue-meter-panel .gate-cta{margin-top:14px;width:100%;justify-content:center;}
 @media (max-width:1100px){.queue-detail-grid{grid-template-columns:1fr;}.queue-table{display:block;overflow-x:auto;}}
 .student-meta-line{display:flex;gap:6px;align-items:flex-start;font-size:10px;color:var(--muted)}.student-meta-line b{display:block;color:#334155;font-weight:600}
 .student-allow{margin-top:11px}.student-allow .chips{margin-top:5px}.student-allow .pill{background:#F1F5F4}
@@ -1724,6 +1724,7 @@ function operatingQueue(){
 }
 function requestDetailPanel(row){
   var rq=row.rq,d=row.dominant,readiness=row.readiness;
+  var raw=rq.originalText||rq.notes||'No submitted text captured for this request.';
   var issueLine=d?d.summary:'No open readiness issues on this request.';
   var actionLine=d?d.action:'This request is ready for a program decision.';
   var statusPill='<span class="badge-st sm" style="color:'+readiness.tone.text+';background:'+readiness.tone.bg+'">'+readiness.label+'</span>';
@@ -1732,14 +1733,11 @@ function requestDetailPanel(row){
   var choice=ST.queueChoice;
   var choiceLabel=choice==='approve'?'Approve and complete':(choice==='return'?'Return for clarification':'Deny request');
   var choiceTone=choice==='approve'?'#16A34A':(choice==='return'?'#2563EB':'#DC2626');
-  var openBtn='<button class="gate-cta on" data-act="queueactionopen" data-id="'+rq.id+'">'+(isOpen?'Decision open':'Take Action')+'</button>';
-  var canChoose=isOpen&&stage===1;
-  var approveBtn='<button class="queue-choice approve'+(canChoose?'':' is-muted')+'" '+(canChoose?'data-act="queuechoose" data-choice="approve"':'type="button"')+'><b>Approve and complete</b><span>Apply the requested change, reconcile the schedule, record the decision, and release notifications.</span></button>';
-  var returnBtn='<button class="queue-choice return'+(canChoose?'':' is-muted')+'" '+(canChoose?'data-act="queuechoose" data-choice="return"':'type="button"')+'><b>Return for clarification</b><span>Pause the request and send the student the specific information needed to continue.</span></button>';
-  var denyBtn='<button class="queue-choice deny'+(canChoose?'':' is-muted')+'" '+(canChoose?'data-act="queuechoose" data-choice="deny"':'type="button"')+'><b>Deny request</b><span>Keep the current schedule, record the reason, and notify the affected student.</span></button>';
   var workflow='';
   if(isOpen){
-    if(stage===2){
+    if(stage===1){
+      workflow='<div class="queue-inline-workflow"><div class="queue-inline-head"><div><div class="eyebrow">Decision workspace</div><h3>Select the appropriate action</h3></div><button class="mini" data-act="queueactionclose">Collapse</button></div><div class="queue-inline-body"><p class="sub" style="margin:0">Arc has assembled the request, schedule impact, readiness checks, and recommendation above. Choose the program decision.</p><div class="queue-choice-grid"><button class="queue-choice approve" data-act="queuechoose" data-choice="approve"><b>Approve and complete</b><span>Apply the requested change, reconcile the schedule, record the decision, and release notifications.</span></button><button class="queue-choice return" data-act="queuechoose" data-choice="return"><b>Return for clarification</b><span>Pause the request and send the student the specific information needed to continue.</span></button><button class="queue-choice deny" data-act="queuechoose" data-choice="deny"><b>Deny request</b><span>Keep the current schedule, record the reason, and notify the affected student.</span></button></div></div></div>';
+    } else if(stage===2){
       var consequence=choice==='approve'?'The requested dates will be applied, the schedule will be reconciled, and three stakeholder notifications will be queued.':(choice==='return'?'The request will remain open but paused until the student supplies the missing information.':'The existing assignment will remain unchanged and the denial will be recorded in the audit trail.');
       workflow='<div class="queue-inline-workflow"><div class="queue-inline-head"><div><div class="eyebrow">Confirm decision</div><h3>'+choiceLabel+'</h3></div><span class="queue-decision-tag" style="background:'+choiceTone+'18;color:'+choiceTone+'">Selection received</span></div><div class="queue-inline-body"><div class="queue-confirm" style="border-left:5px solid '+choiceTone+'"><h3>Arc received your choice</h3><p>'+consequence+'</p><div class="demo-form-field" style="margin-top:14px"><label>Decision note</label><input id="queueDecisionNote" value="'+(choice==='approve'?'Approved based on available capacity and completed readiness review.':(choice==='return'?'Please provide the missing confirmation before this request can continue.':'Request conflicts with current program requirements.'))+'"></div></div><div class="queue-confirm-actions"><button class="mini" data-act="queueback">Change selection</button><button class="gate-cta on" data-act="queuesubmit" style="background:'+choiceTone+'">Submit decision '+ic('check',14,'#fff')+'</button></div></div></div>';
     } else if(stage===3){
@@ -1749,9 +1747,9 @@ function requestDetailPanel(row){
     }
   }
   return '<section class="card queue-detail"><div class="queue-detail-head"><div class="queue-detail-primary"><h2>'+esc(row.title)+' '+statusPill+'</h2></div><div class="queue-detail-actions"><button class="tbtn">Actions '+ic('chevr',13)+'</button></div></div><div class="queue-detail-grid">'+
-    '<div class="queue-panel"><div class="lbl-mini">Decision Workspace</div><div class="queue-action-stack">'+openBtn+'<div class="mono" style="font-size:11px;color:var(--muted2)">Received '+esc(row.age)+' ago</div><div class="queue-choice-stack">'+approveBtn+returnBtn+denyBtn+'</div></div></div>'+
-    '<div class="queue-panel"><div class="lbl-mini">Arc Interpretation</div><div class="kv-line"><div><div class="k">Student</div><div class="v">'+esc(row.student?row.student.name:'—')+'</div></div></div><div class="kv-line"><div><div class="k">Site / Rotation</div><div class="v">'+esc(row.siteRotation)+'</div></div></div><div class="kv-line"><div><div class="k">Issue</div><div class="v">'+esc(d?d.type:'None')+'</div></div></div><div class="kv-line"><div><div class="k">Requested Dates</div><div class="v">'+(rq.start===rq.end?fmtFull(rq.start):fmtRange(rq.start,rq.end))+'</div></div></div><div class="queue-risk-note"><div class="k">Risk Reason</div><p>'+esc(issueLine)+'</p></div></div>'+
-    '<div class="queue-panel queue-meter-panel"><div class="lbl-mini">Health-o-Meter</div><div class="readiness-ring-lg" style="margin-top:10px"><span class="ring" style="--score:'+readiness.score+';--accent:'+readiness.tone.ring+'"><b>'+readiness.score+'</b></span></div><div class="status" style="color:'+readiness.tone.text+'">'+readiness.label+'</div><p class="sub">'+esc(actionLine)+'</p><button class="mini go" data-act="goto" data-v="calendar2" style="margin-top:14px">View schedule impact '+ic('chevr',13)+'</button></div>'+
+    '<div class="queue-panel"><div class="lbl-mini">What happened</div><div class="kv-line"><div><div class="k">Request</div><div class="v">'+esc(row.title)+'</div></div></div><div class="kv-line"><div><div class="k">Student</div><div class="v">'+esc(row.student?row.student.name:'—')+'</div></div></div><div class="kv-line"><div><div class="k">Site / Rotation</div><div class="v">'+esc(row.siteRotation)+'</div></div></div><div class="kv-line"><div><div class="k">Requested Dates</div><div class="v">'+(rq.start===rq.end?fmtFull(rq.start):fmtRange(rq.start,rq.end))+'</div></div></div><div class="queue-request-note">'+esc(raw)+'</div></div>'+
+    '<div class="queue-panel"><div class="lbl-mini">What Arc found</div><div class="kv-line"><div><div class="k">Issue</div><div class="v">'+esc(d?d.type:'None')+'</div></div></div><div class="queue-risk-note"><div class="k">Risk Reason</div><p>'+esc(issueLine)+'</p></div><div class="next-action-box"><span class="next-action-ic">'+ic('arrowr',15)+'</span><div><b>'+esc(row.nextAction)+'</b><p>'+esc(actionLine)+'</p></div></div></div>'+
+    '<div class="queue-panel queue-meter-panel"><div class="lbl-mini">Decision readiness</div><div class="readiness-ring-lg" style="margin-top:10px"><span class="ring" style="--score:'+readiness.score+';--accent:'+readiness.tone.ring+'"><b>'+readiness.score+'</b></span></div><div class="status" style="color:'+readiness.tone.text+'">'+readiness.label+'</div><p class="sub">Readiness begins when complexity becomes visible.</p><button class="gate-cta on" data-act="queueactionopen" data-id="'+rq.id+'">'+(isOpen?'Decision open':'Take Action')+'</button></div>'+
   '</div>'+workflow+'</section>';
 }
 function viewOperatingView(){
