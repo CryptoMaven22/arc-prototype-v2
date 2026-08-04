@@ -653,8 +653,15 @@
 .readiness-ring-lg .ring b{position:relative;z-index:1;font-size:26px;font-weight:800;}
 .queue-detail{margin-top:18px;padding:20px 22px;}
 .queue-detail-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
-.queue-detail-head h2{display:flex;align-items:center;gap:10px;font-size:19px;}
-.queue-detail-actions{display:flex;gap:8px;}
+.queue-detail-primary{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0;}
+.queue-detail-head h2{display:flex;align-items:center;gap:10px;font-size:19px;margin:0;}
+.queue-detail-actions{display:flex;gap:8px;margin-left:auto;}
+@media (max-width:640px){
+  .queue-detail-primary{width:100%;}
+  .queue-detail-primary .gate-cta{order:0;}
+  .queue-detail-head h2{order:1;flex:1 1 100%;}
+  .queue-detail-actions{margin-left:0;}
+}
 .queue-detail-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-top:18px;}
 .raw-request-box{border:1px solid var(--hair);background:var(--paper);border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.5;color:#334155;margin-top:8px;}
 .kv-line{display:flex;gap:8px;align-items:flex-start;margin-top:12px;}
@@ -1688,7 +1695,7 @@ function requestDetailPanel(row){
       workflow='<div class="queue-inline-workflow"><div class="queue-inline-body"><div class="queue-success" style="--decision:'+choiceTone+'"><h3>'+doneTitle+'</h3><p>'+doneCopy+'</p></div><div class="queue-confirm-actions"><span class="note">The summary row above now reflects this decision.</span><button class="gate-cta on" data-act="queueactionclose">Done</button></div></div></div>';
     }
   }
-  return '<section class="card queue-detail"><div class="queue-detail-head"><h2>'+esc(row.title)+' '+statusPill+'</h2><div class="queue-detail-actions"><button class="tbtn">Actions '+ic('chevr',13)+'</button><button class="gate-cta on" data-act="queueactionopen" data-id="'+rq.id+'">'+(isOpen?'Decision open':'Take Action')+'</button></div></div><div class="queue-detail-grid"><div><div class="lbl-mini">Raw Request</div><div class="raw-request-box">'+esc(raw)+'</div><div class="mono" style="font-size:11px;color:var(--muted2);margin-top:8px">Received '+esc(row.age)+' ago</div></div><div><div class="lbl-mini">Arc Interpretation</div><div class="kv-line"><div><div class="k">Student</div><div class="v">'+esc(row.student?row.student.name:'—')+'</div></div></div><div class="kv-line"><div><div class="k">Site / Rotation</div><div class="v">'+esc(row.siteRotation)+'</div></div></div><div class="kv-line"><div><div class="k">Issue</div><div class="v">'+esc(d?d.type:'None')+'</div></div></div><div class="kv-line"><div><div class="k">Requested Dates</div><div class="v">'+(rq.start===rq.end?fmtFull(rq.start):fmtRange(rq.start,rq.end))+'</div></div></div></div><div style="text-align:center"><div class="lbl-mini">Readiness &amp; Risk</div><div class="readiness-ring-lg" style="margin-top:10px"><span class="ring" style="--score:'+readiness.score+';--accent:'+readiness.tone.ring+'"><b>'+readiness.score+'</b></span></div><div style="font-weight:700;color:'+readiness.tone.text+';margin-top:6px">'+readiness.label+'</div><div class="lbl-mini" style="margin-top:14px;text-align:left">Risk Reason</div><p style="font-size:13px;color:var(--muted);margin:4px 0 0;text-align:left">'+esc(issueLine)+'</p></div><div><div class="lbl-mini">Recommended Next Action</div><div class="next-action-box"><span class="next-action-ic">'+ic('arrowr',15)+'</span><div><b>'+esc(row.nextAction)+'</b><p>'+esc(actionLine)+'</p></div></div><button class="mini go" data-act="goto" data-v="calendar2">View schedule impact '+ic('chevr',13)+'</button></div></div>'+workflow+'</section>';
+  return '<section class="card queue-detail"><div class="queue-detail-head"><div class="queue-detail-primary"><button class="gate-cta on" data-act="queueactionopen" data-id="'+rq.id+'">'+(isOpen?'Decision open':'Take Action')+'</button><h2>'+esc(row.title)+' '+statusPill+'</h2></div><div class="queue-detail-actions"><button class="tbtn">Actions '+ic('chevr',13)+'</button></div></div><div class="queue-detail-grid"><div><div class="lbl-mini">Raw Request</div><div class="raw-request-box">'+esc(raw)+'</div><div class="mono" style="font-size:11px;color:var(--muted2);margin-top:8px">Received '+esc(row.age)+' ago</div></div><div><div class="lbl-mini">Arc Interpretation</div><div class="kv-line"><div><div class="k">Student</div><div class="v">'+esc(row.student?row.student.name:'—')+'</div></div></div><div class="kv-line"><div><div class="k">Site / Rotation</div><div class="v">'+esc(row.siteRotation)+'</div></div></div><div class="kv-line"><div><div class="k">Issue</div><div class="v">'+esc(d?d.type:'None')+'</div></div></div><div class="kv-line"><div><div class="k">Requested Dates</div><div class="v">'+(rq.start===rq.end?fmtFull(rq.start):fmtRange(rq.start,rq.end))+'</div></div></div></div><div style="text-align:center"><div class="lbl-mini">Readiness &amp; Risk</div><div class="readiness-ring-lg" style="margin-top:10px"><span class="ring" style="--score:'+readiness.score+';--accent:'+readiness.tone.ring+'"><b>'+readiness.score+'</b></span></div><div style="font-weight:700;color:'+readiness.tone.text+';margin-top:6px">'+readiness.label+'</div><div class="lbl-mini" style="margin-top:14px;text-align:left">Risk Reason</div><p style="font-size:13px;color:var(--muted);margin:4px 0 0;text-align:left">'+esc(issueLine)+'</p></div><div><div class="lbl-mini">Recommended Next Action</div><div class="next-action-box"><span class="next-action-ic">'+ic('arrowr',15)+'</span><div><b>'+esc(row.nextAction)+'</b><p>'+esc(actionLine)+'</p></div></div><button class="mini go" data-act="goto" data-v="calendar2">View schedule impact '+ic('chevr',13)+'</button></div></div>'+workflow+'</section>';
 }
 function viewOperatingView(){
   var queue=operatingQueue();
@@ -1715,8 +1722,8 @@ function viewOperatingView(){
   return '<div class="stack">'+
     '<div class="ops-header"><div class="ops-title"><div class="eyebrow">Priority Queue</div><h1>What changed. What&rsquo;s at risk. What to do next.</h1><p>Arc turns schedule changes into clear decisions.</p></div>'+
       '<div class="ops-controls"><button class="tbtn">View: All Open '+ic('chevr',13)+'</button><button class="tbtn" data-act="goto" data-v="capture">New Request</button></div></div>'+
-    '<section class="card" style="padding:0"><div style="padding:16px 20px 0"><div class="eyebrow">Request queue</div></div><div style="margin-top:10px">'+table+'</div></section>'+
     detail+
+    '<section class="card" style="padding:0"><div style="padding:16px 20px 0"><div class="eyebrow">Request queue</div></div><div style="margin-top:10px">'+table+'</div></section>'+
   '</div>';
 }
 
