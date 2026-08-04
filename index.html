@@ -1640,7 +1640,7 @@ function viewOperatingView(){
     :'<p class="note" style="padding:16px 20px">No open requests right now.</p>';
   var detail=focusRow?requestDetailPanel(focusRow):'';
   return '<div class="stack">'+
-    '<div class="ops-header"><div class="ops-title"><div class="eyebrow">Today</div><h1>What changed. What&rsquo;s at risk. What to do next.</h1><p>Arc turns schedule changes into clear decisions.</p></div>'+
+    '<div class="ops-header"><div class="ops-title"><div class="eyebrow">Priority Queue</div><h1>What changed. What&rsquo;s at risk. What to do next.</h1><p>Arc turns schedule changes into clear decisions.</p></div>'+
       '<div class="ops-controls"><button class="tbtn">View: All Open '+ic('chevr',13)+'</button><button class="tbtn" data-act="goto" data-v="capture">New Request</button></div></div>'+
     '<section class="card" style="padding:0"><div style="padding:16px 20px 0"><div class="eyebrow">Request queue</div></div><div style="margin-top:10px">'+table+'</div></section>'+
     detail+
@@ -1697,7 +1697,7 @@ function viewDashboard(){
     '</div>';
 
   return '<div class="ops-prime">'+
-    '<div class="ops-header"><div class="ops-title"><h1>Overview</h1><p>Daily schedule health, coverage pressure, assignment readiness, and the exceptions that require human action.</p></div><div class="ops-controls"><button class="tbtn">'+ic('back',14)+' Jul 6–17, 2026</button><button class="tbtn">Today</button><button class="tbtn">All sites '+ic('chevr',13)+'</button></div></div>'+
+    '<div class="ops-header"><div class="ops-title"><h1>Schedule Health</h1><p>Daily schedule health, coverage pressure, assignment readiness, and the exceptions that require human action.</p></div><div class="ops-controls"><button class="tbtn">'+ic('back',14)+' Jul 6–17, 2026</button><button class="tbtn">Today</button><button class="tbtn">All sites '+ic('chevr',13)+'</button></div></div>'+
 
     '<section class="money-view">'+
       '<div class="money-view-head"><div><h2>Today&rsquo;s Picture</h2><p>See whether the schedule is stable, where pressure is building, and what needs attention.</p></div><span class="money-view-tag">'+ic('shield',12,'#0F766E')+' Daily command view</span></div>'+
@@ -2760,8 +2760,8 @@ var VIEWS={overview:viewOperatingView,capture:viewCapture,dashboard:viewDashboar
 function nav(){
   var c=counts(), pr=pendingReq().length;
   var workflow=[
-    ['overview','Today','spark',null],
-    ['dashboard','Overview','shield',null],
+    ['overview','Priority Queue','spark',null],
+    ['dashboard','Schedule Health','shield',null],
     ['capture','Capture','inbox',null],
     ['requests','Change Requests','inbox',pr||null],
     ['assignments','Assignment Readiness','layers',c.review||null],
@@ -2905,7 +2905,7 @@ document.addEventListener('click',function(e){
   var act=t.getAttribute('data-act');
   if(act==='goto'){ST.view=t.getAttribute('data-v');ST.siteFocus=null;render();}
   else if(act==='captureplay'){runArcCapture();}
-  else if(act==='home'){ST.role='leader';ST.view='dashboard';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;ST.queueFocus=null;render();}
+  else if(act==='home'){ST.role='leader';ST.view='overview';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;ST.queueFocus=null;render();}
   else if(act==='queuefocus'){ST.queueFocus=t.getAttribute('data-id');render();}
   else if(act==='open'){ST.openStudentId=null;ST.openId=t.getAttribute('data-id');renderOverlay();}
   else if(act==='openstudent'){ST.openId=null;ST.openStudentId=t.getAttribute('data-id');renderOverlay();}
@@ -3046,7 +3046,7 @@ document.addEventListener('click',function(e){
   else if(act==='closeabout'){ST.about=false;renderOverlay();}
   else if(act==='filter'){ST.filter=t.getAttribute('data-f');render();}
   else if(act==='tlby'){ST.tlBy=t.getAttribute('data-by');render();}
-  else if(act==='role'){ST.role=t.getAttribute('data-r');ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.requestFocus=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.about=false;ST.siteFocus=null;ST.view='dashboard';render();}
+  else if(act==='role'){ST.role=t.getAttribute('data-r');ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.requestFocus=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.about=false;ST.siteFocus=null;ST.view='overview';render();}
   else if(act==='reqchange'){
     var aid=document.getElementById('chg-assignment').value;
     var ty=document.getElementById('chg-type').value;
@@ -3086,7 +3086,7 @@ document.addEventListener('click',function(e){
     toast(s==='Approved'?'Request approved \u2014 re-checking the schedule.':'Request marked '+s.toLowerCase()+'.');
     render();
   }
-  else if(act==='reset'){ST.data=seed();ST.view='dashboard';ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.demoFlow=null;ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';toast('Demo reset to starting data.');render();}
+  else if(act==='reset'){ST.data=seed();ST.view='overview';ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.demoFlow=null;ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';toast('Demo reset to starting data.');render();}
 });
 document.addEventListener('change',function(e){
   var t=e.target.closest('[data-act="reassign"]');
@@ -3120,9 +3120,9 @@ document.addEventListener('keydown',function(e){
   }
 });
 
-// Always open Arc on the Overview page (view key: 'dashboard') while resetting transient demo overlays.
+// Always open Arc on the Priority Queue page (view key: 'overview') while resetting transient demo overlays.
 function startArc(){
-  ST.view='dashboard';
+  ST.view='overview';
   ST.role='leader';
   ST.siteFocus=null;
   ST.openId=null;
@@ -3267,4 +3267,4 @@ window.addEventListener('hashchange',function(){
 </script>
 
 </body></html>
-<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_HtmuNRAFgACSejK4nZwcpVrDkLzN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_Cp3YwdBSW58B2z4jMHyYwq3SS7FM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_212ZZKQ76m76PK6skyQFHKYfEu4u" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
+<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_HtmuNRAFgACSejK4nZwcpVrDkLzN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_Cp3YwdBSW58B2z4jMHyYwq3SS7FM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_212ZZKQ76m76PK6skyQFHKYfEu4u" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_71RMNwqH1WDEHXTJG4jP5D5qmMCz" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
