@@ -470,11 +470,22 @@
 
   /* Priority Queue inline decision workflow */
   .queue-row{cursor:pointer;transition:background .16s ease,box-shadow .16s ease;}
-  .queue-row.is-active{background:#F4FAF8;}
-  .queue-row.decision-approved{box-shadow:inset 5px 0 0 #16A34A;background:#F0FDF4;}
-  .queue-row.decision-denied{box-shadow:inset 5px 0 0 #DC2626;background:#FFF7F7;}
-  .queue-row.decision-returned{box-shadow:inset 5px 0 0 #2563EB;background:#F5F9FF;}
-  .queue-decision-tag{display:inline-flex;align-items:center;margin-left:8px;padding:3px 7px;border-radius:999px;font-size:10px;font-weight:800;vertical-align:middle;}
+  .queue-table tbody td{background:#F3EEE3;}
+  .queue-row:hover td{background:#EEE7D8;}
+  .queue-row.is-active td{background:#E8E0D0;}
+  .queue-row.decision-approved td,
+  .queue-row.decision-denied td,
+  .queue-row.decision-returned td{background:#F3EEE3;}
+  .queue-row.decision-approved td{box-shadow:inset 0 2px 0 #16A34A,inset 0 -2px 0 #16A34A;}
+  .queue-row.decision-approved td:first-child{box-shadow:inset 5px 0 0 #16A34A,inset 0 2px 0 #16A34A,inset 0 -2px 0 #16A34A;}
+  .queue-row.decision-approved td:last-child{box-shadow:inset -2px 0 0 #16A34A,inset 0 2px 0 #16A34A,inset 0 -2px 0 #16A34A;}
+  .queue-row.decision-denied td{box-shadow:inset 0 2px 0 #DC2626,inset 0 -2px 0 #DC2626;}
+  .queue-row.decision-denied td:first-child{box-shadow:inset 5px 0 0 #DC2626,inset 0 2px 0 #DC2626,inset 0 -2px 0 #DC2626;}
+  .queue-row.decision-denied td:last-child{box-shadow:inset -2px 0 0 #DC2626,inset 0 2px 0 #DC2626,inset 0 -2px 0 #DC2626;}
+  .queue-row.decision-returned td{box-shadow:inset 0 2px 0 #2563EB,inset 0 -2px 0 #2563EB;}
+  .queue-row.decision-returned td:first-child{box-shadow:inset 5px 0 0 #2563EB,inset 0 2px 0 #2563EB,inset 0 -2px 0 #2563EB;}
+  .queue-row.decision-returned td:last-child{box-shadow:inset -2px 0 0 #2563EB,inset 0 2px 0 #2563EB,inset 0 -2px 0 #2563EB;}
+  .queue-decision-tag{display:inline-flex;align-items:center;margin-left:8px;padding:3px 7px;border-radius:999px;font-size:10px;font-weight:800;vertical-align:middle;border:2px solid transparent;}
   .queue-inline-workflow{margin-top:12px;border:2px solid #C9DDD8;border-radius:15px;background:#fff;box-shadow:0 10px 28px rgba(16,35,31,.08);overflow:hidden;}
   .queue-inline-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;padding:16px 18px;border-bottom:1px solid var(--hair);background:#F8FBFA;}
   .queue-inline-head h3{margin:2px 0 0;font-size:16px;}
@@ -641,8 +652,8 @@
 .queue-table tbody td{padding:12px 20px;border-bottom:1px solid var(--line);vertical-align:middle;}
 .queue-table tbody tr:last-child td{border-bottom:none;}
 .queue-row{cursor:pointer;}
-.queue-row:hover{background:var(--paper);}
-.queue-row.is-active{background:var(--teal-soft);}
+.queue-row:hover{background:transparent;}
+.queue-row.is-active{background:transparent;}
 .queue-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:8px;}
 .readiness-ring.ring-sm .ring{width:34px;height:34px;}
 .readiness-ring.ring-sm .ring:after{width:24px;height:24px;}
@@ -1704,7 +1715,7 @@ function viewOperatingView(){
     var impactTone=r.impact==='High'?{bg:'#FEE2E2',text:'#B91C1C'}:(r.impact==='Medium'?{bg:'#FEF3C7',text:'#92400E'}:{bg:'#DCFCE7',text:'#15803D'});
     var isActive=focusRow&&r.rq.id===focusRow.rq.id;
     var decisionClass=r.rq.status==='Approved'?' decision-approved':(r.rq.status==='Denied'?' decision-denied':(r.rq.status==='Returned'?' decision-returned':''));
-    var decisionTag=r.rq.status==='Approved'?'<span class="queue-decision-tag" style="background:#DCFCE7;color:#15803D">Approved</span>':(r.rq.status==='Denied'?'<span class="queue-decision-tag" style="background:#FEE2E2;color:#B91C1C">Denied</span>':(r.rq.status==='Returned'?'<span class="queue-decision-tag" style="background:#DBEAFE;color:#1D4ED8">Returned</span>':''));
+    var decisionTag=r.rq.status==='Approved'?'<span class="queue-decision-tag" style="background:#F3EEE3;color:#15803D;border-color:#16A34A">Approved</span>':(r.rq.status==='Denied'?'<span class="queue-decision-tag" style="background:#F3EEE3;color:#B91C1C;border-color:#DC2626">Denied</span>':(r.rq.status==='Returned'?'<span class="queue-decision-tag" style="background:#F3EEE3;color:#1D4ED8;border-color:#2563EB">Returned</span>':''));
     return '<tr class="queue-row'+(isActive?' is-active':'')+decisionClass+'" data-act="queuefocus" data-id="'+r.rq.id+'">'+
       '<td><span class="queue-dot" style="background:'+r.readiness.tone.ring+'"></span><b>'+esc(r.title)+'</b>'+decisionTag+'</td>'+
       '<td>'+esc(r.student?r.student.name:'\u2014')+'</td>'+
