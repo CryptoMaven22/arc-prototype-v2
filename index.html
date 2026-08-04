@@ -467,6 +467,30 @@
   @media(max-width:980px){.demo-card-grid{grid-template-columns:1fr}.demo-work-card{min-height:0}.demo-detail-grid,.demo-actions{grid-template-columns:1fr}}
 
 
+
+  /* Priority Queue inline decision workflow */
+  .queue-row{cursor:pointer;transition:background .16s ease,box-shadow .16s ease;}
+  .queue-row.is-active{background:#F4FAF8;}
+  .queue-row.decision-approved{box-shadow:inset 5px 0 0 #16A34A;background:#F0FDF4;}
+  .queue-row.decision-denied{box-shadow:inset 5px 0 0 #DC2626;background:#FFF7F7;}
+  .queue-row.decision-returned{box-shadow:inset 5px 0 0 #2563EB;background:#F5F9FF;}
+  .queue-decision-tag{display:inline-flex;align-items:center;margin-left:8px;padding:3px 7px;border-radius:999px;font-size:10px;font-weight:800;vertical-align:middle;}
+  .queue-inline-workflow{margin-top:12px;border:2px solid #C9DDD8;border-radius:15px;background:#fff;box-shadow:0 10px 28px rgba(16,35,31,.08);overflow:hidden;}
+  .queue-inline-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;padding:16px 18px;border-bottom:1px solid var(--hair);background:#F8FBFA;}
+  .queue-inline-head h3{margin:2px 0 0;font-size:16px;}
+  .queue-inline-body{padding:18px;}
+  .queue-choice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;}
+  .queue-choice{border:1px solid var(--hair);border-radius:12px;padding:13px;text-align:left;background:#fff;min-height:104px;}
+  .queue-choice:hover{border-color:#9FB7B0;box-shadow:0 7px 18px rgba(16,35,31,.07);transform:translateY(-1px);}
+  .queue-choice b{display:block;font-size:13px}.queue-choice span{display:block;font-size:11.5px;color:var(--muted);margin-top:5px;line-height:1.4;}
+  .queue-choice.approve{border-top:4px solid #16A34A}.queue-choice.return{border-top:4px solid #2563EB}.queue-choice.deny{border-top:4px solid #DC2626}
+  .queue-confirm{border:1px solid var(--hair);border-radius:13px;padding:15px;background:#FCFEFD;}
+  .queue-confirm h3{margin:0 0 5px;font-size:16px}.queue-confirm p{margin:0;color:var(--muted);font-size:13px;}
+  .queue-confirm-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:16px;}
+  .queue-success{border-radius:13px;padding:17px;border:2px solid var(--decision,#16A34A);background:color-mix(in srgb,var(--decision,#16A34A) 7%,white);}
+  .queue-success h3{margin:0;font-size:17px}.queue-success p{margin:5px 0 0;color:#475569;font-size:13px;}
+  @media(max-width:820px){.queue-choice-grid{grid-template-columns:1fr}.queue-confirm-actions{align-items:stretch;flex-direction:column-reverse}.queue-confirm-actions button{width:100%;justify-content:center}}
+
   /* AtlasFlow footer */
   .atlas-footer{
     min-height:63px;
@@ -1191,6 +1215,7 @@
 <!-- Arc operational workspace. Capture now sits directly beneath Overview in the primary workflow. -->
 <div id="app"></div>
 <div id="overlay" aria-live="polite"></div>
+<div id="toast" aria-live="polite"></div>
 <script>
 "use strict";
 
@@ -1349,7 +1374,7 @@ function bankFor(studentId){
 function badgeSt(s,sm){var c=STATUS[s]||STATUS['Not Checked'];return '<span class="badge-st'+(sm?' sm':'')+'" style="color:'+c.text+';background:'+c.bg+'"><span class="dot" style="background:'+c.dot+'"></span>'+s+'</span>';}
 function sevBadge(s){var c=SEV[s]||SEV.Low;return '<span class="sev" style="color:'+c.text+';background:'+c.bg+'">'+s+'</span>';}
 
-var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,requestFocus:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4',queueFocus:null};
+var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,requestFocus:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4',queueFocus:null,queueAction:null,queueStage:0,queueChoice:null};
 var lastFocusedElement=null;
 
 function demoFlow(){
@@ -1572,7 +1597,7 @@ function ageLabel(iso){
 }
 function operatingQueue(){
   return ST.data.requests
-    .filter(function(rq){return rq.status==='Requested'||rq.status==='Needs Review'||rq.status==='Returned';})
+    .filter(function(rq){return rq.status==='Requested'||rq.status==='Needs Review'||rq.status==='Returned'||rq.status==='Approved'||rq.status==='Denied';})
     .map(function(rq){
       var checks=checksForRequest(rq);
       var d=dominantCheck(checks);
@@ -1598,26 +1623,25 @@ function requestDetailPanel(row){
   var issueLine=d?d.summary:'No open readiness issues on this request.';
   var actionLine=d?d.action:'This request is ready for a program decision.';
   var statusPill='<span class="badge-st sm" style="color:'+readiness.tone.text+';background:'+readiness.tone.bg+'">'+readiness.label+'</span>';
-  return '<section class="card queue-detail"><div class="queue-detail-head"><h2>'+esc(row.title)+' '+statusPill+'</h2>'+
-      '<div class="queue-detail-actions"><button class="tbtn">Actions '+ic('chevr',13)+'</button><button class="gate-cta on" data-act="requestopen" data-id="'+rq.id+'">Take Action</button></div></div>'+
-    '<div class="queue-detail-grid">'+
-      '<div><div class="lbl-mini">Raw Request</div><div class="raw-request-box">'+esc(raw)+'</div><div class="mono" style="font-size:11px;color:var(--muted2);margin-top:8px">Received '+esc(row.age)+' ago</div></div>'+
-      '<div><div class="lbl-mini">Arc Interpretation</div>'+
-        '<div class="kv-line"><div><div class="k">Student</div><div class="v">'+esc(row.student?row.student.name:'\u2014')+'</div></div></div>'+
-        '<div class="kv-line"><div><div class="k">Site / Rotation</div><div class="v">'+esc(row.siteRotation)+'</div></div></div>'+
-        '<div class="kv-line"><div><div class="k">Issue</div><div class="v">'+esc(d?d.type:'None')+'</div></div></div>'+
-        '<div class="kv-line"><div><div class="k">Requested Dates</div><div class="v">'+(rq.start===rq.end?fmtFull(rq.start):fmtRange(rq.start,rq.end))+'</div></div></div>'+
-      '</div>'+
-      '<div style="text-align:center"><div class="lbl-mini">Readiness &amp; Risk</div>'+
-        '<div class="readiness-ring-lg" style="margin-top:10px"><span class="ring" style="--score:'+readiness.score+';--accent:'+readiness.tone.ring+'"><b>'+readiness.score+'</b></span></div>'+
-        '<div style="font-weight:700;color:'+readiness.tone.text+';margin-top:6px">'+readiness.label+'</div>'+
-        '<div class="lbl-mini" style="margin-top:14px;text-align:left">Risk Reason</div><p style="font-size:13px;color:var(--muted);margin:4px 0 0;text-align:left">'+esc(issueLine)+'</p>'+
-      '</div>'+
-      '<div><div class="lbl-mini">Recommended Next Action</div>'+
-        '<div class="next-action-box"><span class="next-action-ic">'+ic('arrowr',15)+'</span><div><b>'+esc(row.nextAction)+'</b><p>'+esc(actionLine)+'</p></div></div>'+
-        '<button class="mini go" data-act="goto" data-v="calendar2">View schedule impact '+ic('chevr',13)+'</button>'+
-      '</div>'+
-    '</div></section>';
+  var isOpen=ST.queueAction===rq.id;
+  var stage=ST.queueStage||0;
+  var choice=ST.queueChoice;
+  var choiceLabel=choice==='approve'?'Approve and complete':(choice==='return'?'Return for clarification':'Deny request');
+  var choiceTone=choice==='approve'?'#16A34A':(choice==='return'?'#2563EB':'#DC2626');
+  var workflow='';
+  if(isOpen){
+    if(stage===1){
+      workflow='<div class="queue-inline-workflow"><div class="queue-inline-head"><div><div class="eyebrow">Decision workspace</div><h3>Select the appropriate action</h3></div><button class="mini" data-act="queueactionclose">Collapse</button></div><div class="queue-inline-body"><p class="sub" style="margin:0">Arc has assembled the request, schedule impact, readiness checks, and recommendation above. Choose the program decision.</p><div class="queue-choice-grid"><button class="queue-choice approve" data-act="queuechoose" data-choice="approve"><b>Approve and complete</b><span>Apply the requested change, reconcile the schedule, record the decision, and release notifications.</span></button><button class="queue-choice return" data-act="queuechoose" data-choice="return"><b>Return for clarification</b><span>Pause the request and send the student the specific information needed to continue.</span></button><button class="queue-choice deny" data-act="queuechoose" data-choice="deny"><b>Deny request</b><span>Keep the current schedule, record the reason, and notify the affected student.</span></button></div></div></div>';
+    } else if(stage===2){
+      var consequence=choice==='approve'?'The requested dates will be applied, the schedule will be reconciled, and three stakeholder notifications will be queued.':(choice==='return'?'The request will remain open but paused until the student supplies the missing information.':'The existing assignment will remain unchanged and the denial will be recorded in the audit trail.');
+      workflow='<div class="queue-inline-workflow"><div class="queue-inline-head"><div><div class="eyebrow">Confirm decision</div><h3>'+choiceLabel+'</h3></div><span class="queue-decision-tag" style="background:'+choiceTone+'18;color:'+choiceTone+'">Selection received</span></div><div class="queue-inline-body"><div class="queue-confirm" style="border-left:5px solid '+choiceTone+'"><h3>Arc received your choice</h3><p>'+consequence+'</p><div class="demo-form-field" style="margin-top:14px"><label>Decision note</label><input id="queueDecisionNote" value="'+(choice==='approve'?'Approved based on available capacity and completed readiness review.':(choice==='return'?'Please provide the missing confirmation before this request can continue.':'Request conflicts with current program requirements.'))+'"></div></div><div class="queue-confirm-actions"><button class="mini" data-act="queueback">Change selection</button><button class="gate-cta on" data-act="queuesubmit" style="background:'+choiceTone+'">Submit decision '+ic('check',14,'#fff')+'</button></div></div></div>';
+    } else if(stage===3){
+      var doneTitle=choice==='approve'?'Decision completed — schedule updated':(choice==='return'?'Request returned — follow-up initiated':'Request denied — decision recorded');
+      var doneCopy=choice==='approve'?'Arc applied the schedule change, recalculated readiness, recorded the audit event, and queued three notifications.':(choice==='return'?'Arc recorded the requested clarification and notified the student. The item remains visible with a blue returned status.':'Arc retained the current assignment, recorded the denial, and notified the student.');
+      workflow='<div class="queue-inline-workflow"><div class="queue-inline-body"><div class="queue-success" style="--decision:'+choiceTone+'"><h3>'+doneTitle+'</h3><p>'+doneCopy+'</p></div><div class="queue-confirm-actions"><span class="note">The summary row above now reflects this decision.</span><button class="gate-cta on" data-act="queueactionclose">Done</button></div></div></div>';
+    }
+  }
+  return '<section class="card queue-detail"><div class="queue-detail-head"><h2>'+esc(row.title)+' '+statusPill+'</h2><div class="queue-detail-actions"><button class="tbtn">Actions '+ic('chevr',13)+'</button><button class="gate-cta on" data-act="queueactionopen" data-id="'+rq.id+'">'+(isOpen?'Decision open':'Take Action')+'</button></div></div><div class="queue-detail-grid"><div><div class="lbl-mini">Raw Request</div><div class="raw-request-box">'+esc(raw)+'</div><div class="mono" style="font-size:11px;color:var(--muted2);margin-top:8px">Received '+esc(row.age)+' ago</div></div><div><div class="lbl-mini">Arc Interpretation</div><div class="kv-line"><div><div class="k">Student</div><div class="v">'+esc(row.student?row.student.name:'—')+'</div></div></div><div class="kv-line"><div><div class="k">Site / Rotation</div><div class="v">'+esc(row.siteRotation)+'</div></div></div><div class="kv-line"><div><div class="k">Issue</div><div class="v">'+esc(d?d.type:'None')+'</div></div></div><div class="kv-line"><div><div class="k">Requested Dates</div><div class="v">'+(rq.start===rq.end?fmtFull(rq.start):fmtRange(rq.start,rq.end))+'</div></div></div></div><div style="text-align:center"><div class="lbl-mini">Readiness &amp; Risk</div><div class="readiness-ring-lg" style="margin-top:10px"><span class="ring" style="--score:'+readiness.score+';--accent:'+readiness.tone.ring+'"><b>'+readiness.score+'</b></span></div><div style="font-weight:700;color:'+readiness.tone.text+';margin-top:6px">'+readiness.label+'</div><div class="lbl-mini" style="margin-top:14px;text-align:left">Risk Reason</div><p style="font-size:13px;color:var(--muted);margin:4px 0 0;text-align:left">'+esc(issueLine)+'</p></div><div><div class="lbl-mini">Recommended Next Action</div><div class="next-action-box"><span class="next-action-ic">'+ic('arrowr',15)+'</span><div><b>'+esc(row.nextAction)+'</b><p>'+esc(actionLine)+'</p></div></div><button class="mini go" data-act="goto" data-v="calendar2">View schedule impact '+ic('chevr',13)+'</button></div></div>'+workflow+'</section>';
 }
 function viewOperatingView(){
   var queue=operatingQueue();
@@ -1625,8 +1649,10 @@ function viewOperatingView(){
   var rowsHtml=queue.map(function(r){
     var impactTone=r.impact==='High'?{bg:'#FEE2E2',text:'#B91C1C'}:(r.impact==='Medium'?{bg:'#FEF3C7',text:'#92400E'}:{bg:'#DCFCE7',text:'#15803D'});
     var isActive=focusRow&&r.rq.id===focusRow.rq.id;
-    return '<tr class="queue-row'+(isActive?' is-active':'')+'" data-act="queuefocus" data-id="'+r.rq.id+'">'+
-      '<td><span class="queue-dot" style="background:'+r.readiness.tone.ring+'"></span><b>'+esc(r.title)+'</b></td>'+
+    var decisionClass=r.rq.status==='Approved'?' decision-approved':(r.rq.status==='Denied'?' decision-denied':(r.rq.status==='Returned'?' decision-returned':''));
+    var decisionTag=r.rq.status==='Approved'?'<span class="queue-decision-tag" style="background:#DCFCE7;color:#15803D">Approved</span>':(r.rq.status==='Denied'?'<span class="queue-decision-tag" style="background:#FEE2E2;color:#B91C1C">Denied</span>':(r.rq.status==='Returned'?'<span class="queue-decision-tag" style="background:#DBEAFE;color:#1D4ED8">Returned</span>':''));
+    return '<tr class="queue-row'+(isActive?' is-active':'')+decisionClass+'" data-act="queuefocus" data-id="'+r.rq.id+'">'+
+      '<td><span class="queue-dot" style="background:'+r.readiness.tone.ring+'"></span><b>'+esc(r.title)+'</b>'+decisionTag+'</td>'+
       '<td>'+esc(r.student?r.student.name:'\u2014')+'</td>'+
       '<td>'+esc(r.siteRotation)+'</td>'+
       '<td><span class="pill" style="background:'+impactTone.bg+';color:'+impactTone.text+'">'+(r.impact==='Medium'?'Med':r.impact)+'</span></td>'+
@@ -2905,8 +2931,17 @@ document.addEventListener('click',function(e){
   var act=t.getAttribute('data-act');
   if(act==='goto'){ST.view=t.getAttribute('data-v');ST.siteFocus=null;render();}
   else if(act==='captureplay'){runArcCapture();}
-  else if(act==='home'){ST.role='leader';ST.view='overview';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;ST.queueFocus=null;render();}
-  else if(act==='queuefocus'){ST.queueFocus=t.getAttribute('data-id');render();}
+  else if(act==='home'){ST.role='leader';ST.view='overview';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;ST.queueFocus=null;ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;render();}
+  else if(act==='queuefocus'){ST.queueFocus=t.getAttribute('data-id');ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;render();}
+  else if(act==='queueactionopen'){ST.queueAction=t.getAttribute('data-id');ST.queueFocus=ST.queueAction;ST.queueStage=1;ST.queueChoice=null;render();}
+  else if(act==='queueactionclose'){ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;render();}
+  else if(act==='queuechoose'){ST.queueChoice=t.getAttribute('data-choice');ST.queueStage=2;render();}
+  else if(act==='queueback'){ST.queueStage=1;ST.queueChoice=null;render();}
+  else if(act==='queuesubmit'){
+    var qd=requestById(ST.queueAction), qc=ST.queueChoice, qn=document.getElementById('queueDecisionNote');
+    if(qd){qd.notes=(qn&&qn.value.trim())||qd.notes;if(qc==='approve'){qd.status='Approved';qd.closed=true;qd.published=true;qd.notificationsSent=3;var qa=assignmentById(qd.assignmentId);if(qa){qa.start=qd.start;qa.end=qd.end;qa.published=true;qa.preceptorConfirmed=true;}}else if(qc==='return'){qd.status='Returned';qd.closed=false;qd.notificationsSent=1;}else{qd.status='Denied';qd.closed=true;qd.notificationsSent=1;}}
+    ST.queueStage=3;toast('Decision submitted and operational record updated.');render();
+  }
   else if(act==='open'){ST.openStudentId=null;ST.openId=t.getAttribute('data-id');renderOverlay();}
   else if(act==='openstudent'){ST.openId=null;ST.openStudentId=t.getAttribute('data-id');renderOverlay();}
   else if(act==='closedrawer'){ST.openId=null;renderOverlay();}
