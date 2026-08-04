@@ -472,7 +472,20 @@
   .queue-row{cursor:pointer;transition:background .16s ease,box-shadow .16s ease;}
   .queue-table tbody td{background:#F3EEE3;}
   .queue-row:hover td{background:#EEE7D8;}
-  .queue-row.is-active td{background:#E8E0D0;}
+  .queue-row.is-active td{background:#F3EEE3;}
+
+  /* High impact is a quiet structural cue, not a status color. */
+  .queue-row.high-impact td{
+    box-shadow:inset 0 1px 0 #CDBF9F,inset 0 -1px 0 #CDBF9F;
+  }
+  .queue-row.high-impact td:first-child{
+    box-shadow:inset 2px 0 0 #B8A77E,inset 0 1px 0 #CDBF9F,inset 0 -1px 0 #CDBF9F;
+  }
+  .queue-row.high-impact td:last-child{
+    box-shadow:inset -1px 0 0 #CDBF9F,inset 0 1px 0 #CDBF9F,inset 0 -1px 0 #CDBF9F;
+  }
+
+  /* Decision colors appear only after the user submits a decision in this session. */
   .queue-row.decision-approved td,
   .queue-row.decision-denied td,
   .queue-row.decision-returned td{background:#F3EEE3;}
@@ -1439,7 +1452,7 @@ function bankFor(studentId){
 function badgeSt(s,sm){var c=STATUS[s]||STATUS['Not Checked'];return '<span class="badge-st'+(sm?' sm':'')+'" style="color:'+c.text+';background:'+c.bg+'"><span class="dot" style="background:'+c.dot+'"></span>'+s+'</span>';}
 function sevBadge(s){var c=SEV[s]||SEV.Low;return '<span class="sev" style="color:'+c.text+';background:'+c.bg+'">'+s+'</span>';}
 
-var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,requestFocus:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4',queueFocus:null,queueAction:null,queueStage:0,queueChoice:null};
+var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,requestFocus:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4',queueFocus:null,queueAction:null,queueStage:0,queueChoice:null,queueDecisions:{}};
 var lastFocusedElement=null;
 
 function demoFlow(){
@@ -1714,9 +1727,11 @@ function viewOperatingView(){
   var rowsHtml=queue.map(function(r){
     var impactTone=r.impact==='High'?{bg:'#FEE2E2',text:'#B91C1C'}:(r.impact==='Medium'?{bg:'#FEF3C7',text:'#92400E'}:{bg:'#DCFCE7',text:'#15803D'});
     var isActive=focusRow&&r.rq.id===focusRow.rq.id;
-    var decisionClass=r.rq.status==='Approved'?' decision-approved':(r.rq.status==='Denied'?' decision-denied':(r.rq.status==='Returned'?' decision-returned':''));
-    var decisionTag=r.rq.status==='Approved'?'<span class="queue-decision-tag" style="background:#F3EEE3;color:#15803D;border-color:#16A34A">Approved</span>':(r.rq.status==='Denied'?'<span class="queue-decision-tag" style="background:#F3EEE3;color:#B91C1C;border-color:#DC2626">Denied</span>':(r.rq.status==='Returned'?'<span class="queue-decision-tag" style="background:#F3EEE3;color:#1D4ED8;border-color:#2563EB">Returned</span>':''));
-    return '<tr class="queue-row'+(isActive?' is-active':'')+decisionClass+'" data-act="queuefocus" data-id="'+r.rq.id+'">'+
+    var sessionDecision=ST.queueDecisions[r.rq.id]||'';
+    var decisionClass=sessionDecision==='Approved'?' decision-approved':(sessionDecision==='Denied'?' decision-denied':(sessionDecision==='Returned'?' decision-returned':''));
+    var decisionTag=sessionDecision==='Approved'?'<span class="queue-decision-tag" style="background:#F3EEE3;color:#15803D;border-color:#16A34A">Approved</span>':(sessionDecision==='Denied'?'<span class="queue-decision-tag" style="background:#F3EEE3;color:#B91C1C;border-color:#DC2626">Denied</span>':(sessionDecision==='Returned'?'<span class="queue-decision-tag" style="background:#F3EEE3;color:#1D4ED8;border-color:#2563EB">Returned</span>':''));
+    var impactClass=r.impact==='High'?' high-impact':'';
+    return '<tr class="queue-row'+(isActive?' is-active':'')+impactClass+decisionClass+'" data-act="queuefocus" data-id="'+r.rq.id+'">'+
       '<td><span class="queue-dot" style="background:'+r.readiness.tone.ring+'"></span><b>'+esc(r.title)+'</b>'+decisionTag+'</td>'+
       '<td>'+esc(r.student?r.student.name:'\u2014')+'</td>'+
       '<td>'+esc(r.siteRotation)+'</td>'+
@@ -3009,7 +3024,7 @@ document.addEventListener('click',function(e){
   else if(act==='queueback'){ST.queueStage=1;ST.queueChoice=null;render();}
   else if(act==='queuesubmit'){
     var qd=requestById(ST.queueAction), qc=ST.queueChoice, qn=document.getElementById('queueDecisionNote');
-    if(qd){qd.notes=(qn&&qn.value.trim())||qd.notes;if(qc==='approve'){qd.status='Approved';qd.closed=true;qd.published=true;qd.notificationsSent=3;var qa=assignmentById(qd.assignmentId);if(qa){qa.start=qd.start;qa.end=qd.end;qa.published=true;qa.preceptorConfirmed=true;}}else if(qc==='return'){qd.status='Returned';qd.closed=false;qd.notificationsSent=1;}else{qd.status='Denied';qd.closed=true;qd.notificationsSent=1;}}
+    if(qd){qd.notes=(qn&&qn.value.trim())||qd.notes;if(qc==='approve'){qd.status='Approved';qd.closed=true;qd.published=true;qd.notificationsSent=3;var qa=assignmentById(qd.assignmentId);if(qa){qa.start=qd.start;qa.end=qd.end;qa.published=true;qa.preceptorConfirmed=true;}}else if(qc==='return'){qd.status='Returned';qd.closed=false;qd.notificationsSent=1;}else{qd.status='Denied';qd.closed=true;qd.notificationsSent=1;}ST.queueDecisions[qd.id]=qd.status;}
     ST.queueStage=3;toast('Decision submitted and operational record updated.');render();
   }
   else if(act==='open'){ST.openStudentId=null;ST.openId=t.getAttribute('data-id');renderOverlay();}
@@ -3191,7 +3206,7 @@ document.addEventListener('click',function(e){
     toast(s==='Approved'?'Request approved \u2014 re-checking the schedule.':'Request marked '+s.toLowerCase()+'.');
     render();
   }
-  else if(act==='reset'){ST.data=seed();ST.view='overview';ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.demoFlow=null;ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';toast('Demo reset to starting data.');render();}
+  else if(act==='reset'){ST.data=seed();ST.view='overview';ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.demoFlow=null;ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';ST.queueDecisions={};toast('Demo reset to starting data.');render();}
 });
 document.addEventListener('change',function(e){
   var t=e.target.closest('[data-act="reassign"]');
