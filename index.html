@@ -665,6 +665,8 @@
 .queue-table tbody td{padding:12px 20px;border-bottom:1px solid var(--line);vertical-align:middle;}
 .queue-table tbody tr:last-child td{border-bottom:none;}
 .queue-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:22px 22px 18px;background:linear-gradient(180deg,#FBFCFD 0%,#FFFFFF 100%);border-bottom:1px solid var(--hair);}
+.queue-shell{border:1px solid #D8D4C8;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(16,35,31,.03);background:#fff;}
+.queue-shell .queue-table{margin:0;}
 .queue-section-title h2{margin:0;font-size:20px;letter-spacing:-.02em;color:var(--ink);}
 .queue-section-title p{margin:6px 0 0;font-size:13px;color:var(--muted);}
 .queue-section-kpis{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
@@ -1768,7 +1770,7 @@ function viewOperatingView(){
     '<div class="ops-header"><div class="ops-title"><div class="eyebrow">Priority Queue</div><h1>What changed. What&rsquo;s at risk. What to do next.</h1><p>Arc turns schedule changes into clear decisions.</p></div>'+
       '<div class="ops-controls"><button class="tbtn">View: All Open '+ic('chevr',13)+'</button><button class="tbtn" data-act="goto" data-v="capture">New Request</button></div></div>'+
     detail+
-    '<section class="card" style="padding:0">'+queueHeader+table+'</section>'+
+    '<section class="card queue-shell" style="padding:0">'+queueHeader+table+'</section>'+
   '</div>';
 }
 
