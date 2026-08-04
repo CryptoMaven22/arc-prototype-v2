@@ -470,25 +470,25 @@
 
   /* Priority Queue inline decision workflow */
   .queue-row{cursor:pointer;transition:background .16s ease,box-shadow .16s ease;}
-  .queue-table tbody td{background:#F3EEE3;}
-  .queue-row:hover td{background:#EEE7D8;}
-  .queue-row.is-active td{background:#F3EEE3;}
+  .queue-table tbody td{background:#F6F2EA;}
+  .queue-row:hover td{background:#F1ECE3;}
+  .queue-row.is-active td{background:#F6F2EA;}
 
   /* High impact is a quiet structural cue, not a status color. */
   .queue-row.high-impact td{
-    box-shadow:inset 0 1px 0 #CDBF9F,inset 0 -1px 0 #CDBF9F;
+    box-shadow:inset 0 2px 0 #CDBF9F,inset 0 -2px 0 #CDBF9F;
   }
   .queue-row.high-impact td:first-child{
-    box-shadow:inset 2px 0 0 #B8A77E,inset 0 1px 0 #CDBF9F,inset 0 -1px 0 #CDBF9F;
+    box-shadow:inset 2px 0 0 #B8A77E,inset 0 2px 0 #CDBF9F,inset 0 -2px 0 #CDBF9F;
   }
   .queue-row.high-impact td:last-child{
-    box-shadow:inset -1px 0 0 #CDBF9F,inset 0 1px 0 #CDBF9F,inset 0 -1px 0 #CDBF9F;
+    box-shadow:inset -2px 0 0 #B8A77E,inset 0 2px 0 #CDBF9F,inset 0 -2px 0 #CDBF9F;
   }
 
   /* Decision colors appear only after the user submits a decision in this session. */
   .queue-row.decision-approved td,
   .queue-row.decision-denied td,
-  .queue-row.decision-returned td{background:#F3EEE3;}
+  .queue-row.decision-returned td{background:#F6F2EA;}
   .queue-row.decision-approved td{box-shadow:inset 0 2px 0 #16A34A,inset 0 -2px 0 #16A34A;}
   .queue-row.decision-approved td:first-child{box-shadow:inset 5px 0 0 #16A34A,inset 0 2px 0 #16A34A,inset 0 -2px 0 #16A34A;}
   .queue-row.decision-approved td:last-child{box-shadow:inset -2px 0 0 #16A34A,inset 0 2px 0 #16A34A,inset 0 -2px 0 #16A34A;}
@@ -664,6 +664,17 @@
 .queue-table thead th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted2);font-weight:700;padding:10px 20px;border-bottom:1px solid var(--hair);background:var(--paper);}
 .queue-table tbody td{padding:12px 20px;border-bottom:1px solid var(--line);vertical-align:middle;}
 .queue-table tbody tr:last-child td{border-bottom:none;}
+.queue-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:22px 22px 18px;background:linear-gradient(180deg,#FBFCFD 0%,#FFFFFF 100%);border-bottom:1px solid var(--hair);}
+.queue-section-title h2{margin:0;font-size:20px;letter-spacing:-.02em;color:var(--ink);}
+.queue-section-title p{margin:6px 0 0;font-size:13px;color:var(--muted);}
+.queue-section-kpis{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+.queue-section-kpi{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;border:1px solid var(--hair);background:#fff;box-shadow:0 1px 2px rgba(16,35,31,.03);font-size:13px;font-weight:650;color:var(--ink);}
+.queue-section-kpi .n{font-size:15px;font-weight:800;}
+.queue-kpi-dot{width:10px;height:10px;border-radius:999px;display:inline-block;}
+.queue-kpi-dot.blue{background:#3B82F6;}
+.queue-kpi-dot.red{background:#EF4444;}
+.queue-kpi-dot.green{background:#16A34A;}
+@media (max-width:900px){.queue-section-head{flex-direction:column;align-items:flex-start;}.queue-section-kpis{justify-content:flex-start;}}
 .queue-row{cursor:pointer;}
 .queue-row:hover{background:transparent;}
 .queue-row.is-active{background:transparent;}
@@ -1674,7 +1685,7 @@ function ageLabel(iso){
   return Math.floor(hrs/24)+'d';
 }
 function operatingQueue(){
-  return ST.data.requests
+  var all=ST.data.requests
     .filter(function(rq){return rq.status==='Requested'||rq.status==='Needs Review'||rq.status==='Returned'||rq.status==='Approved'||rq.status==='Denied';})
     .map(function(rq){
       var checks=checksForRequest(rq);
@@ -1694,6 +1705,11 @@ function operatingQueue(){
       };
     })
     .sort(function(a,b){return a.readiness.score-b.readiness.score;});
+
+  var high=all.filter(function(x){return x.impact==='High';}).slice(0,3);
+  var medium=all.filter(function(x){return x.impact==='Medium';}).slice(0,3);
+  var low=all.filter(function(x){return x.impact==='Low';}).slice(0,1);
+  return high.concat(medium,low);
 }
 function requestDetailPanel(row){
   var rq=row.rq,d=row.dominant,readiness=row.readiness;
@@ -1729,7 +1745,7 @@ function viewOperatingView(){
     var isActive=focusRow&&r.rq.id===focusRow.rq.id;
     var sessionDecision=ST.queueDecisions[r.rq.id]||'';
     var decisionClass=sessionDecision==='Approved'?' decision-approved':(sessionDecision==='Denied'?' decision-denied':(sessionDecision==='Returned'?' decision-returned':''));
-    var decisionTag=sessionDecision==='Approved'?'<span class="queue-decision-tag" style="background:#F3EEE3;color:#15803D;border-color:#16A34A">Approved</span>':(sessionDecision==='Denied'?'<span class="queue-decision-tag" style="background:#F3EEE3;color:#B91C1C;border-color:#DC2626">Denied</span>':(sessionDecision==='Returned'?'<span class="queue-decision-tag" style="background:#F3EEE3;color:#1D4ED8;border-color:#2563EB">Returned</span>':''));
+    var decisionTag=sessionDecision==='Approved'?'<span class="queue-decision-tag" style="background:#F6F2EA;color:#15803D;border-color:#16A34A">Approved</span>':(sessionDecision==='Denied'?'<span class="queue-decision-tag" style="background:#F6F2EA;color:#B91C1C;border-color:#DC2626">Denied</span>':(sessionDecision==='Returned'?'<span class="queue-decision-tag" style="background:#F6F2EA;color:#1D4ED8;border-color:#2563EB">Returned</span>':''));
     var impactClass=r.impact==='High'?' high-impact':'';
     return '<tr class="queue-row'+(isActive?' is-active':'')+impactClass+decisionClass+'" data-act="queuefocus" data-id="'+r.rq.id+'">'+
       '<td><span class="queue-dot" style="background:'+r.readiness.tone.ring+'"></span><b>'+esc(r.title)+'</b>'+decisionTag+'</td>'+
@@ -1744,12 +1760,15 @@ function viewOperatingView(){
   var table=queue.length?
     '<table class="queue-table"><thead><tr><th>Request</th><th>Student</th><th>Site / Rotation</th><th>Impact</th><th>Readiness</th><th>Recommended Next Action</th><th>Age</th></tr></thead><tbody>'+rowsHtml+'</tbody></table>'
     :'<p class="note" style="padding:16px 20px">No open requests right now.</p>';
+  var highCount=queue.filter(function(x){return x.impact==='High';}).length;
+  var decidedToday=Object.keys(ST.queueDecisions||{}).length;
+  var queueHeader='<div class="queue-section-head"><div class="queue-section-title"><h2>Request Queue</h2><p>Active scheduling requests requiring review or action</p></div><div class="queue-section-kpis"><div class="queue-section-kpi"><span class="queue-kpi-dot blue"></span><span class="n">'+queue.length+'</span> active</div><div class="queue-section-kpi"><span class="queue-kpi-dot red"></span><span class="n">'+highCount+'</span> high impact</div><div class="queue-section-kpi"><span class="queue-kpi-dot green"></span><span class="n">'+decidedToday+'</span> decided today</div></div></div>';
   var detail=focusRow?requestDetailPanel(focusRow):'';
   return '<div class="stack">'+
     '<div class="ops-header"><div class="ops-title"><div class="eyebrow">Priority Queue</div><h1>What changed. What&rsquo;s at risk. What to do next.</h1><p>Arc turns schedule changes into clear decisions.</p></div>'+
       '<div class="ops-controls"><button class="tbtn">View: All Open '+ic('chevr',13)+'</button><button class="tbtn" data-act="goto" data-v="capture">New Request</button></div></div>'+
     detail+
-    '<section class="card" style="padding:0"><div style="padding:16px 20px 0"><div class="eyebrow">Request queue</div></div><div style="margin-top:10px">'+table+'</div></section>'+
+    '<section class="card" style="padding:0">'+queueHeader+table+'</section>'+
   '</div>';
 }
 
