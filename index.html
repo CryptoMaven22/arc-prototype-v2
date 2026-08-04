@@ -508,6 +508,53 @@
   }
   .atlas-footer .footer-center{text-align:center;}
   .atlas-footer .footer-right{text-align:right;}
+  .arc-edition{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    cursor:help;
+    outline:none;
+  }
+  .arc-edition-tooltip{
+    position:absolute;
+    left:50%;
+    bottom:calc(100% + 12px);
+    transform:translate(-50%,6px);
+    width:max-content;
+    max-width:min(360px,82vw);
+    padding:10px 12px;
+    border-radius:10px;
+    background:#fff;
+    color:#10231F;
+    border:1px solid #D9E2DF;
+    box-shadow:0 12px 30px rgba(0,0,0,.18);
+    font-size:12px;
+    font-weight:600;
+    line-height:1.4;
+    letter-spacing:0;
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    transition:opacity .16s ease,transform .16s ease,visibility .16s ease;
+    z-index:80;
+  }
+  .arc-edition-tooltip::after{
+    content:"";
+    position:absolute;
+    top:100%;
+    left:50%;
+    transform:translateX(-50%);
+    border:6px solid transparent;
+    border-top-color:#fff;
+  }
+  .arc-edition:hover .arc-edition-tooltip,
+  .arc-edition:focus .arc-edition-tooltip,
+  .arc-edition:focus-visible .arc-edition-tooltip{
+    opacity:1;
+    visibility:visible;
+    transform:translate(-50%,0);
+  }
+
   @media (max-width:640px){
     .atlas-footer{grid-template-columns:1fr;gap:4px;text-align:center;padding:12px;}
     .atlas-footer .footer-right,.atlas-footer .footer-center{text-align:center;}
@@ -2846,7 +2893,12 @@ function render(){
     var content=ST.role==='student'?viewStudentPortal():viewHospitalFeed();
     body='<div class="shell"><main style="margin:0 auto">'+content+'</main></div>';
   }
-  app.innerHTML=header+body;
+  var footer='<footer class="atlas-footer" aria-label="Arc product footer">'+
+    '<div>Arc · Clinical Scheduling Readiness System</div>'+
+    '<div class="footer-center"><span class="arc-edition" tabindex="0" aria-describedby="arcEditionTooltip">Arc Engine v0.1 · Ember Edition<span class="arc-edition-tooltip" id="arcEditionTooltip" role="tooltip">“A small signal can illuminate the whole system.”</span></span></div>'+
+    '<div class="footer-right">getatlasflow.io</div>'+
+  '</footer>';
+  app.innerHTML=header+body+footer;
 
   renderOverlay();
 }
@@ -3302,4 +3354,4 @@ window.addEventListener('hashchange',function(){
 </script>
 
 </body></html>
-<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_HtmuNRAFgACSejK4nZwcpVrDkLzN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_Cp3YwdBSW58B2z4jMHyYwq3SS7FM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_212ZZKQ76m76PK6skyQFHKYfEu4u" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_71RMNwqH1WDEHXTJG4jP5D5qmMCz" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
+<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_HtmuNRAFgACSejK4nZwcpVrDkLzN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_Cp3YwdBSW58B2z4jMHyYwq3SS7FM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_212ZZKQ76m76PK6skyQFHKYfEu4u" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_71RMNwqH1WDEHXTJG4jP5D5qmMCz" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_7rcy9uSJ9HqcQz1hUEB7zNPUqfRq" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
