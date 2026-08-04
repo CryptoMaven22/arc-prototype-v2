@@ -565,6 +565,35 @@
 .student-signal .k{font-size:9.5px;font-weight:800;color:#475569;margin-bottom:3px}.student-signal .v{font-size:11.5px;line-height:1.35;color:#334155}.student-signal .v strong{color:var(--accent)}
 .student-meta-panel{border-left:1px solid var(--hair);padding-left:13px;display:flex;flex-direction:column;gap:9px}
 .readiness-ring{display:flex;align-items:center;gap:8px}.readiness-ring .ring{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--accent) calc(var(--score)*1%),#E8EEEC 0);position:relative}.readiness-ring .ring:after{content:"";position:absolute;width:31px;height:31px;border-radius:50%;background:#fff}.readiness-ring .ring b{position:relative;z-index:1;font-size:12px}.readiness-ring small{font-size:9px;color:var(--muted2)}
+.queue-table{width:100%;border-collapse:collapse;font-size:13px;}
+.queue-table thead th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted2);font-weight:700;padding:10px 20px;border-bottom:1px solid var(--hair);background:var(--paper);}
+.queue-table tbody td{padding:12px 20px;border-bottom:1px solid var(--line);vertical-align:middle;}
+.queue-table tbody tr:last-child td{border-bottom:none;}
+.queue-row{cursor:pointer;}
+.queue-row:hover{background:var(--paper);}
+.queue-row.is-active{background:var(--teal-soft);}
+.queue-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:8px;}
+.readiness-ring.ring-sm .ring{width:34px;height:34px;}
+.readiness-ring.ring-sm .ring:after{width:24px;height:24px;}
+.readiness-ring.ring-sm b{font-size:10.5px;}
+.readiness-ring-lg{display:block;text-align:center;}
+.readiness-ring-lg .ring{width:86px;height:86px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--accent) calc(var(--score)*1%),#E8EEEC 0);position:relative;margin:0 auto;}
+.readiness-ring-lg .ring:after{content:"";position:absolute;width:64px;height:64px;border-radius:50%;background:#fff;}
+.readiness-ring-lg .ring b{position:relative;z-index:1;font-size:26px;font-weight:800;}
+.queue-detail{margin-top:18px;padding:20px 22px;}
+.queue-detail-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.queue-detail-head h2{display:flex;align-items:center;gap:10px;font-size:19px;}
+.queue-detail-actions{display:flex;gap:8px;}
+.queue-detail-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-top:18px;}
+.raw-request-box{border:1px solid var(--hair);background:var(--paper);border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.5;color:#334155;margin-top:8px;}
+.kv-line{display:flex;gap:8px;align-items:flex-start;margin-top:12px;}
+.kv-line .k{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted2);font-weight:700;}
+.kv-line .v{font-size:13px;font-weight:600;color:#334155;margin-top:2px;}
+.next-action-box{display:flex;gap:10px;align-items:flex-start;margin-top:8px;}
+.next-action-box b{font-size:14px;}
+.next-action-box p{font-size:12.5px;color:var(--muted);margin:4px 0 0;}
+.next-action-ic{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--teal-soft);color:var(--teal-deep);flex-shrink:0;}
+@media (max-width:900px){.queue-detail-grid{grid-template-columns:repeat(2,1fr);}.queue-table{display:block;overflow-x:auto;}}
 .student-meta-line{display:flex;gap:6px;align-items:flex-start;font-size:10px;color:var(--muted)}.student-meta-line b{display:block;color:#334155;font-weight:600}
 .student-allow{margin-top:11px}.student-allow .chips{margin-top:5px}.student-allow .pill{background:#F1F5F4}
 .student-card-foot{display:flex;justify-content:flex-end;margin-top:10px}.student-card-foot .linkbtn{font-weight:700}
@@ -1237,7 +1266,10 @@ function seed(){return {
     {id:'rq6',rid:'REQ-006',studentId:'s3',type:'ATO',status:'Approved',start:'2026-06-22',end:'2026-06-26',notes:'Vacation.'},
     {id:'rq7',rid:'REQ-007',studentId:'s2',type:'ATO',status:'Approved',start:'2026-06-15',end:'2026-06-16',notes:'Long weekend.'},
     {id:'rq8',rid:'REQ-008',studentId:'s4',type:'DNP',status:'Approved',start:'2026-06-03',end:'2026-06-03',notes:'DNP project day.'},
-    {id:'rq9',rid:'REQ-009',studentId:'s5',type:'ATO',status:'Approved',start:'2026-06-29',end:'2026-06-30',notes:'Vacation.'}
+    {id:'rq9',rid:'REQ-009',studentId:'s5',type:'ATO',status:'Approved',start:'2026-06-29',end:'2026-06-30',notes:'Vacation.'},
+    {id:'rq10',rid:'REQ-010',studentId:'s2',type:'SWAP',status:'Requested',start:'2026-07-20',end:'2026-07-24',source:'Program request',submittedAt:'2026-07-31T14:20:00',originalText:'Requesting a swap with a peer for the week of July 20-24.',notes:'Swap requested with a peer for the week of Jul 20–24.'},
+    {id:'rq11',rid:'REQ-011',studentId:'s3',type:'ADD',status:'Requested',start:'2026-08-03',end:'2026-08-07',source:'Coordinator request',submittedAt:'2026-08-01T08:05:00',originalText:'Please add a new clinical assignment for the week of August 3-7.',notes:'Add a new clinical assignment for the week of Aug 3–7.'},
+    {id:'rq12',rid:'REQ-012',studentId:'s1',type:'MTG',status:'Needs Review',start:'2026-08-04',end:'2026-08-04',source:'Student portal',submittedAt:'2026-08-01T16:40:00',originalText:'I have a professional meeting on August 4 that I need approved.',notes:'Professional meeting day requested.'}
   ],
   blocks:[
     {id:'cb1',bid:'CAL-001',type:'Class Day',cohort:'Cohort A',start:'2026-07-02',end:'2026-07-02',clinicalAllowed:false,notes:'Cohort A didactic day \u2014 no clinical.'},
@@ -1317,7 +1349,7 @@ function bankFor(studentId){
 function badgeSt(s,sm){var c=STATUS[s]||STATUS['Not Checked'];return '<span class="badge-st'+(sm?' sm':'')+'" style="color:'+c.text+';background:'+c.bg+'"><span class="dot" style="background:'+c.dot+'"></span>'+s+'</span>';}
 function sevBadge(s){var c=SEV[s]||SEV.Low;return '<span class="sev" style="color:'+c.text+';background:'+c.bg+'">'+s+'</span>';}
 
-var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,requestFocus:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4'};
+var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,requestFocus:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4',queueFocus:null};
 var lastFocusedElement=null;
 
 function demoFlow(){
@@ -1464,7 +1496,159 @@ function renderOpsKpiPanel(){
     '<div class="ops-kpi-inline-body"><div class="ops-kpi-inline-stats">'+cfg.stats+'</div><div class="ops-kpi-inline-list">'+cfg.rows+'</div><div class="ops-kpi-inline-foot"><button class="mini" data-act="closekpi">Collapse</button><button class="gate-cta on" data-act="kpigoto" data-v="'+cfg.view+'">'+cfg.cta+' '+ic('arrowr',14,'#fff')+'</button></div></div></div>';
 }
 
+/* ---- Operating View: generic request queue + detail panel ---- */
+var NEXT_ACTION_LABEL={
+  'Missing Data':'Reassign to alternate site',
+  'Level Mismatch':'Reassign to eligible site',
+  'Specialty Mismatch':'Move to tagged site',
+  'Site Capacity':'Escalate to coordinator',
+  'Time-Off Conflict':'Review site availability',
+  'School Calendar Conflict':'Remove conflicting day'
+};
+function dominantCheck(checks){
+  if(!checks||!checks.length)return null;
+  var rank={High:0,Medium:1,Low:2};
+  return checks.slice().sort(function(a,b){return (rank[a.severity]||9)-(rank[b.severity]||9);})[0];
+}
+function readinessFromChecks(checks){
+  var score=100;
+  (checks||[]).forEach(function(c){
+    if(c.severity==='High')score-=40;
+    else if(c.severity==='Medium')score-=15;
+    else score-=5;
+  });
+  score=Math.max(0,Math.min(100,score));
+  var label=score>=80?'Ready':(score>=50?'Needs Review':'Blocked');
+  var tone=score>=80?{text:'#15803D',ring:'#16A34A',bg:'#DCFCE7'}:(score>=50?{text:'#92400E',ring:'#D97706',bg:'#FEF3C7'}:{text:'#B91C1C',ring:'#DC2626',bg:'#FEE2E2'});
+  return {score:score,label:label,tone:tone};
+}
+function checksForRequest(rq){
+  if(rq.assignmentId)return checksFor(rq.assignmentId);
+  return openChecks().filter(function(c){
+    var a=assignmentById(c.assignmentId);
+    return a&&a.studentId===rq.studentId;
+  });
+}
+function requestSiteRotationLabel(rq){
+  var a=rq.assignmentId?assignmentById(rq.assignmentId):null;
+  if(a){
+    var si=ST.data.sites.filter(function(s){return s.id===a.siteId;})[0];
+    return (si?si.name:'Unassigned site')+' / '+a.rotation;
+  }
+  return TYPE_LABEL[rq.type]||rq.type;
+}
+function requestTitleLabel(rq,checks){
+  var d=dominantCheck(checks);
+  if(d){
+    if(d.type==='Missing Data'&&/preceptor/i.test(d.summary))return 'Missing Preceptor';
+    if(d.type==='Time-Off Conflict')return 'Time Off Conflict';
+    if(d.type==='Level Mismatch')return 'Placement Eligibility Issue';
+    if(d.type==='Specialty Mismatch')return 'Specialty Mismatch';
+    if(d.type==='Site Capacity')return 'Site Capacity Conflict';
+    if(d.type==='School Calendar Conflict')return 'School Calendar Conflict';
+  }
+  if(rq.type==='MOVE')return 'Site Change Request';
+  if(rq.type==='SWAP')return 'Swap Request';
+  if(rq.type==='ADD')return 'Add Assignment';
+  if(rq.type==='CANCEL')return 'Cancel Assignment';
+  return TYPE_LABEL[rq.type]||rq.type;
+}
+function nextActionLabel(checks,rq){
+  var d=dominantCheck(checks);
+  if(d)return NEXT_ACTION_LABEL[d.type]||'Review request';
+  if(rq.type==='SWAP')return 'Approve swap';
+  if(rq.type==='ADD')return 'Add to schedule';
+  if(rq.type==='MOVE')return 'Approve move';
+  return 'Approve request';
+}
+function requestTimestamp(rq){return rq.submittedAt||(rq.start+'T09:00:00');}
+function ageLabel(iso){
+  var ms=Date.now()-new Date(iso).getTime();
+  if(ms<0)ms=0;
+  var hrs=Math.floor(ms/3600000);
+  if(hrs<1)return '<1h';
+  if(hrs<24)return hrs+'h';
+  return Math.floor(hrs/24)+'d';
+}
+function operatingQueue(){
+  return ST.data.requests
+    .filter(function(rq){return rq.status==='Requested'||rq.status==='Needs Review'||rq.status==='Returned';})
+    .map(function(rq){
+      var checks=checksForRequest(rq);
+      var d=dominantCheck(checks);
+      var readiness=readinessFromChecks(checks);
+      return {
+        rq:rq,
+        student:ST.data.students.filter(function(s){return s.id===rq.studentId;})[0],
+        siteRotation:requestSiteRotationLabel(rq),
+        title:requestTitleLabel(rq,checks),
+        impact:d?d.severity:'Low',
+        readiness:readiness,
+        nextAction:nextActionLabel(checks,rq),
+        checks:checks,
+        dominant:d,
+        age:ageLabel(requestTimestamp(rq))
+      };
+    })
+    .sort(function(a,b){return a.readiness.score-b.readiness.score;});
+}
+function requestDetailPanel(row){
+  var rq=row.rq,d=row.dominant,readiness=row.readiness;
+  var raw=rq.originalText||rq.notes||'No submitted text captured for this request.';
+  var issueLine=d?d.summary:'No open readiness issues on this request.';
+  var actionLine=d?d.action:'This request is ready for a program decision.';
+  var statusPill='<span class="badge-st sm" style="color:'+readiness.tone.text+';background:'+readiness.tone.bg+'">'+readiness.label+'</span>';
+  return '<section class="card queue-detail"><div class="queue-detail-head"><h2>'+esc(row.title)+' '+statusPill+'</h2>'+
+      '<div class="queue-detail-actions"><button class="tbtn">Actions '+ic('chevr',13)+'</button><button class="gate-cta on" data-act="requestopen" data-id="'+rq.id+'">Take Action</button></div></div>'+
+    '<div class="queue-detail-grid">'+
+      '<div><div class="lbl-mini">Raw Request</div><div class="raw-request-box">'+esc(raw)+'</div><div class="mono" style="font-size:11px;color:var(--muted2);margin-top:8px">Received '+esc(row.age)+' ago</div></div>'+
+      '<div><div class="lbl-mini">Arc Interpretation</div>'+
+        '<div class="kv-line"><div><div class="k">Student</div><div class="v">'+esc(row.student?row.student.name:'\u2014')+'</div></div></div>'+
+        '<div class="kv-line"><div><div class="k">Site / Rotation</div><div class="v">'+esc(row.siteRotation)+'</div></div></div>'+
+        '<div class="kv-line"><div><div class="k">Issue</div><div class="v">'+esc(d?d.type:'None')+'</div></div></div>'+
+        '<div class="kv-line"><div><div class="k">Requested Dates</div><div class="v">'+(rq.start===rq.end?fmtFull(rq.start):fmtRange(rq.start,rq.end))+'</div></div></div>'+
+      '</div>'+
+      '<div style="text-align:center"><div class="lbl-mini">Readiness &amp; Risk</div>'+
+        '<div class="readiness-ring-lg" style="margin-top:10px"><span class="ring" style="--score:'+readiness.score+';--accent:'+readiness.tone.ring+'"><b>'+readiness.score+'</b></span></div>'+
+        '<div style="font-weight:700;color:'+readiness.tone.text+';margin-top:6px">'+readiness.label+'</div>'+
+        '<div class="lbl-mini" style="margin-top:14px;text-align:left">Risk Reason</div><p style="font-size:13px;color:var(--muted);margin:4px 0 0;text-align:left">'+esc(issueLine)+'</p>'+
+      '</div>'+
+      '<div><div class="lbl-mini">Recommended Next Action</div>'+
+        '<div class="next-action-box"><span class="next-action-ic">'+ic('arrowr',15)+'</span><div><b>'+esc(row.nextAction)+'</b><p>'+esc(actionLine)+'</p></div></div>'+
+        '<button class="mini go" data-act="goto" data-v="calendar2">View schedule impact '+ic('chevr',13)+'</button>'+
+      '</div>'+
+    '</div></section>';
+}
+function viewOperatingView(){
+  var queue=operatingQueue();
+  var focusRow=queue.filter(function(r){return r.rq.id===ST.queueFocus;})[0]||queue[0];
+  var rowsHtml=queue.map(function(r){
+    var impactTone=r.impact==='High'?{bg:'#FEE2E2',text:'#B91C1C'}:(r.impact==='Medium'?{bg:'#FEF3C7',text:'#92400E'}:{bg:'#DCFCE7',text:'#15803D'});
+    var isActive=focusRow&&r.rq.id===focusRow.rq.id;
+    return '<tr class="queue-row'+(isActive?' is-active':'')+'" data-act="queuefocus" data-id="'+r.rq.id+'">'+
+      '<td><span class="queue-dot" style="background:'+r.readiness.tone.ring+'"></span><b>'+esc(r.title)+'</b></td>'+
+      '<td>'+esc(r.student?r.student.name:'\u2014')+'</td>'+
+      '<td>'+esc(r.siteRotation)+'</td>'+
+      '<td><span class="pill" style="background:'+impactTone.bg+';color:'+impactTone.text+'">'+(r.impact==='Medium'?'Med':r.impact)+'</span></td>'+
+      '<td><span class="readiness-ring ring-sm"><span class="ring" style="--score:'+r.readiness.score+';--accent:'+r.readiness.tone.ring+'"><b>'+r.readiness.score+'</b></span><small style="color:'+r.readiness.tone.text+'">'+r.readiness.label+'</small></span></td>'+
+      '<td>'+esc(r.nextAction)+'</td>'+
+      '<td class="mono" style="color:var(--muted2)">'+esc(r.age)+'</td>'+
+    '</tr>';
+  }).join('');
+  var table=queue.length?
+    '<table class="queue-table"><thead><tr><th>Request</th><th>Student</th><th>Site / Rotation</th><th>Impact</th><th>Readiness</th><th>Recommended Next Action</th><th>Age</th></tr></thead><tbody>'+rowsHtml+'</tbody></table>'
+    :'<p class="note" style="padding:16px 20px">No open requests right now.</p>';
+  var detail=focusRow?requestDetailPanel(focusRow):'';
+  return '<div class="stack">'+
+    '<div class="ops-header"><div class="ops-title"><h1>What changed. What&rsquo;s at risk. What to do next.</h1><p>Arc turns schedule changes into clear decisions.</p></div>'+
+      '<div class="ops-controls"><button class="tbtn">View: All Open '+ic('chevr',13)+'</button><button class="tbtn" data-act="goto" data-v="capture">New Request</button></div></div>'+
+    '<section class="card" style="padding:0"><div style="padding:16px 20px 0"><div class="eyebrow">Request queue</div></div><div style="margin-top:10px">'+table+'</div></section>'+
+    detail+
+  '</div>';
+}
+
 function viewDashboard(){
+
   var rq=priyaRequest(), asg=priyaAssignment();
   var complete=!!(rq&&rq.status==='Approved'&&rq.published);
   var confirmed=!!(asg&&asg.preceptorConfirmed);
@@ -2572,10 +2756,11 @@ function viewCapture(){
   '</div>';
 }
 
-var VIEWS={capture:viewCapture,dashboard:viewDashboard,assignments:viewAssignments,timeline:viewTimeline,calendar2:viewCalendar2,checks:viewChecks,requests:viewRequests,calendar:viewCalendar,sites:viewSites,students:viewStudents};
+var VIEWS={overview:viewOperatingView,capture:viewCapture,dashboard:viewDashboard,assignments:viewAssignments,timeline:viewTimeline,calendar2:viewCalendar2,checks:viewChecks,requests:viewRequests,calendar:viewCalendar,sites:viewSites,students:viewStudents};
 function nav(){
   var c=counts(), pr=pendingReq().length;
   var workflow=[
+    ['overview','Overview','spark',null],
     ['dashboard','Operations Review','shield',null],
     ['capture','Capture','inbox',null],
     ['requests','Change Requests','inbox',pr||null],
@@ -2720,7 +2905,8 @@ document.addEventListener('click',function(e){
   var act=t.getAttribute('data-act');
   if(act==='goto'){ST.view=t.getAttribute('data-v');ST.siteFocus=null;render();}
   else if(act==='captureplay'){runArcCapture();}
-  else if(act==='home'){ST.role='leader';ST.view='dashboard';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;render();}
+  else if(act==='home'){ST.role='leader';ST.view='dashboard';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;ST.queueFocus=null;render();}
+  else if(act==='queuefocus'){ST.queueFocus=t.getAttribute('data-id');render();}
   else if(act==='open'){ST.openStudentId=null;ST.openId=t.getAttribute('data-id');renderOverlay();}
   else if(act==='openstudent'){ST.openId=null;ST.openStudentId=t.getAttribute('data-id');renderOverlay();}
   else if(act==='closedrawer'){ST.openId=null;renderOverlay();}
