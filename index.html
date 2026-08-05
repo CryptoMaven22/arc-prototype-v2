@@ -3553,12 +3553,12 @@ function nav(){
     ['capture','Capture','inbox',null],
     ['requests','Change Requests','inbox',pr||null],
     ['assignments','Assignment Readiness','layers',c.review||null],
+    ['timeline','Assignment Timeline','calendar',null],
     ['calendar2','Coverage Calendar','calendar',null]
   ];
   var reference=[
     ['students','Students','users',null],
-    ['sites','Clinical sites','building',null],
-    ['timeline','Assignment Timeline','calendar',null]
+    ['sites','Clinical sites','building',null]
   ];
   function navItems(items){return items.map(function(it){
     var active=ST.view===it[0];
