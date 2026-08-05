@@ -2327,7 +2327,9 @@ function viewOperatingView(){
     return '<span class="ov4-mini-ring" style="--score:'+score+';--accent:'+accent+'"><b>'+score+'</b></span>';
   }
   function choiceButton(key,label,iconName){
-    var selected=(ST.ovDecisionChoice||'approve')===key;
+    var committed=ST.queueDecisions&&focusRow&&focusRow.rq?ST.queueDecisions[focusRow.rq.id]:null;
+    var committedKey=committed==='Approved'?'approve':(committed==='Denied'?'deny':(committed==='Clarification requested'?'clarify':(committed==='Escalated'?'escalate':null)));
+    var selected=(committedKey||ST.ovDecisionChoice||'approve')===key;
     return '<button class="ov4-choice'+(selected?' selected':'')+'" data-act="ovdecisionselect" data-choice="'+key+'"><span class="ov4-choice-radio">'+(selected?ic('check',11,'#fff'):ic(iconName,12,'currentColor'))+'</span><span>'+label+'</span></button>';
   }
 
