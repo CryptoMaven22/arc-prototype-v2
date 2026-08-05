@@ -515,6 +515,26 @@
   .queue-success h3{margin:0;font-size:17px}.queue-success p{margin:5px 0 0;color:#475569;font-size:13px;}
   @media(max-width:820px){.queue-choice-grid{grid-template-columns:1fr}.queue-confirm-actions{align-items:stretch;flex-direction:column-reverse}.queue-confirm-actions button{width:100%;justify-content:center}}
 
+  /* Combined Operating View — health command layer + decision queue */
+  .ov-command{border:1px solid var(--hair);border-radius:16px;background:#fff;overflow:hidden;box-shadow:0 4px 18px rgba(16,35,31,.05);}
+  .ov-command-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:18px 20px;border-bottom:1px solid var(--hair);background:linear-gradient(180deg,#FBFCFD,#FFFFFF);}
+  .ov-command-head h2{font-size:18px;margin:0;}.ov-command-head p{margin:4px 0 0;font-size:12.5px;color:var(--muted);}
+  .ov-health-pill{display:inline-flex;align-items:center;gap:7px;border:1px solid #B8D8D1;background:#F0F9F7;color:var(--teal-deep);border-radius:999px;padding:7px 10px;font-size:11px;font-weight:800;white-space:nowrap;}
+  .ov-signal-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:14px 16px 0;}
+  .ov-signal{border:1px solid var(--hair);border-radius:12px;background:#FCFEFD;padding:12px 13px;text-align:left;min-height:92px;}
+  .ov-signal-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}.ov-signal-dot{width:9px;height:9px;border-radius:99px;display:inline-block;}
+  .ov-signal .value{font-size:25px;font-weight:800;line-height:1;margin-top:10px;}.ov-signal .label{font-size:12px;font-weight:750;margin-top:3px;}.ov-signal .detail{font-size:10.5px;color:var(--muted);margin-top:5px;line-height:1.35;}
+  .ov-command-main{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(300px,.8fr);gap:14px;padding:14px 16px 16px;}
+  .ov-attention{border:1px solid #F5C38C;border-left:4px solid #D97706;border-radius:12px;background:#FFFBF5;padding:14px 15px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+  .ov-attention .eyebrow{color:#B45309;font-weight:800;}.ov-attention h3{font-size:15px;margin:3px 0 0;}.ov-attention p{font-size:11.5px;color:var(--muted);margin:4px 0 0;line-height:1.4;}
+  .ov-integrity{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin-top:10px;border:1px solid var(--hair);border-radius:11px;overflow:hidden;background:#FAFCFB;}
+  .ov-integrity-item{padding:10px 11px;border-right:1px solid var(--hair);}.ov-integrity-item:last-child{border-right:none;}.ov-integrity-item b{display:block;font-size:11.5px;}.ov-integrity-item span{display:block;font-size:9.5px;color:var(--muted);margin-top:2px;}
+  .ov-health-card{border:1px solid var(--hair);border-radius:12px;background:#FCFEFD;padding:14px;display:flex;align-items:center;gap:14px;}
+  .ov-health-ring{width:82px;height:82px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--teal) calc(var(--pct)*1%),#E8EEEC 0);position:relative;flex:0 0 auto;}.ov-health-ring:after{content:"";position:absolute;width:60px;height:60px;border-radius:50%;background:#fff;}.ov-health-ring b{position:relative;z-index:1;font-size:22px;}.ov-health-copy strong{display:block;font-size:14px;}.ov-health-copy span{display:block;font-size:11px;color:var(--muted);line-height:1.4;margin-top:4px;}
+  .condition-pill{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:10px;font-weight:800;white-space:nowrap;}
+  @media(max-width:1100px){.ov-signal-grid{grid-template-columns:repeat(2,1fr)}.ov-command-main{grid-template-columns:1fr}.ov-integrity{grid-template-columns:repeat(2,1fr)}.ov-integrity-item:nth-child(2){border-right:none}.ov-integrity-item:nth-child(-n+2){border-bottom:1px solid var(--hair)}}
+  @media(max-width:640px){.ov-signal-grid{grid-template-columns:1fr}.ov-attention{align-items:flex-start;flex-direction:column}.ov-integrity{grid-template-columns:1fr}.ov-integrity-item{border-right:none;border-bottom:1px solid var(--hair)}.ov-integrity-item:last-child{border-bottom:none}}
+
   /* AtlasFlow footer */
   .atlas-footer{
     min-height:63px;
@@ -1755,36 +1775,58 @@ function requestDetailPanel(row){
 function viewOperatingView(){
   var queue=operatingQueue();
   var focusRow=queue.filter(function(r){return r.rq.id===ST.queueFocus;})[0]||queue[0];
+  function ageDays(x){var n=parseInt(x,10);return isNaN(n)?0:n;}
+  function conditionFor(r){
+    var age=ageDays(r.age);
+    if(r.impact==='High' && age>30)return 'Post-schedule';
+    if(r.impact==='High')return 'Conflicting';
+    if(age>14)return 'Late';
+    return 'Pending';
+  }
+  function conditionTone(c){
+    return c==='Conflicting'?{bg:'#FEE2E2',text:'#B91C1C',dot:'#EF4444'}:
+      (c==='Post-schedule'?{bg:'#FFF1E7',text:'#C2410C',dot:'#F97316'}:
+      (c==='Late'?{bg:'#FEF3C7',text:'#92400E',dot:'#F59E0B'}:{bg:'#EAF4FF',text:'#1D4ED8',dot:'#3B82F6'}));
+  }
+  var conditionCounts={Pending:0,Late:0,'Post-schedule':0,Conflicting:0};
+  queue.forEach(function(r){conditionCounts[conditionFor(r)]++;});
   var rowsHtml=queue.map(function(r){
-    var impactTone=r.impact==='High'?{bg:'#FEE2E2',text:'#B91C1C'}:(r.impact==='Medium'?{bg:'#FEF3C7',text:'#92400E'}:{bg:'#DCFCE7',text:'#15803D'});
+    var condition=conditionFor(r),ct=conditionTone(condition);
     var isActive=focusRow&&r.rq.id===focusRow.rq.id;
     var sessionDecision=ST.queueDecisions[r.rq.id]||'';
     var decisionClass=sessionDecision==='Approved'?' decision-approved':(sessionDecision==='Denied'?' decision-denied':(sessionDecision==='Returned'?' decision-returned':''));
     var decisionTag=sessionDecision==='Approved'?'<span class="queue-decision-tag" style="background:#F6F2EA;color:#15803D;border-color:#16A34A">Approved</span>':(sessionDecision==='Denied'?'<span class="queue-decision-tag" style="background:#F6F2EA;color:#B91C1C;border-color:#DC2626">Denied</span>':(sessionDecision==='Returned'?'<span class="queue-decision-tag" style="background:#F6F2EA;color:#1D4ED8;border-color:#2563EB">Returned</span>':''));
     var impactClass=r.impact==='High'?' high-impact':'';
+    var ato=r.rq.type==='ATO'?(r.readiness.score<70?'1 day left':'Available'):'—';
     return '<tr class="queue-row'+(isActive?' is-active':'')+impactClass+decisionClass+'" data-act="queuefocus" data-id="'+r.rq.id+'">'+
       '<td><span class="queue-dot" style="background:'+r.readiness.tone.ring+'"></span><b>'+esc(r.title)+'</b>'+decisionTag+'</td>'+
-      '<td>'+esc(r.student?r.student.name:'\u2014')+'</td>'+
-      '<td>'+esc(r.siteRotation)+'</td>'+
-      '<td><span class="pill" style="background:'+impactTone.bg+';color:'+impactTone.text+'">'+(r.impact==='Medium'?'Med':r.impact)+'</span></td>'+
+      '<td>'+esc(r.student?r.student.name:'—')+'</td>'+
+      '<td>'+esc(r.rq.start===r.rq.end?fmtShort(r.rq.start):fmtRange(r.rq.start,r.rq.end))+'</td>'+
+      '<td><span class="condition-pill" style="background:'+ct.bg+';color:'+ct.text+'">'+condition+'</span></td>'+
+      '<td>'+ato+'</td>'+
       '<td><span class="readiness-ring ring-sm"><span class="ring" style="--score:'+r.readiness.score+';--accent:'+r.readiness.tone.ring+'"><b>'+r.readiness.score+'</b></span><small style="color:'+r.readiness.tone.text+'">'+r.readiness.label+'</small></span></td>'+
       '<td>'+esc(r.nextAction)+'</td>'+
       '<td class="mono" style="color:var(--muted2)">'+esc(r.age)+'</td>'+
     '</tr>';
   }).join('');
-  var table=queue.length?
-    '<table class="queue-table"><thead><tr><th>Request</th><th>Student</th><th>Site / Rotation</th><th>Impact</th><th>Readiness</th><th>Recommended Next Action</th><th>Age</th></tr></thead><tbody>'+rowsHtml+'</tbody></table>'
-    :'<p class="note" style="padding:16px 20px">No open requests right now.</p>';
-  var highCount=queue.filter(function(x){return x.impact==='High';}).length;
+  var table=queue.length?'<table class="queue-table"><thead><tr><th>Request</th><th>Student</th><th>Dates</th><th>Condition</th><th>ATO Status</th><th>Readiness</th><th>Recommended Next Action</th><th>Age</th></tr></thead><tbody>'+rowsHtml+'</tbody></table>':'<p class="note" style="padding:16px 20px">No open requests right now.</p>';
   var decidedToday=Object.keys(ST.queueDecisions||{}).length;
-  var queueHeader='<div class="queue-section-head"><div class="queue-section-title"><h2>Request Queue</h2><p>Active scheduling requests requiring review or action</p></div><div class="queue-section-kpis"><div class="queue-section-kpi"><span class="queue-kpi-dot blue"></span><span class="n">'+queue.length+'</span> active</div><div class="queue-section-kpi"><span class="queue-kpi-dot red"></span><span class="n">'+highCount+'</span> high impact</div><div class="queue-section-kpi"><span class="queue-kpi-dot green"></span><span class="n">'+decidedToday+'</span> decided today</div></div></div>';
+  var documentationMismatch=decidedToday?0:1;
+  var healthScore=Math.max(45,100-(conditionCounts.Conflicting*8)-(conditionCounts['Post-schedule']*10)-(conditionCounts.Late*4)-(documentationMismatch*6));
+  var dominant=focusRow||queue[0];
+  var attentionTitle=dominant?dominant.title+': '+dominant.nextAction:'No immediate action required';
+  var attentionCopy=dominant?(conditionFor(dominant)+' request · '+dominant.readiness.label+' · evidence available in the selected request workspace'):'The operating queue is clear.';
+  var signals=[
+    {label:'Pending',value:conditionCounts.Pending,detail:'New requests awaiting review',dot:'#3B82F6',bg:'#EAF4FF'},
+    {label:'Late',value:conditionCounts.Late,detail:'Requests aging beyond the review window',dot:'#F59E0B',bg:'#FFFBEB'},
+    {label:'Post-schedule',value:conditionCounts['Post-schedule'],detail:'Changes after schedule dissemination',dot:'#F97316',bg:'#FFF7ED'},
+    {label:'Conflicting',value:conditionCounts.Conflicting,detail:'ATO, site, or schedule conflicts',dot:'#EF4444',bg:'#FEF2F2'}
+  ];
+  var signalHtml=signals.map(function(s){return '<div class="ov-signal" style="background:'+s.bg+'33"><div class="ov-signal-top"><span class="ov-signal-dot" style="background:'+s.dot+'"></span><span class="mono" style="font-size:10px;color:var(--muted2)">LIVE</span></div><div class="value">'+s.value+'</div><div class="label">'+s.label+'</div><div class="detail">'+s.detail+'</div></div>';}).join('');
+  var queueHeader='<div class="queue-section-head"><div class="queue-section-title"><h2>Attention Queue</h2><p>Requests requiring review, evidence, or a human decision</p></div><div class="queue-section-kpis"><div class="queue-section-kpi"><span class="queue-kpi-dot blue"></span><span class="n">'+queue.length+'</span> active</div><div class="queue-section-kpi"><span class="queue-kpi-dot red"></span><span class="n">'+(conditionCounts.Conflicting+conditionCounts['Post-schedule'])+'</span> elevated</div><div class="queue-section-kpi"><span class="queue-kpi-dot green"></span><span class="n">'+decidedToday+'</span> decided today</div></div></div>';
+  var command='<section class="ov-command"><div class="ov-command-head"><div><h2>Schedule command layer</h2><p>See system health, identify risk, and move directly into the decision that needs attention.</p></div><span class="ov-health-pill">'+ic('shield',13,'#0F766E')+' Human-controlled operating view</span></div><div class="ov-signal-grid">'+signalHtml+'</div><div class="ov-command-main"><div><div class="ov-attention"><div><div class="eyebrow">Requires attention now</div><h3>'+esc(attentionTitle)+'</h3><p>'+esc(attentionCopy)+'</p></div><button class="gate-cta on" data-act="queueactionopen" data-id="'+(dominant?dominant.rq.id:'')+'">Review request '+ic('arrowr',14,'#fff')+'</button></div><div class="ov-integrity"><div class="ov-integrity-item"><b>'+documentationMismatch+' documentation mismatch</b><span>Excel and attendance records not yet reconciled</span></div><div class="ov-integrity-item"><b>'+queue.length+' active requests</b><span>Across the current review window</span></div><div class="ov-integrity-item"><b>'+decidedToday+' decisions completed</b><span>Human-controlled outcomes today</span></div><div class="ov-integrity-item"><b>Evidence linked</b><span>Schedule references available in request detail</span></div></div></div><div class="ov-health-card"><div class="ov-health-ring" style="--pct:'+healthScore+'"><b>'+healthScore+'</b></div><div class="ov-health-copy"><strong>'+(healthScore>=85?'Stable with minor exceptions':'Attention required')+'</strong><span>Score reflects unresolved conflicts, late requests, post-schedule changes, and incomplete documentation handoffs.</span></div></div></div></section>';
   var detail=focusRow?requestDetailPanel(focusRow):'';
-  return '<div class="stack">'+
-    '<div class="ops-header"><div class="ops-title"><div class="eyebrow">Priority Queue</div><h1>What changed. What&rsquo;s at risk. What to do next.</h1><p>Arc turns schedule changes into clear decisions.</p></div>'+
-      '<div class="ops-controls"><button class="tbtn">View: All Open '+ic('chevr',13)+'</button><button class="tbtn" data-act="goto" data-v="capture">New Request</button></div></div>'+
-    detail+
-    '<section class="card queue-shell" style="padding:0">'+queueHeader+table+'</section>'+
-  '</div>';
+  return '<div class="stack"><div class="ops-header"><div class="ops-title"><div class="eyebrow">Operating View</div><h1>See the system. Work the exception. Close the loop.</h1><p>Schedule health and request decisions in one human-controlled workspace.</p></div><div class="ops-controls"><button class="tbtn">Jul 6–17, 2026</button><button class="tbtn">All sites '+ic('chevr',13)+'</button><button class="tbtn" data-act="goto" data-v="capture">New Request</button></div></div>'+command+detail+'<section class="card queue-shell" style="padding:0">'+queueHeader+table+'</section></div>';
 }
 
 function viewDashboard(){
@@ -2900,8 +2942,7 @@ var VIEWS={overview:viewOperatingView,capture:viewCapture,dashboard:viewDashboar
 function nav(){
   var c=counts(), pr=pendingReq().length;
   var workflow=[
-    ['overview','Priority Queue','spark',null],
-    ['dashboard','Schedule Health','shield',null],
+    ['overview','Operating View','spark',null],
     ['capture','Capture','inbox',null],
     ['requests','Change Requests','inbox',pr||null],
     ['assignments','Assignment Readiness','layers',c.review||null],
@@ -3048,7 +3089,7 @@ document.addEventListener('click',function(e){
   var t=e.target.closest('[data-act]');
   if(!t)return;
   var act=t.getAttribute('data-act');
-  if(act==='goto'){ST.view=t.getAttribute('data-v');ST.siteFocus=null;render();}
+  if(act==='goto'){ST.view=t.getAttribute('data-v');if(ST.view==='dashboard')ST.view='overview';ST.siteFocus=null;render();}
   else if(act==='captureplay'){runArcCapture();}
   else if(act==='home'){ST.role='leader';ST.view='overview';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;ST.queueFocus=null;ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;render();}
   else if(act==='queuefocus'){ST.queueFocus=t.getAttribute('data-id');ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;render();}
@@ -3421,4 +3462,4 @@ window.addEventListener('hashchange',function(){
 </script>
 
 </body></html>
-<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_HtmuNRAFgACSejK4nZwcpVrDkLzN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_Cp3YwdBSW58B2z4jMHyYwq3SS7FM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_212ZZKQ76m76PK6skyQFHKYfEu4u" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_71RMNwqH1WDEHXTJG4jP5D5qmMCz" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_7rcy9uSJ9HqcQz1hUEB7zNPUqfRq" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
+<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_HtmuNRAFgACSejK4nZwcpVrDkLzN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_Cp3YwdBSW58B2z4jMHyYwq3SS7FM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_212ZZKQ76m76PK6skyQFHKYfEu4u" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_71RMNwqH1WDEHXTJG4jP5D5qmMCz" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_7rcy9uSJ9HqcQz1hUEB7zNPUqfRq" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_FV849egG16YvZYmwwLZUTsMb96fN" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
