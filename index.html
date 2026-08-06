@@ -1580,13 +1580,35 @@
   .ov4-summary-item small{display:block;color:#7A8999;font-size:9.5px}
   .ov4-summary-item b{display:block;color:#27394B;font-size:11px;margin-top:2px}
 
-  .ov4-evidence-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px}
+  .ov4-evidence-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .ov4-evidence{
-    display:grid;grid-template-columns:15px minmax(0,1fr) auto;gap:7px;align-items:center;font-size:10.5px;color:#34465A;
+    min-height:38px;
+    display:grid;
+    grid-template-columns:15px minmax(0,1fr) auto;
+    gap:7px;
+    align-items:center;
+    padding:8px 9px;
+    border:1px solid #E1E7EC;
+    border-radius:7px;
+    background:#FBFCFD;
+    font-size:10.5px;
+    color:#34465A;
   }
   .ov4-evidence .ok{color:#238469;display:grid;place-items:center}
   .ov4-evidence b{font-weight:600}
-  .ov4-evidence span:last-child{font-weight:600;color:#25374A;white-space:nowrap}
+  .ov4-evidence span:last-child{font-weight:700;color:#25374A;white-space:nowrap;text-align:right}
+  .ov4-evidence-overall{
+    margin-top:8px;
+    padding:9px 10px;
+    border:1px solid #D8E3EC;
+    border-left:3px solid #597EA9;
+    border-radius:7px;
+    background:#F5F8FB;
+    color:#34465A;
+    font-size:10.5px;
+    line-height:1.4;
+  }
+  .ov4-evidence-overall b{color:#243548}
 
   .ov4-recommendation{
     display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;
@@ -2685,6 +2707,17 @@ function viewOperatingView(){
   var overlapValue=overlapCheck?'Yes':'None';
   var capacityValue=affectedAssignment==='No assignment change'?'Not affected':(capacityCheck?'Review required':'Within capacity');
   var ruleValue=highConflict?'Human review':(anyConflict?'Review required':'No hard block');
+  var reviewReasons=[];
+  if(capacityValue==='Review required')reviewReasons.push('site capacity');
+  if(ruleValue==='Review required'||ruleValue==='Human review')reviewReasons.push('rule status');
+  if(calendarValue==='Conflict detected')reviewReasons.push('calendar conflict');
+  if(overlapValue==='Yes')reviewReasons.push('absence overlap');
+  var overallText;
+  if(reviewReasons.length){
+    overallText='No hard conflict found. Human review is required for '+reviewReasons.join(' and ')+'.';
+  }else{
+    overallText='No hard conflict found. All evaluated checks are clear.';
+  }
   var evidence='<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">2</span>Evidence and rules</div><div class="ov4-section-content"><div class="ov4-evidence-grid">'+
     '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Site capacity</b><span>'+esc(capacityValue)+'</span></div>'+
     '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Request allowance</b><span>'+esc(allowanceValue)+'</span></div>'+
@@ -2692,7 +2725,7 @@ function viewOperatingView(){
     '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Absence overlap</b><span>'+esc(overlapValue)+'</span></div>'+
     '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Rule status</b><span>'+esc(ruleValue)+'</span></div>'+
     '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Source freshness</b><span>Current</span></div>'+
-  '</div></div></section>';
+  '</div><div class="ov4-evidence-overall"><b>Overall:</b> '+esc(overallText)+'</div></div></section>';
 
   var decisionQueue='<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">3</span>Recommendation</div><div class="ov4-section-content"><div class="ov4-recommendation"><div><strong>Arc recommendation: '+esc(focusRow.readiness.label)+'</strong><p>'+esc(recommendation)+'. '+esc(reason)+'</p></div><span class="ov4-confidence-pill">'+focusRow.readiness.score+'% confidence</span></div></div></section>';
 
