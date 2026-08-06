@@ -1626,6 +1626,16 @@
     display:flex;align-items:center;justify-content:space-between;padding:7px 10px;color:#34465A;font-size:11px;font-weight:650;
   }
   .ov4-collapsed:hover{background:#FAFCFD}
+  .ov4-collapsed.open{background:#F7FAFC;border-color:#C9D5E0}
+  .ov4-collapsed.open svg{transform:rotate(90deg)}
+  .ov4-collapsed svg{transition:transform .16s ease}
+  .ov4-impact-panel{border:1px solid #DCE4EA;border-radius:8px;background:#FBFCFD;overflow:hidden}
+  .ov4-impact-grid{display:grid;grid-template-columns:1.05fr .9fr .9fr 1.15fr 1.15fr}
+  .ov4-impact-item{min-width:0;padding:10px 11px;border-right:1px solid #E4E9ED}
+  .ov4-impact-item:last-child{border-right:0}
+  .ov4-impact-item small{display:block;color:#7A8999;font-size:9.5px;margin-bottom:3px}
+  .ov4-impact-item b{display:block;color:#27394B;font-size:10.5px;line-height:1.35;overflow-wrap:anywhere}
+  @media(max-width:980px){.ov4-impact-grid{grid-template-columns:1fr 1fr}.ov4-impact-item{border-bottom:1px solid #E4E9ED}.ov4-impact-item:nth-child(even){border-right:0}.ov4-impact-item:last-child{grid-column:1/-1;border-bottom:0}}
 
   .ov4-queue-head{align-items:center}
   .ov4-queue-score{display:flex;align-items:center;gap:10px}
@@ -2208,7 +2218,7 @@ function bankFor(studentId){
 function badgeSt(s,sm){var c=STATUS[s]||STATUS['Not Checked'];return '<span class="badge-st'+(sm?' sm':'')+'" style="color:'+c.text+';background:'+c.bg+'"><span class="dot" style="background:'+c.dot+'"></span>'+s+'</span>';}
 function sevBadge(s){var c=SEV[s]||SEV.Low;return '<span class="sev" style="color:'+c.text+';background:'+c.bg+'">'+s+'</span>';}
 
-var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,requestFocus:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4',queueFocus:null,queueAction:null,queueStage:0,queueChoice:null,queueDecisions:{},ovDecisionChoice:'approve'};
+var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,requestFocus:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4',queueFocus:null,queueAction:null,queueStage:0,queueChoice:null,queueDecisions:{},ovDecisionChoice:'approve',ovImpactOpen:false};
 var lastFocusedElement=null;
 
 function demoFlow(){
@@ -2645,6 +2655,50 @@ function viewOperatingView(){
     choiceButton('escalate','Escalate','arrowr')+
     '</div><button class="ov4-commit" data-act="ovmakedecision">'+ic('check',18,'#fff')+'<span>'+(choice==='approve'?'Approve Request':'Make Decision: '+choiceLabel)+'</span></button></div></div></section>';
 
+  var linkedAssignments=requestAssignments(rq);
+  var linkedAssignment=linkedAssignments[0]||null;
+  var linkedSite=linkedAssignment?ST.data.sites.filter(function(s){return s.id===linkedAssignment.siteId;})[0]:null;
+  var impactRecord=linkedAssignment?((linkedAssignment.aid||'Assignment')+' · '+(linkedSite?linkedSite.name:'Unassigned site')):'Program calendar';
+  var impactBefore='No approved change';
+  var impactAfter='Request approved for '+dates;
+  var impactNotify='Student and program coordinator';
+  var impactFollow='No additional dependency';
+  if(rq.type==='MOVE'){
+    impactBefore=linkedAssignment?fmtRange(linkedAssignment.start,linkedAssignment.end):'Current assignment dates';
+    impactAfter=dates;
+    impactNotify='Student, site coordinator, and preceptor';
+    impactFollow=(linkedAssignment&&linkedAssignment.preceptorConfirmed===false)?'Confirm revised preceptor coverage':'Publish revised schedule';
+  }else if(rq.type==='ATO'){
+    impactBefore='No approved absence recorded';
+    impactAfter=dates+' marked as approved absence';
+    impactFollow=linkedAssignment?'Reconcile affected clinical time':'No assignment change';
+  }else if(rq.type==='DNP'){
+    impactBefore=linkedAssignment?'Clinical assignment remains scheduled':'No project day recorded';
+    impactAfter=dates+' marked as DNP project day';
+    impactFollow=linkedAssignment?'Reconcile missed clinical time':'No assignment change';
+  }else if(rq.type==='MTG'){
+    impactBefore=linkedAssignment?'Clinical assignment remains scheduled':'No meeting day recorded';
+    impactAfter=dates+' marked as approved meeting day';
+    impactFollow=linkedAssignment?'Confirm coverage or makeup time':'No assignment change';
+  }else if(rq.type==='SWAP'){
+    impactBefore=linkedAssignment?impactRecord:'Current assignment';
+    impactAfter='Replacement assignment scheduled for '+dates;
+    impactNotify='Both students, site coordinator, and preceptor';
+    impactFollow='Confirm peer and site acceptance';
+  }else if(rq.type==='ADD'){
+    impactBefore='No assignment scheduled';
+    impactAfter='New assignment added for '+dates;
+    impactNotify='Student, site coordinator, and preceptor';
+    impactFollow='Confirm site and preceptor';
+  }
+  var impactPanel=ST.ovImpactOpen?'<div class="ov4-impact-panel"><div class="ov4-impact-grid">'+
+    '<div class="ov4-impact-item"><small>Affected record</small><b>'+esc(impactRecord)+'</b></div>'+
+    '<div class="ov4-impact-item"><small>Before</small><b>'+esc(impactBefore)+'</b></div>'+
+    '<div class="ov4-impact-item"><small>After approval</small><b>'+esc(impactAfter)+'</b></div>'+
+    '<div class="ov4-impact-item"><small>Notifications</small><b>'+esc(impactNotify)+'</b></div>'+
+    '<div class="ov4-impact-item"><small>Follow-up</small><b>'+esc(impactFollow)+'</b></div>'+
+  '</div></div>':'';
+
   return '<div class="ov4-page">'+
     '<section class="ov4-command"><div class="ov4-command-intro"><h1>Operating View</h1><p>See the system. Work the exception. Close the loop.</p></div>'+signalHtml+
       '<div class="ov4-score-card"><div class="ov4-score-ring" style="--score:'+healthScore+'"><b>'+healthScore+'</b></div><div class="ov4-score-copy"><strong>Attention required</strong><span>Unresolved conflicts and request aging.</span></div></div>'+
@@ -2653,8 +2707,8 @@ function viewOperatingView(){
       '<article class="ov4-panel"><header class="ov4-panel-head"><div><h2>Decision Workspace</h2></div><span class="ov4-request-id">'+esc(String(rq.id||'CHG-2026-0914-027').toUpperCase())+'</span></header>'+
         '<div class="ov4-casebar"><span class="student">'+esc(student.name)+'</span><span class="ov4-request-type">'+esc(requestLabel)+'</span><span class="ov4-dates">'+esc(dates)+'</span><span class="ov4-status">'+esc(focusRow.readiness.label)+'</span><span class="ov4-confidence">'+focusRow.readiness.score+'%</span></div>'+
         '<div class="ov4-decision-body">'+summary+evidence+decisionQueue+makeDecision+
-          '<button class="ov4-collapsed" type="button"><span>5 &nbsp; Change impact</span>'+ic('chevr',13,'#52677C')+'</button>'+
-          '<button class="ov4-collapsed" type="button"><span>6 &nbsp; Impact</span>'+ic('chevr',13,'#52677C')+'</button>'+
+          '<button class="ov4-collapsed'+(ST.ovImpactOpen?' open':'')+'" type="button" data-act="ovtoggleimpact" aria-expanded="'+(ST.ovImpactOpen?'true':'false')+'"><span>5 &nbsp; Change impact</span>'+ic('chevr',13,'#52677C')+'</button>'+impactPanel+
+          '<button class="ov4-collapsed" type="button"><span>6 &nbsp; Execution trail</span>'+ic('chevr',13,'#52677C')+'</button>'+
         '</div>'+
       '</article>'+
       '<aside class="ov4-panel"><header class="ov4-panel-head ov4-queue-head"><div><h2>Attention Queue</h2><p>Prioritized requests requiring judgment.</p></div><div class="ov4-queue-score"><div class="ov4-mini-ring" style="--score:'+healthScore+'"><b>'+healthScore+'</b></div><strong>Attention required</strong></div></header>'+
@@ -3941,7 +3995,8 @@ document.addEventListener('click',function(e){
   if(act==='goto'){ST.view=t.getAttribute('data-v');if(ST.view==='dashboard')ST.view='overview';ST.siteFocus=null;render();}
   else if(act==='captureplay'){runArcCapture();}
   else if(act==='home'){ST.role='leader';ST.view='overview';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;ST.queueFocus=null;ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;render();}
-  else if(act==='queuefocus'){ST.queueFocus=t.getAttribute('data-id');ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.ovDecisionChoice='approve';render();}
+  else if(act==='queuefocus'){ST.queueFocus=t.getAttribute('data-id');ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.ovDecisionChoice='approve';ST.ovImpactOpen=false;render();}
+  else if(act==='ovtoggleimpact'){ST.ovImpactOpen=!ST.ovImpactOpen;render();}
   else if(act==='ovdecisionselect'){ST.ovDecisionChoice=t.getAttribute('data-choice')||'approve';render();}
   else if(act==='ovmakedecision'){
     var oq=operatingQueue(), orow=oq.filter(function(r){return r.rq.id===ST.queueFocus;})[0]||oq[0];
@@ -4143,7 +4198,7 @@ document.addEventListener('click',function(e){
     toast(s==='Approved'?'Request approved \u2014 re-checking the schedule.':'Request marked '+s.toLowerCase()+'.');
     render();
   }
-  else if(act==='reset'){ST.data=seed();ST.view='overview';ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.demoFlow=null;ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';ST.queueDecisions={};ST.ovDecisionChoice='approve';toast('Demo reset to starting data.');render();}
+  else if(act==='reset'){ST.data=seed();ST.view='overview';ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.demoFlow=null;ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';ST.queueDecisions={};ST.ovDecisionChoice='approve';ST.ovImpactOpen=false;toast('Demo reset to starting data.');render();}
 });
 document.addEventListener('change',function(e){
   var t=e.target.closest('[data-act="reassign"]');
