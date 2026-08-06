@@ -468,7 +468,7 @@
 
 
 
-  /* Priority Queue inline decision workflow */
+  /* Attention Queue inline decision workflow */
   .queue-row{cursor:pointer;transition:background .16s ease,box-shadow .16s ease;}
   .queue-table tbody td{background:#F6F2EA;}
   .queue-row:hover td{background:#F1ECE3;}
@@ -2115,7 +2115,7 @@ function renderOpsKpiPanel(){
   var rq=priyaRequest(), asg=priyaAssignment();
   var confirmed=!!(asg&&asg.preceptorConfirmed);
   var complete=!!(rq&&rq.status==='Approved'&&rq.published);
-  var cfg={tone:'#0F766E',icon:'shield',title:'Command-center detail',summary:'',stats:[],rows:'',cta:'',view:'dashboard'};
+  var cfg={tone:'#0F766E',icon:'shield',title:'Operating View detail',summary:'',stats:[],rows:'',cta:'',view:'dashboard'};
   function stat(num,lab,sub){return '<div class="ops-kpi-inline-stat"><div class="num">'+num+'</div><div class="lab">'+lab+'</div><div class="sub">'+sub+'</div></div>';}
   if(ST.kpi===1){
     cfg={tone:'#EF4444',icon:'alert',title:'Today\'s Schedule Impact',summary:'Expanded detail for the current command-center week. This stays anchored beneath the KPI row so the operator can explore detail without losing context.',cta:'View coverage calendar',view:'calendar2'};
@@ -2406,7 +2406,7 @@ function viewOperatingView(){
     '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Source freshness</b><span>Current</span></div>'+
   '</div></div></section>';
 
-  var decisionQueue='<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">3</span>Decision Queue</div><div class="ov4-section-content"><div class="ov4-recommendation"><div><strong>Arc recommendation: '+esc(focusRow.readiness.label)+'</strong><p>'+esc(recommendation)+'. '+esc(reason)+'</p></div><span class="ov4-confidence-pill">'+focusRow.readiness.score+'% confidence</span></div></div></section>';
+  var decisionQueue='<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">3</span>Recommendation</div><div class="ov4-section-content"><div class="ov4-recommendation"><div><strong>Arc recommendation: '+esc(focusRow.readiness.label)+'</strong><p>'+esc(recommendation)+'. '+esc(reason)+'</p></div><span class="ov4-confidence-pill">'+focusRow.readiness.score+'% confidence</span></div></div></section>';
 
   var makeDecision='<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Make decision</div><div class="ov4-section-content"><div class="ov4-decision-grid"><div class="ov4-choice-grid">'+
     choiceButton('approve','Approve','check')+
@@ -2703,7 +2703,7 @@ function viewSites(){
       '<div class="site-util"><div class="site-util-head"><b>'+n+' of '+si.cap+' slots used</b><span>'+x.pct+'% utilized</span></div><div class="site-bar '+(x.status==='full'?'full':(x.status==='near'?'warn':''))+'"><span style="width:'+x.pct+'%"></span></div></div>'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px"><span style="font-size:12px;color:var(--muted2)">'+n+' active assignment'+(n!==1?'s':'')+' \u00b7 '+x.open+' open slot'+(x.open!==1?'s':'')+'</span><span class="linkbtn">View details '+ic('chevr',12)+'</span></div></button>';
   }).join('');
-  return '<div class="stack"><div><h1>Clinical sites</h1><p class="sub">Distance, capacity, allowed levels, and specialty tags drive placement and the readiness checks.</p><div class="site-summary"><span class="pill">'+ST.data.sites.length+' clinical sites</span><span class="pill">'+totalSlots+' total daily slots</span><span class="pill">'+totalAssignments+' active assignments</span><span class="pill">'+nearCount+' site'+(nearCount!==1?'s':'')+' near capacity</span></div><div class="site-controls"><button class="site-filter '+(ST.siteFilter==='all'?'on':'')+'" data-act="sitefilter" data-f="all">All sites</button><button class="site-filter '+(ST.siteFilter==='available'?'on':'')+'" data-act="sitefilter" data-f="available">Available capacity</button><button class="site-filter '+(ST.siteFilter==='specialty'?'on':'')+'" data-act="sitefilter" data-f="specialty">Specialty match</button></div></div><div class="grid2">'+cards+'</div></div>';
+  return '<div class="stack"><div><h1>Clinical Sites</h1><p class="sub">Distance, capacity, allowed levels, and specialty tags drive placement and the readiness checks.</p><div class="site-summary"><span class="pill">'+ST.data.sites.length+' clinical sites</span><span class="pill">'+totalSlots+' total daily slots</span><span class="pill">'+totalAssignments+' active assignments</span><span class="pill">'+nearCount+' site'+(nearCount!==1?'s':'')+' near capacity</span></div><div class="site-controls"><button class="site-filter '+(ST.siteFilter==='all'?'on':'')+'" data-act="sitefilter" data-f="all">All sites</button><button class="site-filter '+(ST.siteFilter==='available'?'on':'')+'" data-act="sitefilter" data-f="available">Available capacity</button><button class="site-filter '+(ST.siteFilter==='specialty'?'on':'')+'" data-act="sitefilter" data-f="specialty">Specialty match</button></div></div><div class="grid2">'+cards+'</div></div>';
 }
 
 function viewStudents(){
@@ -3550,15 +3550,14 @@ function nav(){
   var c=counts(), pr=pendingReq().length;
   var workflow=[
     ['overview','Operating View','spark',null],
-    ['capture','Capture','inbox',null],
     ['requests','Change Requests','inbox',pr||null],
     ['assignments','Assignment Readiness','layers',c.review||null],
     ['timeline','Assignment Timeline','calendar',null],
-    ['calendar2','Coverage Calendar','calendar',null]
+    ['calendar2','Coverage Calendar','calendar',null],
+    ['sites','Clinical Sites','building',null]
   ];
   var reference=[
-    ['students','Students','users',null],
-    ['sites','Clinical sites','building',null]
+    ['students','Students','users',null]
   ];
   function navItems(items){return items.map(function(it){
     var active=ST.view===it[0];
@@ -3947,7 +3946,7 @@ document.addEventListener('keydown',function(e){
   }
 });
 
-// Always open Arc on the Priority Queue page (view key: 'overview') while resetting transient demo overlays.
+// Always open Arc on the Operating View page (view key: 'overview') while resetting transient demo overlays.
 function startArc(){
   ST.view='overview';
   ST.role='leader';
