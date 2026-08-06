@@ -2381,20 +2381,54 @@ function readinessFromChecks(checks){
   var tone=score>=80?{text:'#15803D',ring:'#16A34A',bg:'#DCFCE7'}:(score>=50?{text:'#92400E',ring:'#D97706',bg:'#FEF3C7'}:{text:'#B91C1C',ring:'#DC2626',bg:'#FEE2E2'});
   return {score:score,label:label,tone:tone};
 }
-function checksForRequest(rq){
-  if(rq.assignmentId)return checksFor(rq.assignmentId);
-  return openChecks().filter(function(c){
-    var a=assignmentById(c.assignmentId);
-    return a&&a.studentId===rq.studentId;
+function requestAssignments(rq){
+  if(rq.assignmentId){
+    var direct=assignmentById(rq.assignmentId);
+    return direct?[direct]:[];
+  }
+  return ST.data.assignments.filter(function(a){
+    return a.studentId===rq.studentId&&overlaps(a.start,a.end,rq.start,rq.end);
   });
 }
+function checksForRequest(rq){
+  var assignments=requestAssignments(rq);
+  if(rq.assignmentId)return assignments.length?checksFor(assignments[0].id):[];
+
+  /* Non-assignment requests must only inherit evidence from assignments
+     touched by the requested dates—not every assignment owned by the student. */
+  var ids=assignments.map(function(a){return a.id;});
+  var related=openChecks().filter(function(c){return ids.indexOf(c.assignmentId)>=0;});
+
+  /* Pending absence/day requests are evaluated prospectively against the
+     overlapping assignment even though generateChecks only treats approved
+     requests as committed conflicts. */
+  if(assignments.length&&['ATO','DNP','MTG','STDY'].indexOf(rq.type)>=0){
+    assignments.forEach(function(a){
+      var already=related.some(function(c){return c.assignmentId===a.id&&c.type==='Time-Off Conflict';});
+      if(!already){
+        var when=rq.start===rq.end?fmtShort(rq.start):fmtRange(rq.start,rq.end);
+        related.push({
+          key:'request-'+rq.id+'|'+a.id,
+          assignmentId:a.id,
+          aid:a.aid,
+          type:'Time-Off Conflict',
+          severity:reqDays(rq)>=2?'High':'Medium',
+          summary:(TYPE_LABEL[rq.type]||rq.type)+' on '+when+' overlaps '+a.aid+' ('+fmtRange(a.start,a.end)+').',
+          action:'Confirm coverage for the requested dates or adjust the assignment.'
+        });
+      }
+    });
+  }
+  return related;
+}
 function requestSiteRotationLabel(rq){
-  var a=rq.assignmentId?assignmentById(rq.assignmentId):null;
-  if(a){
+  var assignments=requestAssignments(rq);
+  if(assignments.length){
+    var a=assignments[0];
     var si=ST.data.sites.filter(function(s){return s.id===a.siteId;})[0];
     return (si?si.name:'Unassigned site')+' / '+a.rotation;
   }
-  return TYPE_LABEL[rq.type]||rq.type;
+  return 'No assignment change';
 }
 function requestTitleLabel(rq,checks){
   var d=dominantCheck(checks);
@@ -2414,10 +2448,19 @@ function requestTitleLabel(rq,checks){
 }
 function nextActionLabel(checks,rq){
   var d=dominantCheck(checks);
-  if(d)return NEXT_ACTION_LABEL[d.type]||'Review request';
+  if(d){
+    if(d.type==='Missing Data'&&/preceptor/i.test(d.summary||''))return 'Confirm preceptor coverage';
+    if(d.type==='Time-Off Conflict')return 'Resolve requested-date overlap';
+    if(d.type==='School Calendar Conflict')return 'Remove conflicting clinical day';
+    return NEXT_ACTION_LABEL[d.type]||'Review request';
+  }
   if(rq.type==='SWAP')return 'Approve swap';
   if(rq.type==='ADD')return 'Add to schedule';
   if(rq.type==='MOVE')return 'Approve move';
+  if(rq.type==='ATO')return 'Approve absence request';
+  if(rq.type==='DNP')return 'Approve project day';
+  if(rq.type==='MTG')return 'Approve meeting day';
+  if(rq.type==='STDY')return 'Approve study day';
   return 'Approve request';
 }
 function requestTimestamp(rq){return rq.submittedAt||(rq.start+'T09:00:00');}
@@ -2529,12 +2572,16 @@ function viewOperatingView(){
   var student=focusRow.student||{name:'Unknown student',cohort:'—',level:'—'};
   var d=focusRow.dominant;
   var requestLabel=TYPE_LABEL[rq.type]||rq.type||'Request';
-  var affectedAssignment=(rq.assignmentId && focusRow.siteRotation)?focusRow.siteRotation:'No assignment change';
+  var affectedAssignment=focusRow.siteRotation||'No assignment change';
   var dates=(rq.start===rq.end?fmtShort(rq.start):fmtRange(rq.start,rq.end));
   var recommendation=focusRow.nextAction||'Review request';
-  var reason=d?d.summary:'No hard conflict detected. Human review remains required.';
+  var reason=d?d.summary:'No assignment, calendar, or allowance conflict detected.';
   var evidenceChecks=(focusRow.checks||[]);
-  var hasConflict=evidenceChecks.some(function(c){return c.severity==='High';});
+  var highConflict=evidenceChecks.some(function(c){return c.severity==='High';});
+  var anyConflict=evidenceChecks.length>0;
+  var capacityCheck=evidenceChecks.filter(function(c){return c.type==='Site Capacity';})[0];
+  var calendarCheck=evidenceChecks.filter(function(c){return c.type==='School Calendar Conflict';})[0];
+  var overlapCheck=evidenceChecks.filter(function(c){return c.type==='Time-Off Conflict';})[0];
 
   var signals=[
     {label:'Pending',value:conditionCounts.Pending,icon:'inbox',color:'#2B7A72',bg:'#EAF4F2'},
@@ -2559,7 +2606,7 @@ function viewOperatingView(){
     ][index%5];
     return '<button class="ov4-queue-item'+(active?' active':'')+decisionClass+'" data-act="queuefocus" data-id="'+r.rq.id+'">'+
       '<span class="ov4-avatar" style="--av-bg:'+colors[0]+';--av:'+colors[1]+'">'+initials(r.student&&r.student.name)+'</span>'+
-      '<span class="ov4-queue-main"><b>'+esc(r.student?r.student.name:'Unknown')+'</b><span class="ov4-queue-meta">'+esc((TYPE_LABEL[r.rq.type]||r.rq.type)+' · '+shortSite(r.siteRotation))+'</span><span class="ov4-queue-reason">'+esc(r.nextAction)+'</span></span>'+
+      '<span class="ov4-queue-main"><b>'+esc(r.student?r.student.name:'Unknown')+'</b><span class="ov4-queue-meta">'+esc((TYPE_LABEL[r.rq.type]||r.rq.type)+(r.siteRotation&&r.siteRotation!=='No assignment change'?' · '+shortSite(r.siteRotation):''))+'</span><span class="ov4-queue-reason">'+esc(r.nextAction)+'</span></span>'+
       '<span class="ov4-age">'+esc(r.age)+' ago</span>'+
       '<span class="ov4-meter">'+meter(r.readiness.score,r.readiness.tone.ring)+'</span>'+
       '<span class="ov4-queue-state'+(blocked?' blocked':'')+'">'+esc(r.readiness.label)+'</span>'+
@@ -2575,11 +2622,12 @@ function viewOperatingView(){
     '<div class="ov4-summary-item"><small>Requested by</small><b>Student self-service</b></div>'+
   '</div></div></section>';
 
-  var allowanceValue=rq.type==='ATO'?'2 days remaining':'Not applicable';
-  var calendarValue=hasConflict?'Conflict detected':'No conflict';
-  var overlapValue=hasConflict?'Yes':'None';
-  var capacityValue=hasConflict?'Review required':'2 of 2';
-  var ruleValue=hasConflict?'Human review':'No hard block';
+  var allowanceRecord=bankFor(rq.studentId).filter(function(x){return x.type===rq.type;})[0];
+  var allowanceValue=allowanceRecord?Math.max(0,allowanceRecord.left)+' days remaining':'Not applicable';
+  var calendarValue=calendarCheck?'Conflict detected':'No conflict';
+  var overlapValue=overlapCheck?'Yes':'None';
+  var capacityValue=affectedAssignment==='No assignment change'?'Not affected':(capacityCheck?'Review required':'Within capacity');
+  var ruleValue=highConflict?'Human review':(anyConflict?'Review required':'No hard block');
   var evidence='<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">2</span>Evidence and rules</div><div class="ov4-section-content"><div class="ov4-evidence-grid">'+
     '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Site capacity</b><span>'+esc(capacityValue)+'</span></div>'+
     '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Request allowance</b><span>'+esc(allowanceValue)+'</span></div>'+
