@@ -1670,23 +1670,31 @@
   }
   .ov4-queue-item:hover{background:#FAFCFE;border-color:#BFCBD6}
   .ov4-queue-item.active{border:2px solid #315F98;background:#FCFDFF;padding:7px 9px}
-  /* Decision history is shown as a compact badge; card borders remain reserved for selection. */
-  .ov4-queue-item.decision-approve,
-  .ov4-queue-item.decision-deny,
-  .ov4-queue-item.decision-clarify,
-  .ov4-queue-item.decision-escalate{border-color:#E0E6EB;background:#fff;box-shadow:none;padding:8px 10px}
+  /* Decision history: distinct left rail + quiet tint. Selection remains the blue outer border. */
+  .ov4-queue-item.decision-approve{border-left:6px solid #0F7A55;background:#F3FBF7;padding-left:5px}
+  .ov4-queue-item.decision-deny{border-left:6px solid #C92F35;background:#FFF5F5;padding-left:5px}
+  .ov4-queue-item.decision-clarify{border-left:6px solid #D99B26;background:#FFF9EC;padding-left:5px}
+  .ov4-queue-item.decision-escalate{border-left:6px solid #2F5F9B;background:#F3F7FC;padding-left:5px}
   .ov4-queue-item.active.decision-approve,
   .ov4-queue-item.active.decision-deny,
   .ov4-queue-item.active.decision-clarify,
-  .ov4-queue-item.active.decision-escalate{border:2px solid #315F98;background:#FCFDFF;padding:7px 9px;box-shadow:none}
+  .ov4-queue-item.active.decision-escalate{
+    border-top:2px solid #315F98;
+    border-right:2px solid #315F98;
+    border-bottom:2px solid #315F98;
+    padding-top:7px;
+    padding-right:9px;
+    padding-bottom:7px;
+    box-shadow:0 0 0 1px rgba(49,95,152,.10)
+  }
   .ov4-decision-badge{
     display:inline-flex;
     align-items:center;
     width:max-content;
     margin-top:6px;
     border-radius:999px;
-    padding:6px 11px;
-    font-size:11px;
+    padding:6px 12px;
+    font-size:11.5px;
     font-weight:800;
     line-height:1;
     white-space:nowrap;
