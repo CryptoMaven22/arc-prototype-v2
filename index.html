@@ -1505,6 +1505,12 @@
   }
   .ov4-signal-label{font-size:12px;font-weight:600;line-height:1.15;color:#34465A;white-space:normal;overflow-wrap:anywhere}
   .ov4-signal-value{font-size:22px;font-weight:700;line-height:1;margin-top:4px;color:#172737}
+  button.ov4-signal{width:100%;text-align:left;cursor:pointer;transition:border-color .15s ease,box-shadow .15s ease,transform .15s ease,background .15s ease}
+  button.ov4-signal:hover{transform:translateY(-1px);border-color:#B8C7D5;box-shadow:0 6px 16px rgba(24,42,61,.07)}
+  button.ov4-signal.active{border:2px solid var(--sig);padding:11px 10px;background:var(--sig-bg);box-shadow:0 0 0 3px color-mix(in srgb,var(--sig) 12%,transparent)}
+  .ov4-signal-detail{font-size:9.5px;line-height:1.25;color:#6A7B8E;margin-top:5px}
+  .ov4-queue-filter-note{padding:7px 12px;border-bottom:1px solid #E3E8ED;background:#F8FAFC;color:#52677C;font-size:10.5px;font-weight:650;display:flex;justify-content:space-between;gap:10px}
+  .ov4-queue-filter-note button{color:#315F98;font-size:10.5px;font-weight:750}
   .ov4-score-card{
     border:1px solid #E1E7EC;border-radius:10px;background:#FCFDFE;
     padding:10px;display:flex;align-items:center;gap:12px;justify-content:center;
@@ -2281,7 +2287,7 @@ function bankFor(studentId){
 function badgeSt(s,sm){var c=STATUS[s]||STATUS['Not Checked'];return '<span class="badge-st'+(sm?' sm':'')+'" style="color:'+c.text+';background:'+c.bg+'"><span class="dot" style="background:'+c.dot+'"></span>'+s+'</span>';}
 function sevBadge(s){var c=SEV[s]||SEV.Low;return '<span class="sev" style="color:'+c.text+';background:'+c.bg+'">'+s+'</span>';}
 
-var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,requestFocus:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4',queueFocus:null,queueAction:null,queueStage:0,queueChoice:null,queueDecisions:{},ovDecisionChoice:'approve',ovImpactOpen:false,ovTrailOpen:false};
+var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,requestFocus:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4',queueFocus:null,queueAction:null,queueStage:0,queueChoice:null,queueDecisions:{},ovDecisionChoice:'approve',ovImpactOpen:false,ovTrailOpen:false,ovConditionFilter:'All'};
 var lastFocusedElement=null;
 
 function demoFlow(){
@@ -2442,6 +2448,12 @@ function dominantCheck(checks){
   var rank={High:0,Medium:1,Low:2};
   return checks.slice().sort(function(a,b){return (rank[a.severity]||9)-(rank[b.severity]||9);})[0];
 }
+function readinessFromScore(score){
+  score=Math.max(0,Math.min(100,score));
+  var label=score>=80?'Ready':(score>=50?'Needs Review':'Blocked');
+  var tone=score>=80?{text:'#15803D',ring:'#16A34A',bg:'#DCFCE7'}:(score>=50?{text:'#92400E',ring:'#D97706',bg:'#FEF3C7'}:{text:'#B91C1C',ring:'#DC2626',bg:'#FEE2E2'});
+  return {score:score,label:label,tone:tone};
+}
 function readinessFromChecks(checks){
   var score=100;
   (checks||[]).forEach(function(c){
@@ -2449,10 +2461,7 @@ function readinessFromChecks(checks){
     else if(c.severity==='Medium')score-=15;
     else score-=5;
   });
-  score=Math.max(0,Math.min(100,score));
-  var label=score>=80?'Ready':(score>=50?'Needs Review':'Blocked');
-  var tone=score>=80?{text:'#15803D',ring:'#16A34A',bg:'#DCFCE7'}:(score>=50?{text:'#92400E',ring:'#D97706',bg:'#FEF3C7'}:{text:'#B91C1C',ring:'#DC2626',bg:'#FEE2E2'});
-  return {score:score,label:label,tone:tone};
+  return readinessFromScore(score);
 }
 function requestAssignments(rq){
   if(rq.assignmentId){
@@ -2552,6 +2561,10 @@ function operatingQueue(){
       var checks=checksForRequest(rq);
       var d=dominantCheck(checks);
       var readiness=readinessFromChecks(checks);
+      /* Demo calibration: preserve realistic spread so the queue visibly includes
+         ready, review, and blocked examples instead of clustering at 100. */
+      var demoScores={rq2:85,rq3:70,rq4:65,rq12:35};
+      if(Object.prototype.hasOwnProperty.call(demoScores,rq.id))readiness=readinessFromScore(demoScores[rq.id]);
       return {
         rq:rq,
         student:ST.data.students.filter(function(s){return s.id===rq.studentId;})[0],
@@ -2603,8 +2616,10 @@ function requestDetailPanel(row){
 }
 
 function viewOperatingView(){
-  var queue=operatingQueue();
-  var focusRow=queue.filter(function(r){return r.rq.id===ST.queueFocus;})[0]||queue[0];
+  var allQueue=operatingQueue();
+  var activeCondition=ST.ovConditionFilter||'All';
+  var queue=activeCondition==='All'?allQueue:allQueue.filter(function(r){return conditionFor(r)===activeCondition;});
+  var focusRow=queue.filter(function(r){return r.rq.id===ST.queueFocus;})[0]||queue[0]||allQueue[0];
   if(!focusRow){
     return '<div class="ov4-page"><section class="ov4-command"><div class="ov4-command-intro"><h1>Operating View</h1><p>See the system. Work the exception. Close the loop.</p></div></section><section class="ov4-panel" style="padding:30px;text-align:center">No active requests.</section></div>';
   }
@@ -2635,7 +2650,7 @@ function viewOperatingView(){
   }
 
   var conditionCounts={Pending:0,Late:0,'Post-schedule':0,Conflicting:0};
-  queue.forEach(function(r){conditionCounts[conditionFor(r)]++;});
+  allQueue.forEach(function(r){conditionCounts[conditionFor(r)]++;});
   var decidedToday=Object.keys(ST.queueDecisions||{}).length;
   var healthScore=Math.max(45,100-(conditionCounts.Conflicting*8)-(conditionCounts['Post-schedule']*10)-(conditionCounts.Late*4)-((decidedToday?0:1)*6));
   var choice=ST.ovDecisionChoice||'approve';
@@ -2656,13 +2671,14 @@ function viewOperatingView(){
   var overlapCheck=evidenceChecks.filter(function(c){return c.type==='Time-Off Conflict';})[0];
 
   var signals=[
-    {label:'Pending',value:conditionCounts.Pending,icon:'inbox',color:'#2B7A72',bg:'#EAF4F2'},
-    {label:'Late',value:conditionCounts.Late,icon:'clock',color:'#C9871F',bg:'#FBF3E5'},
-    {label:'Post-schedule',value:conditionCounts['Post-schedule'],icon:'calendar',color:'#365E91',bg:'#EDF2F8'},
-    {label:'Conflicting',value:conditionCounts.Conflicting,icon:'alert',color:'#A95555',bg:'#F8ECEC'}
+    {label:'Pending',value:conditionCounts.Pending,icon:'inbox',color:'#2B7A72',bg:'#EAF4F2',detail:'Open less than 15 days'},
+    {label:'Late',value:conditionCounts.Late,icon:'clock',color:'#C9871F',bg:'#FBF3E5',detail:'Open 15+ days'},
+    {label:'Post-schedule',value:conditionCounts['Post-schedule'],icon:'calendar',color:'#365E91',bg:'#EDF2F8',detail:'High-impact and 30+ days'},
+    {label:'Conflicting',value:conditionCounts.Conflicting,icon:'alert',color:'#A95555',bg:'#F8ECEC',detail:'Current high-impact issues'}
   ];
   var signalHtml=signals.map(function(s){
-    return '<div class="ov4-signal"><span class="ov4-signal-icon" style="--sig:'+s.color+';--sig-bg:'+s.bg+'">'+ic(s.icon,17,s.color)+'</span><div><div class="ov4-signal-label">'+s.label+'</div><div class="ov4-signal-value">'+s.value+'</div></div></div>';
+    var active=activeCondition===s.label;
+    return '<button class="ov4-signal'+(active?' active':'')+'" data-act="ovconditionfilter" data-condition="'+s.label+'" style="--sig:'+s.color+';--sig-bg:'+s.bg+'" aria-pressed="'+(active?'true':'false')+'"><span class="ov4-signal-icon">'+ic(s.icon,17,s.color)+'</span><div><div class="ov4-signal-label">'+s.label+'</div><div class="ov4-signal-value">'+s.value+'</div><div class="ov4-signal-detail">'+s.detail+'</div></div></button>';
   }).join('');
 
   var queueRows=queue.slice(0,5).map(function(r,index){
@@ -2827,7 +2843,8 @@ function viewOperatingView(){
         '</div>'+
       '</article>'+
       '<aside class="ov4-panel"><header class="ov4-panel-head ov4-queue-head"><div><h2>Attention Queue</h2><p>Prioritized requests requiring judgment.</p></div><div class="ov4-queue-score"><div class="ov4-mini-ring" style="--score:'+healthScore+'"><b>'+healthScore+'</b></div><strong>Attention required</strong></div></header>'+
-        '<div class="ov4-queue-list">'+queueRows+'<button class="ov4-view-more">View '+Math.max(0,queue.length-5)+' more</button></div>'+
+        (activeCondition!=='All'?'<div class="ov4-queue-filter-note"><span>Showing '+activeCondition+' · '+queue.length+' request'+(queue.length===1?'':'s')+'</span><button data-act="ovconditionfilter" data-condition="All">Show all</button></div>':'')+
+        '<div class="ov4-queue-list">'+(queueRows||'<div style="padding:22px;text-align:center;color:#64748B;font-size:12px">No requests match this condition.</div>')+(queue.length>5?'<button class="ov4-view-more">View '+(queue.length-5)+' more</button>':'')+'</div>'+
       '</aside>'+
     '</section>'+
   '</div>';
@@ -4108,7 +4125,13 @@ document.addEventListener('click',function(e){
   var act=t.getAttribute('data-act');
   if(act==='goto'){ST.view=t.getAttribute('data-v');if(ST.view==='dashboard')ST.view='overview';ST.siteFocus=null;render();}
   else if(act==='captureplay'){runArcCapture();}
-  else if(act==='home'){ST.role='leader';ST.view='overview';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;ST.queueFocus=null;ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;render();}
+  else if(act==='home'){ST.role='leader';ST.view='overview';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;ST.queueFocus=null;ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.ovConditionFilter='All';render();}
+  else if(act==='ovconditionfilter'){
+    var nextCondition=t.getAttribute('data-condition')||'All';
+    ST.ovConditionFilter=(ST.ovConditionFilter===nextCondition&&nextCondition!=='All')?'All':nextCondition;
+    ST.queueFocus=null;ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.ovImpactOpen=false;ST.ovTrailOpen=false;
+    render();
+  }
   else if(act==='queuefocus'){ST.queueFocus=t.getAttribute('data-id');ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.ovDecisionChoice='approve';ST.ovImpactOpen=false;ST.ovTrailOpen=false;render();}
   else if(act==='ovtoggleimpact'){ST.ovImpactOpen=!ST.ovImpactOpen;render();}
   else if(act==='ovtoggletrail'){ST.ovTrailOpen=!ST.ovTrailOpen;render();}
@@ -4497,4 +4520,4 @@ window.addEventListener('hashchange',function(){
 </script>
 
 </body></html>
-<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_HtmuNRAFgACSejK4nZwcpVrDkLzN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_Cp3YwdBSW58B2z4jMHyYwq3SS7FM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_212ZZKQ76m76PK6skyQFHKYfEu4u" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_71RMNwqH1WDEHXTJG4jP5D5qmMCz" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_7rcy9uSJ9HqcQz1hUEB7zNPUqfRq" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_FV849egG16YvZYmwwLZUTsMb96fN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_5UyvHp3wekJqPQTDSeSK7emm69sx" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_89ZtfmKDTf5CUJYHqWnfQXypbh4x" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_21TJ6o7StFq1DBvXwRU2uCSyW1J8" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_E46fpy4z6qLRnbvQ9rgsL9pXuLxn" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_J1Zd3LJp5eNYkvJRRqXEbak9Z9Xd" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_BhxuV3e7RxEY5FVwarvnpnR3MCxN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_BqK1jGiwgBmK2DMZ12McTskitrQU" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
+<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_HtmuNRAFgACSejK4nZwcpVrDkLzN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_Cp3YwdBSW58B2z4jMHyYwq3SS7FM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_212ZZKQ76m76PK6skyQFHKYfEu4u" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_71RMNwqH1WDEHXTJG4jP5D5qmMCz" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_7rcy9uSJ9HqcQz1hUEB7zNPUqfRq" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_FV849egG16YvZYmwwLZUTsMb96fN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_5UyvHp3wekJqPQTDSeSK7emm69sx" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_89ZtfmKDTf5CUJYHqWnfQXypbh4x" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_21TJ6o7StFq1DBvXwRU2uCSyW1J8" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_E46fpy4z6qLRnbvQ9rgsL9pXuLxn" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_J1Zd3LJp5eNYkvJRRqXEbak9Z9Xd" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_BhxuV3e7RxEY5FVwarvnpnR3MCxN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_BqK1jGiwgBmK2DMZ12McTskitrQU" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_CnA149KpM2td6NEDSDocaTfoEYkf" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
