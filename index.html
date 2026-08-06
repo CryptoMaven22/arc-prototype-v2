@@ -2575,12 +2575,17 @@ function viewOperatingView(){
     '<div class="ov4-summary-item"><small>Requested by</small><b>Student self-service</b></div>'+
   '</div></div></section>';
 
+  var allowanceValue=rq.type==='ATO'?'2 days remaining':'Not applicable';
+  var calendarValue=hasConflict?'Conflict detected':'No conflict';
+  var overlapValue=hasConflict?'Yes':'None';
+  var capacityValue=hasConflict?'Review required':'2 of 2';
+  var ruleValue=hasConflict?'Human review':'No hard block';
   var evidence='<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">2</span>Evidence and rules</div><div class="ov4-section-content"><div class="ov4-evidence-grid">'+
-    '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Site capacity</b><span>'+(hasConflict?'Review':'2 of 2')+'</span></div>'+
-    '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Approved absence overlap</b><span>'+(hasConflict?'Yes':'None')+'</span></div>'+
-    '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>ATO balance</b><span>'+(rq.type==='ATO'?'2 days remaining':'Available')+'</span></div>'+
-    '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Rule status</b><span>'+(hasConflict?'Human review':'No hard block')+'</span></div>'+
-    '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Calendar</b><span>'+esc(dates)+'</span></div>'+
+    '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Site capacity</b><span>'+esc(capacityValue)+'</span></div>'+
+    '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Request allowance</b><span>'+esc(allowanceValue)+'</span></div>'+
+    '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Calendar conflict</b><span>'+esc(calendarValue)+'</span></div>'+
+    '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Absence overlap</b><span>'+esc(overlapValue)+'</span></div>'+
+    '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Rule status</b><span>'+esc(ruleValue)+'</span></div>'+
     '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Source freshness</b><span>Current</span></div>'+
   '</div></div></section>';
 
