@@ -7,7 +7,7 @@
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Arc — clinical education scheduling intelligence and reconciliation platform.">
+<meta name="description" content="Arc — Clinical Readiness Nexus for clinical education operations.">
 <title>Arc | Clinical Scheduling Intelligence</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=&#39;http://www.w3.org/2000/svg&#39; viewBox=&#39;0 0 100 100&#39;%3E%3Crect width=&#39;100&#39; height=&#39;100&#39; rx=&#39;22&#39; fill=&#39;%230E6E63&#39;/%3E%3Cpath d=&#39;M26 64 L44 30 L62 64 M34 52 H54&#39; stroke=&#39;white&#39; stroke-width=&#39;7&#39; fill=&#39;none&#39; stroke-linecap=&#39;round&#39; stroke-linejoin=&#39;round&#39;/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com/">
@@ -3610,16 +3610,16 @@ function renderOverlay(){
       '<div style="display:flex;justify-content:flex-end;margin-top:18px"><button class="gate-cta on" data-act="kpigoto" data-v="'+kd.view+'">'+kd.cta+' '+ic('arrowr',14,'#fff')+'</button></div>'+
     '</div></div>';
   } else if(ST.about){
-    var inScope=['Track students, sites & assignments','Time-off requests + day-off banks','School calendar blocks','Distance & specialty (OB/PED/CV/REG) tags','Six readiness checks','Manager & site-specific views'];
-    var roadmap=['Student demographics & mobile contact details','Automated site dissemination & packets','Case tracking & anesthesia hour minimums','Evaluations & student progression','Credentialing & sensitive data','Adapt to other clinical programs (PA, NP, PT\u2026)'];
+    var inScope=['Track students, sites & assignments','Capture and evaluate schedule-change requests','Surface readiness risks and supporting evidence','Review recommendations in the Attention Queue','Commit human decisions in the Decision Workspace','Show downstream assignment and readiness impact'];
+    var roadmap=['Automated communication and packet distribution','Case tracking & anesthesia-hour requirements','Evaluations & student progression','Credentialing & sensitive-data controls','Broader clinical-program support','Deeper integrations & workflow orchestration'];
     html='<div class="modal-wrap"><div class="scrim" data-act="closeabout" style="position:absolute"></div><div class="modal">'+
       '<button class="close" data-act="closeabout" aria-label="Close detail card">'+ic('x',18)+'</button>'+
       '<div style="display:flex;align-items:center;gap:8px;color:var(--teal-deep)">'+ic('shield',18)+'<span style="font-weight:700">About this prototype</span></div>'+
-      '<h1 style="font-size:20px;margin-top:8px">Arc is a clinical education scheduling intelligence and reconciliation platform</h1>'+
-      '<p style="font-size:13.5px;color:#475569;margin-top:8px">Arc creates a trusted operational picture across rotations, student constraints, clinical-site schedules, program requirements, and schedule changes. This viewer demonstrates the current validated slice: readiness visibility, risk explanation, human decision support, and coordinated next actions.</p>'+
+      '<h1 style="font-size:20px;margin-top:8px">Arc is a Clinical Readiness Nexus for clinical education operations</h1>'+
+      '<p style="font-size:13.5px;color:#475569;margin-top:8px">Arc brings together schedule-change requests, student constraints, clinical-site requirements, readiness evidence, and human decisions in one operating view. This prototype demonstrates how teams can move from fragmented scheduling information to clear risk visibility, governed decisions, and downstream readiness actions.</p>'+
       '<div class="scope-grid"><div class="scope"><h4 style="color:#15803D">In this MVP</h4><ul>'+inScope.map(function(s){return '<li>'+ic('check',14,'var(--teal)')+esc(s)+'</li>';}).join('')+'</ul></div>'+
-      '<div class="scope"><h4 style="color:var(--muted2)">Roadmap (later)</h4><ul>'+roadmap.map(function(s){return '<li style="color:var(--muted2)">'+ic('arrowr',13)+esc(s)+'</li>';}).join('')+'</ul></div></div>'+
-      '<p class="note" style="margin-top:18px">All names and records here are demo-safe. No real student data is used. Demographics, phone numbers, addresses, and credentialing information are outside this iteration.</p>'+
+      '<div class="scope"><h4 style="color:var(--muted2)">Roadmap</h4><ul>'+roadmap.map(function(s){return '<li style="color:var(--muted2)">'+ic('arrowr',13)+esc(s)+'</li>';}).join('')+'</ul></div></div>'+
+      '<p class="note" style="margin-top:18px">All names and records are demo-safe. No real student or patient data is used. Demographics, phone numbers, addresses, credentials, and other sensitive information are outside this prototype.</p>'+
     '</div></div>';
   }
   var wasOpen=!!o.firstElementChild;
