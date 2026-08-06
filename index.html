@@ -1573,7 +1573,7 @@
     width:21px;height:21px;border-radius:50%;display:grid;place-items:center;background:#EEF3F9;color:#355C8A;font-size:10px;font-weight:800;
   }
   .ov4-section-content{padding:8px 11px 10px;border-top:1px solid #EDF0F3}
-  .ov4-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
+  .ov4-summary-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0}
   .ov4-summary-item{padding:0 10px;border-right:1px solid #E4E9ED}
   .ov4-summary-item:first-child{padding-left:0}
   .ov4-summary-item:last-child{border-right:0}
@@ -1976,12 +1976,12 @@
 
 
 <style>
-  /* Decision Workspace summary: keep a stable six-column header across records */
+  /* Decision Workspace summary: stable five-field header; assignment context lives in Request summary */
   .ov4-casebar{
     min-height:40px;
     height:auto;
     display:grid;
-    grid-template-columns:minmax(110px,1.05fr) minmax(110px,1fr) minmax(110px,1fr) minmax(92px,.8fr) auto auto;
+    grid-template-columns:minmax(120px,1.15fr) minmax(130px,1.2fr) minmax(92px,.85fr) auto auto;
     align-items:center;
     gap:0;
     padding:0 12px;
@@ -2039,6 +2039,9 @@
       grid-template-columns:repeat(2,minmax(0,1fr));
     }
   }
+
+  @media(max-width:1100px){.ov4-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:10px}.ov4-summary-item:nth-child(3){border-right:0}.ov4-summary-item:nth-child(n+4){padding-top:8px}}
+  @media(max-width:720px){.ov4-summary-grid{grid-template-columns:1fr 1fr}.ov4-summary-item{border-right:0;padding:6px 8px}.ov4-summary-item:first-child{padding-left:8px}}
 </style>
 
 </head>
@@ -2526,11 +2529,7 @@ function viewOperatingView(){
   var student=focusRow.student||{name:'Unknown student',cohort:'—',level:'—'};
   var d=focusRow.dominant;
   var requestLabel=TYPE_LABEL[rq.type]||rq.type||'Request';
-  var currentLabel=focusRow.siteRotation||'—';
-  var normalizedRequest=String(requestLabel||'').trim().toLowerCase();
-  var normalizedCurrent=String(currentLabel||'').trim().toLowerCase();
-  if(!normalizedCurrent || normalizedCurrent===normalizedRequest || normalizedCurrent==='current assignment') currentLabel='—';
-  var currentSegment='<span class="ov4-current">'+esc(currentLabel)+'</span>';
+  var affectedAssignment=(rq.assignmentId && focusRow.siteRotation)?focusRow.siteRotation:'No assignment change';
   var dates=(rq.start===rq.end?fmtShort(rq.start):fmtRange(rq.start,rq.end));
   var recommendation=focusRow.nextAction||'Review request';
   var reason=d?d.summary:'No hard conflict detected. Human review remains required.';
@@ -2571,6 +2570,7 @@ function viewOperatingView(){
   var summary='<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">1</span>Request summary</div><div class="ov4-section-content"><div class="ov4-summary-grid">'+
     '<div class="ov4-summary-item"><small>Program</small><b>'+esc(student.cohort||'Clinical program')+' · '+esc(student.level||'')+'</b></div>'+
     '<div class="ov4-summary-item"><small>Request</small><b>'+esc(requestLabel)+'</b></div>'+
+    '<div class="ov4-summary-item"><small>Affected assignment</small><b>'+esc(affectedAssignment)+'</b></div>'+
     '<div class="ov4-summary-item"><small>Submitted</small><b>'+esc(rq.submittedAt?'Today '+new Date(rq.submittedAt).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}):'Today 7:18 AM')+'</b></div>'+
     '<div class="ov4-summary-item"><small>Requested by</small><b>Student self-service</b></div>'+
   '</div></div></section>';
@@ -2604,7 +2604,7 @@ function viewOperatingView(){
     '</section>'+
     '<section class="ov4-work">'+
       '<article class="ov4-panel"><header class="ov4-panel-head"><div><h2>Decision Workspace</h2></div><span class="ov4-request-id">'+esc(String(rq.id||'CHG-2026-0914-027').toUpperCase())+'</span></header>'+
-        '<div class="ov4-casebar"><span class="student">'+esc(student.name)+'</span><span class="ov4-request-type">'+esc(requestLabel)+'</span>'+currentSegment+'<span class="ov4-dates">'+esc(dates)+'</span><span class="ov4-status">'+esc(focusRow.readiness.label)+'</span><span class="ov4-confidence">'+focusRow.readiness.score+'%</span></div>'+
+        '<div class="ov4-casebar"><span class="student">'+esc(student.name)+'</span><span class="ov4-request-type">'+esc(requestLabel)+'</span><span class="ov4-dates">'+esc(dates)+'</span><span class="ov4-status">'+esc(focusRow.readiness.label)+'</span><span class="ov4-confidence">'+focusRow.readiness.score+'%</span></div>'+
         '<div class="ov4-decision-body">'+summary+evidence+decisionQueue+makeDecision+
           '<button class="ov4-collapsed" type="button"><span>5 &nbsp; Change impact</span>'+ic('chevr',13,'#52677C')+'</button>'+
           '<button class="ov4-collapsed" type="button"><span>6 &nbsp; Impact</span>'+ic('chevr',13,'#52677C')+'</button>'+
@@ -4277,4 +4277,4 @@ window.addEventListener('hashchange',function(){
 </script>
 
 </body></html>
-<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_HtmuNRAFgACSejK4nZwcpVrDkLzN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_Cp3YwdBSW58B2z4jMHyYwq3SS7FM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_212ZZKQ76m76PK6skyQFHKYfEu4u" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_71RMNwqH1WDEHXTJG4jP5D5qmMCz" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_7rcy9uSJ9HqcQz1hUEB7zNPUqfRq" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_FV849egG16YvZYmwwLZUTsMb96fN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_5UyvHp3wekJqPQTDSeSK7emm69sx" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_89ZtfmKDTf5CUJYHqWnfQXypbh4x" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_21TJ6o7StFq1DBvXwRU2uCSyW1J8" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_E46fpy4z6qLRnbvQ9rgsL9pXuLxn" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_J1Zd3LJp5eNYkvJRRqXEbak9Z9Xd" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_BhxuV3e7RxEY5FVwarvnpnR3MCxN" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
+<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_HtmuNRAFgACSejK4nZwcpVrDkLzN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_Cp3YwdBSW58B2z4jMHyYwq3SS7FM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_212ZZKQ76m76PK6skyQFHKYfEu4u" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_71RMNwqH1WDEHXTJG4jP5D5qmMCz" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_7rcy9uSJ9HqcQz1hUEB7zNPUqfRq" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_FV849egG16YvZYmwwLZUTsMb96fN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_5UyvHp3wekJqPQTDSeSK7emm69sx" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_89ZtfmKDTf5CUJYHqWnfQXypbh4x" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_21TJ6o7StFq1DBvXwRU2uCSyW1J8" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_E46fpy4z6qLRnbvQ9rgsL9pXuLxn" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_J1Zd3LJp5eNYkvJRRqXEbak9Z9Xd" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_BhxuV3e7RxEY5FVwarvnpnR3MCxN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_BqK1jGiwgBmK2DMZ12McTskitrQU" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
