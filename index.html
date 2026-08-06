@@ -1973,6 +1973,53 @@
   }
 </style>
 
+
+<style>
+  /* Decision Workspace summary: suppress duplicate values and preserve one-line layout */
+  .ov4-casebar{
+    flex-wrap:nowrap;
+    column-gap:0;
+    row-gap:0;
+  }
+  .ov4-casebar span{
+    flex:0 1 auto;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    overflow-wrap:normal;
+  }
+  .ov4-casebar .student{
+    flex:0 0 auto;
+  }
+  .ov4-casebar .ov4-request-type,
+  .ov4-casebar .ov4-current{
+    min-width:0;
+    max-width:190px;
+  }
+  .ov4-casebar .ov4-dates,
+  .ov4-casebar .ov4-status,
+  .ov4-casebar .ov4-confidence{
+    flex:0 0 auto;
+  }
+  @media(max-width:900px){
+    .ov4-casebar{
+      flex-wrap:wrap;
+      row-gap:6px;
+    }
+    .ov4-casebar span{
+      overflow:visible;
+      text-overflow:clip;
+      white-space:normal;
+    }
+    .ov4-casebar .student,
+    .ov4-casebar .ov4-dates,
+    .ov4-casebar .ov4-status,
+    .ov4-casebar .ov4-confidence{
+      white-space:nowrap;
+    }
+  }
+</style>
+
 </head>
 <body>
 <!-- Arc operational workspace. Capture now sits directly beneath Overview in the primary workflow. -->
@@ -2459,6 +2506,11 @@ function viewOperatingView(){
   var d=focusRow.dominant;
   var requestLabel=TYPE_LABEL[rq.type]||rq.type||'Request';
   var currentLabel=focusRow.siteRotation||'Current assignment';
+  var normalizedRequest=String(requestLabel||'').trim().toLowerCase();
+  var normalizedCurrent=String(currentLabel||'').trim().toLowerCase();
+  var currentSegment=(normalizedCurrent && normalizedCurrent!==normalizedRequest)
+    ? '<span class="ov4-current">'+esc(currentLabel)+'</span>'
+    : '';
   var dates=(rq.start===rq.end?fmtShort(rq.start):fmtRange(rq.start,rq.end));
   var recommendation=focusRow.nextAction||'Review request';
   var reason=d?d.summary:'No hard conflict detected. Human review remains required.';
@@ -2527,7 +2579,7 @@ function viewOperatingView(){
     '</section>'+
     '<section class="ov4-work">'+
       '<article class="ov4-panel"><header class="ov4-panel-head"><div><h2>Decision Workspace</h2></div><span class="ov4-request-id">'+esc(String(rq.id||'CHG-2026-0914-027').toUpperCase())+'</span></header>'+
-        '<div class="ov4-casebar"><span class="student">'+esc(student.name)+'</span><span>'+esc(requestLabel)+'</span><span>'+esc(currentLabel)+'</span><span>'+esc(dates)+'</span><span class="ov4-status">'+esc(focusRow.readiness.label)+'</span><span class="ov4-confidence">'+focusRow.readiness.score+'%</span></div>'+
+        '<div class="ov4-casebar"><span class="student">'+esc(student.name)+'</span><span class="ov4-request-type">'+esc(requestLabel)+'</span>'+currentSegment+'<span class="ov4-dates">'+esc(dates)+'</span><span class="ov4-status">'+esc(focusRow.readiness.label)+'</span><span class="ov4-confidence">'+focusRow.readiness.score+'%</span></div>'+
         '<div class="ov4-decision-body">'+summary+evidence+decisionQueue+makeDecision+
           '<button class="ov4-collapsed" type="button"><span>5 &nbsp; Change impact</span>'+ic('chevr',13,'#52677C')+'</button>'+
           '<button class="ov4-collapsed" type="button"><span>6 &nbsp; Impact</span>'+ic('chevr',13,'#52677C')+'</button>'+
