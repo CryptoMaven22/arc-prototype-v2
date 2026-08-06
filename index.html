@@ -2494,10 +2494,9 @@ function operatingQueue(){
     })
     .sort(function(a,b){return a.readiness.score-b.readiness.score;});
 
-  var high=all.filter(function(x){return x.impact==='High';}).slice(0,3);
-  var medium=all.filter(function(x){return x.impact==='Medium';}).slice(0,3);
-  var low=all.filter(function(x){return x.impact==='Low';}).slice(0,1);
-  return high.concat(medium,low);
+  /* Keep the complete request set in the Attention Queue. Priority is handled by sorting,
+     not by dropping lower-impact records from the operator's view. */
+  return all;
 }
 function requestDetailPanel(row){
   var rq=row.rq,d=row.dominant,readiness=row.readiness;
