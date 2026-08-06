@@ -1670,15 +1670,20 @@
   }
   .ov4-queue-item:hover{background:#FAFCFE;border-color:#BFCBD6}
   .ov4-queue-item.active{border:2px solid #315F98;background:#FCFDFF;padding:7px 9px}
-  /* Persist the committed decision on the corresponding Attention Queue card. */
-  .ov4-queue-item.decision-approve{border:3px solid #238469;background:#F4FBF8;padding:6px 8px}
-  .ov4-queue-item.decision-deny{border:3px solid #C62828;background:#FFF1F1;padding:6px 8px;box-shadow:inset 0 0 0 1px rgba(198,40,40,.08)}
-  .ov4-queue-item.decision-clarify{border:3px solid #C9871F;background:#FFFBF3;padding:6px 8px}
-  .ov4-queue-item.decision-escalate{border:3px solid #315F98;background:#F8FAFD;padding:6px 8px}
-  .ov4-queue-item.active.decision-approve{border-color:#238469;background:#F4FBF8}
-  .ov4-queue-item.active.decision-deny{border-color:#C62828;background:#FFF1F1;box-shadow:inset 0 0 0 1px rgba(198,40,40,.08)}
-  .ov4-queue-item.active.decision-clarify{border-color:#C9871F;background:#FFFBF3}
-  .ov4-queue-item.active.decision-escalate{border-color:#315F98;background:#F8FAFD}
+  /* Decision history is shown as a compact badge; card borders remain reserved for selection. */
+  .ov4-queue-item.decision-approve,
+  .ov4-queue-item.decision-deny,
+  .ov4-queue-item.decision-clarify,
+  .ov4-queue-item.decision-escalate{border-color:#E0E6EB;background:#fff;box-shadow:none;padding:8px 10px}
+  .ov4-queue-item.active.decision-approve,
+  .ov4-queue-item.active.decision-deny,
+  .ov4-queue-item.active.decision-clarify,
+  .ov4-queue-item.active.decision-escalate{border:2px solid #315F98;background:#FCFDFF;padding:7px 9px;box-shadow:none}
+  .ov4-decision-badge{display:inline-flex;align-items:center;width:max-content;margin-top:4px;border-radius:999px;padding:2px 7px;font-size:9px;font-weight:800;line-height:1.35;white-space:nowrap}
+  .ov4-decision-badge.approved{background:#EAF7F1;color:#1F7A5F}
+  .ov4-decision-badge.denied{background:#FCEEEE;color:#B13C3C}
+  .ov4-decision-badge.clarification{background:#FFF5E5;color:#A66A14}
+  .ov4-decision-badge.escalated{background:#EEF3FA;color:#315F98}
   .ov4-avatar{
     width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--av-bg,#DCE7F0);color:var(--av,#365979);font-size:14px;font-weight:700;
   }
@@ -2623,12 +2628,20 @@ function viewOperatingView(){
       (committedDecision==='Denied'?' decision-deny':
       (committedDecision==='Clarification requested'||committedDecision==='Returned'?' decision-clarify':
       (committedDecision==='Escalated'?' decision-escalate':'')));
+    var decisionBadge='';
+    if(committedDecision){
+      var badgeLabel=committedDecision==='Returned'?'Clarification requested':committedDecision;
+      var badgeClass=committedDecision==='Approved'?'approved':
+        (committedDecision==='Denied'?'denied':
+        ((committedDecision==='Clarification requested'||committedDecision==='Returned')?'clarification':'escalated'));
+      decisionBadge='<span class="ov4-decision-badge '+badgeClass+'">'+esc(badgeLabel)+'</span>';
+    }
     var colors=[
       ['#DCE7F0','#365979'],['#E1ECEA','#54716E'],['#DDE7F1','#496783'],['#E6E3E2','#69615D'],['#E1E5EA','#5F6977']
     ][index%5];
     return '<button class="ov4-queue-item'+(active?' active':'')+decisionClass+'" data-act="queuefocus" data-id="'+r.rq.id+'">'+
       '<span class="ov4-avatar" style="--av-bg:'+colors[0]+';--av:'+colors[1]+'">'+initials(r.student&&r.student.name)+'</span>'+
-      '<span class="ov4-queue-main"><b>'+esc(r.student?r.student.name:'Unknown')+'</b><span class="ov4-queue-meta">'+esc((TYPE_LABEL[r.rq.type]||r.rq.type)+(r.siteRotation&&r.siteRotation!=='No assignment change'?' · '+shortSite(r.siteRotation):''))+'</span><span class="ov4-queue-reason">'+esc(r.nextAction)+'</span></span>'+
+      '<span class="ov4-queue-main"><b>'+esc(r.student?r.student.name:'Unknown')+'</b><span class="ov4-queue-meta">'+esc((TYPE_LABEL[r.rq.type]||r.rq.type)+(r.siteRotation&&r.siteRotation!=='No assignment change'?' · '+shortSite(r.siteRotation):''))+'</span><span class="ov4-queue-reason">'+esc(r.nextAction)+'</span>'+decisionBadge+'</span>'+
       '<span class="ov4-age">'+esc(r.age)+' ago</span>'+
       '<span class="ov4-meter">'+meter(r.readiness.score,r.readiness.tone.ring)+'</span>'+
       '<span class="ov4-queue-state'+(blocked?' blocked':'')+'">'+esc(r.readiness.label)+'</span>'+
