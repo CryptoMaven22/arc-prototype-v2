@@ -1636,6 +1636,19 @@
   .ov4-impact-item small{display:block;color:#7A8999;font-size:9.5px;margin-bottom:3px}
   .ov4-impact-item b{display:block;color:#27394B;font-size:10.5px;line-height:1.35;overflow-wrap:anywhere}
   @media(max-width:980px){.ov4-impact-grid{grid-template-columns:1fr 1fr}.ov4-impact-item{border-bottom:1px solid #E4E9ED}.ov4-impact-item:nth-child(even){border-right:0}.ov4-impact-item:last-child{grid-column:1/-1;border-bottom:0}}
+  .ov4-trail-panel{border:1px solid #DCE4EA;border-radius:8px;background:#FBFCFD;padding:10px 12px}
+  .ov4-trail{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0}
+  .ov4-trail-step{position:relative;min-width:0;padding:2px 12px 2px 20px;border-right:1px solid #E4E9ED}
+  .ov4-trail-step:first-child{padding-left:18px}
+  .ov4-trail-step:last-child{border-right:0}
+  .ov4-trail-dot{position:absolute;left:0;top:4px;width:11px;height:11px;border-radius:50%;background:#CBD5E1;box-shadow:0 0 0 3px #EEF2F6}
+  .ov4-trail-step.complete .ov4-trail-dot{background:#238469;box-shadow:0 0 0 3px #DDF2EC}
+  .ov4-trail-step.active .ov4-trail-dot{background:#315F98;box-shadow:0 0 0 3px #E1EAF4}
+  .ov4-trail-step.warning .ov4-trail-dot{background:#C9871F;box-shadow:0 0 0 3px #FAEED8}
+  .ov4-trail-step small{display:block;color:#7A8999;font-size:9px;line-height:1.2}
+  .ov4-trail-step b{display:block;color:#27394B;font-size:10.5px;line-height:1.3;margin-top:2px}
+  .ov4-trail-step span{display:block;color:#65778A;font-size:9.5px;line-height:1.35;margin-top:3px}
+  @media(max-width:980px){.ov4-trail{grid-template-columns:1fr 1fr}.ov4-trail-step{border-bottom:1px solid #E4E9ED;padding:9px 10px 9px 22px}.ov4-trail-step:nth-child(even){border-right:0}.ov4-trail-step:last-child{grid-column:1/-1;border-bottom:0}}
 
   .ov4-queue-head{align-items:center}
   .ov4-queue-score{display:flex;align-items:center;gap:10px}
@@ -2218,7 +2231,7 @@ function bankFor(studentId){
 function badgeSt(s,sm){var c=STATUS[s]||STATUS['Not Checked'];return '<span class="badge-st'+(sm?' sm':'')+'" style="color:'+c.text+';background:'+c.bg+'"><span class="dot" style="background:'+c.dot+'"></span>'+s+'</span>';}
 function sevBadge(s){var c=SEV[s]||SEV.Low;return '<span class="sev" style="color:'+c.text+';background:'+c.bg+'">'+s+'</span>';}
 
-var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,requestFocus:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4',queueFocus:null,queueAction:null,queueStage:0,queueChoice:null,queueDecisions:{},ovDecisionChoice:'approve',ovImpactOpen:false};
+var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,requestFocus:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4',queueFocus:null,queueAction:null,queueStage:0,queueChoice:null,queueDecisions:{},ovDecisionChoice:'approve',ovImpactOpen:false,ovTrailOpen:false};
 var lastFocusedElement=null;
 
 function demoFlow(){
@@ -2699,6 +2712,39 @@ function viewOperatingView(){
     '<div class="ov4-impact-item"><small>Follow-up</small><b>'+esc(impactFollow)+'</b></div>'+
   '</div></div>':'';
 
+  var committed=ST.queueDecisions&&ST.queueDecisions[rq.id];
+  var trailDecision=committed||'Pending';
+  var trailSteps=[];
+  trailSteps.push({state:'complete',time:'Captured',title:'Request assembled',detail:'Request, dates, student, and source normalized.'});
+  if(!committed){
+    trailSteps.push({state:'active',time:'Current',title:'Decision pending',detail:'Human review is required before any operational update.'});
+    trailSteps.push({state:'',time:'Next',title:'Record update',detail:'Assignment or calendar remains unchanged.'});
+    trailSteps.push({state:'',time:'Next',title:'Notifications',detail:'Messages remain in draft until a decision is committed.'});
+    trailSteps.push({state:'',time:'Next',title:'Readiness recalculation',detail:'Arc will re-check the affected record after execution.'});
+  }else if(committed==='Approved'){
+    trailSteps.push({state:'complete',time:'Now',title:'Decision recorded',detail:'Approval and operator judgment saved to the request.'});
+    trailSteps.push({state:'complete',time:'Now',title:'Record updated',detail:rq.type==='MOVE'?'Assignment dates updated to '+dates+'.':'Program calendar updated for '+dates+'.'});
+    trailSteps.push({state:'complete',time:'Now',title:'Notifications released',detail:impactNotify+' notified.'});
+    trailSteps.push({state:impactFollow==='No additional dependency'||impactFollow==='No assignment change'?'complete':'warning',time:'Now',title:'Readiness recalculated',detail:impactFollow==='No additional dependency'||impactFollow==='No assignment change'?'Request closed with no remaining dependency.':impactFollow+'.'});
+  }else if(committed==='Denied'){
+    trailSteps.push({state:'complete',time:'Now',title:'Decision recorded',detail:'Denial and operator judgment saved to the request.'});
+    trailSteps.push({state:'complete',time:'Now',title:'Schedule retained',detail:'No assignment or calendar change was applied.'});
+    trailSteps.push({state:'complete',time:'Now',title:'Student notified',detail:'Denial notice prepared with the recorded reason.'});
+    trailSteps.push({state:'complete',time:'Now',title:'Request closed',detail:'Readiness remains based on the existing schedule.'});
+  }else if(committed==='Clarification requested'){
+    trailSteps.push({state:'complete',time:'Now',title:'Decision recorded',detail:'Request returned for additional information.'});
+    trailSteps.push({state:'active',time:'Pending',title:'Record held',detail:'No assignment or calendar change was applied.'});
+    trailSteps.push({state:'complete',time:'Now',title:'Clarification sent',detail:'Student receives the specific information request.'});
+    trailSteps.push({state:'warning',time:'Awaiting reply',title:'Readiness on hold',detail:'Arc will re-check the request when new information arrives.'});
+  }else{
+    trailSteps.push({state:'complete',time:'Now',title:'Decision recorded',detail:'Escalation and operator context saved to the request.'});
+    trailSteps.push({state:'active',time:'Pending',title:'Record held',detail:'No assignment or calendar change was applied.'});
+    trailSteps.push({state:'complete',time:'Now',title:'Escalation routed',detail:'Program leadership receives the request and supporting evidence.'});
+    trailSteps.push({state:'warning',time:'Open',title:'Readiness unresolved',detail:'Request remains in review until leadership responds.'});
+  }
+  var trailPanel=ST.ovTrailOpen?'<div class="ov4-trail-panel"><div class="ov4-trail">'+trailSteps.map(function(s){return '<div class="ov4-trail-step '+s.state+'"><i class="ov4-trail-dot"></i><small>'+esc(s.time)+'</small><b>'+esc(s.title)+'</b><span>'+esc(s.detail)+'</span></div>';}).join('')+'</div></div>':'';
+
+
   return '<div class="ov4-page">'+
     '<section class="ov4-command"><div class="ov4-command-intro"><h1>Operating View</h1><p>See the system. Work the exception. Close the loop.</p></div>'+signalHtml+
       '<div class="ov4-score-card"><div class="ov4-score-ring" style="--score:'+healthScore+'"><b>'+healthScore+'</b></div><div class="ov4-score-copy"><strong>Attention required</strong><span>Unresolved conflicts and request aging.</span></div></div>'+
@@ -2708,7 +2754,7 @@ function viewOperatingView(){
         '<div class="ov4-casebar"><span class="student">'+esc(student.name)+'</span><span class="ov4-request-type">'+esc(requestLabel)+'</span><span class="ov4-dates">'+esc(dates)+'</span><span class="ov4-status">'+esc(focusRow.readiness.label)+'</span><span class="ov4-confidence">'+focusRow.readiness.score+'%</span></div>'+
         '<div class="ov4-decision-body">'+summary+evidence+decisionQueue+makeDecision+
           '<button class="ov4-collapsed'+(ST.ovImpactOpen?' open':'')+'" type="button" data-act="ovtoggleimpact" aria-expanded="'+(ST.ovImpactOpen?'true':'false')+'"><span>5 &nbsp; Change impact</span>'+ic('chevr',13,'#52677C')+'</button>'+impactPanel+
-          '<button class="ov4-collapsed" type="button"><span>6 &nbsp; Execution trail</span>'+ic('chevr',13,'#52677C')+'</button>'+
+          '<button class="ov4-collapsed'+(ST.ovTrailOpen?' open':'')+'" type="button" data-act="ovtoggletrail" aria-expanded="'+(ST.ovTrailOpen?'true':'false')+'"><span>6 &nbsp; Execution trail</span>'+ic('chevr',13,'#52677C')+'</button>'+trailPanel+
         '</div>'+
       '</article>'+
       '<aside class="ov4-panel"><header class="ov4-panel-head ov4-queue-head"><div><h2>Attention Queue</h2><p>Prioritized requests requiring judgment.</p></div><div class="ov4-queue-score"><div class="ov4-mini-ring" style="--score:'+healthScore+'"><b>'+healthScore+'</b></div><strong>Attention required</strong></div></header>'+
@@ -3995,8 +4041,9 @@ document.addEventListener('click',function(e){
   if(act==='goto'){ST.view=t.getAttribute('data-v');if(ST.view==='dashboard')ST.view='overview';ST.siteFocus=null;render();}
   else if(act==='captureplay'){runArcCapture();}
   else if(act==='home'){ST.role='leader';ST.view='overview';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;ST.queueFocus=null;ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;render();}
-  else if(act==='queuefocus'){ST.queueFocus=t.getAttribute('data-id');ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.ovDecisionChoice='approve';ST.ovImpactOpen=false;render();}
+  else if(act==='queuefocus'){ST.queueFocus=t.getAttribute('data-id');ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.ovDecisionChoice='approve';ST.ovImpactOpen=false;ST.ovTrailOpen=false;render();}
   else if(act==='ovtoggleimpact'){ST.ovImpactOpen=!ST.ovImpactOpen;render();}
+  else if(act==='ovtoggletrail'){ST.ovTrailOpen=!ST.ovTrailOpen;render();}
   else if(act==='ovdecisionselect'){ST.ovDecisionChoice=t.getAttribute('data-choice')||'approve';render();}
   else if(act==='ovmakedecision'){
     var oq=operatingQueue(), orow=oq.filter(function(r){return r.rq.id===ST.queueFocus;})[0]||oq[0];
@@ -4007,6 +4054,7 @@ document.addEventListener('click',function(e){
     else if(oc==='clarify'){od.status='Returned';od.closed=false;ol='Clarification requested';}
     else {od.status='Needs Review';od.closed=false;ol='Escalated';}
     ST.queueDecisions[od.id]=ol;
+    ST.ovTrailOpen=true;
     render();
     toast('Decision confirmed: '+ol+' — '+(orow.student?orow.student.name:'request'));
   }
@@ -4198,7 +4246,7 @@ document.addEventListener('click',function(e){
     toast(s==='Approved'?'Request approved \u2014 re-checking the schedule.':'Request marked '+s.toLowerCase()+'.');
     render();
   }
-  else if(act==='reset'){ST.data=seed();ST.view='overview';ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.demoFlow=null;ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';ST.queueDecisions={};ST.ovDecisionChoice='approve';ST.ovImpactOpen=false;toast('Demo reset to starting data.');render();}
+  else if(act==='reset'){ST.data=seed();ST.view='overview';ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.demoFlow=null;ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';ST.queueDecisions={};ST.ovDecisionChoice='approve';ST.ovImpactOpen=false;ST.ovTrailOpen=false;toast('Demo reset to starting data.');render();}
 });
 document.addEventListener('change',function(e){
   var t=e.target.closest('[data-act="reassign"]');
@@ -4251,6 +4299,8 @@ function startArc(){
   ST.demoCard=null;
   ST.demoStage=1;
   ST.about=false;
+  ST.ovImpactOpen=false;
+  ST.ovTrailOpen=false;
   render();
 }
 if(document.readyState==='loading'){
