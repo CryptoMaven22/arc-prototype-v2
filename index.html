@@ -2681,7 +2681,8 @@ function viewOperatingView(){
     return '<button class="ov4-signal'+(active?' active':'')+'" data-act="ovconditionfilter" data-condition="'+s.label+'" style="--sig:'+s.color+';--sig-bg:'+s.bg+'" aria-pressed="'+(active?'true':'false')+'"><span class="ov4-signal-icon">'+ic(s.icon,17,s.color)+'</span><div><div class="ov4-signal-label">'+s.label+'</div><div class="ov4-signal-value">'+s.value+'</div><div class="ov4-signal-detail">'+s.detail+'</div></div></button>';
   }).join('');
 
-  var queueRows=queue.slice(0,5).map(function(r,index){
+  var displayedQueue=activeCondition==='All'?queue.slice(0,5):queue;
+  var queueRows=displayedQueue.map(function(r,index){
     var active=r.rq.id===focusRow.rq.id;
     var blocked=r.readiness.label==='Blocked';
     var committedDecision=ST.queueDecisions&&ST.queueDecisions[r.rq.id];
@@ -2844,7 +2845,7 @@ function viewOperatingView(){
       '</article>'+
       '<aside class="ov4-panel"><header class="ov4-panel-head ov4-queue-head"><div><h2>Attention Queue</h2><p>Prioritized requests requiring judgment.</p></div><div class="ov4-queue-score"><div class="ov4-mini-ring" style="--score:'+healthScore+'"><b>'+healthScore+'</b></div><strong>Attention required</strong></div></header>'+
         (activeCondition!=='All'?'<div class="ov4-queue-filter-note"><span>Showing '+activeCondition+' · '+queue.length+' request'+(queue.length===1?'':'s')+'</span><button data-act="ovconditionfilter" data-condition="All">Show all</button></div>':'')+
-        '<div class="ov4-queue-list">'+(queueRows||'<div style="padding:22px;text-align:center;color:#64748B;font-size:12px">No requests match this condition.</div>')+(queue.length>5?'<button class="ov4-view-more">View '+(queue.length-5)+' more</button>':'')+'</div>'+
+        '<div class="ov4-queue-list">'+(queueRows||'<div style="padding:22px;text-align:center;color:#64748B;font-size:12px">No requests match this condition.</div>')+(activeCondition==='All'&&queue.length>5?'<button class="ov4-view-more">View '+(queue.length-5)+' more</button>':'')+'</div>'+
       '</aside>'+
     '</section>'+
   '</div>';
