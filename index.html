@@ -2804,13 +2804,26 @@ function viewOperatingView(){
     impactNotify='Student, site coordinator, and preceptor';
     impactFollow='Confirm site and preceptor';
   }
-  var impactPanel=ST.ovImpactOpen?'<div class="ov4-impact-panel"><div class="ov4-impact-grid">'+
-    '<div class="ov4-impact-item"><small>Affected record</small><b>'+esc(impactRecord)+'</b></div>'+
-    '<div class="ov4-impact-item"><small>Before</small><b>'+esc(impactBefore)+'</b></div>'+
-    '<div class="ov4-impact-item"><small>After approval</small><b>'+esc(impactAfter)+'</b></div>'+
-    '<div class="ov4-impact-item"><small>Notifications</small><b>'+esc(impactNotify)+'</b></div>'+
-    '<div class="ov4-impact-item"><small>Follow-up</small><b>'+esc(impactFollow)+'</b></div>'+
-  '</div></div>':'';
+  var impactPanel='';
+  if(ST.ovImpactOpen){
+    if(isPriyaDemo && isApprovedCurrent){
+      impactPanel='<div class="ov4-impact-panel"><div class="ov4-impact-grid">'+
+        '<div class="ov4-impact-item"><small>Assignment</small><b>Jul 6–10 → Jul 13–17</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Preceptor</small><b>Unconfirmed → Confirmed</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Readiness</small><b>70% → 92%</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Notifications</small><b>Student, site coordinator, and preceptor</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Next action</small><b>Publish revised schedule</b></div>'+ 
+      '</div></div>';
+    }else{
+      impactPanel='<div class="ov4-impact-panel"><div class="ov4-impact-grid">'+
+        '<div class="ov4-impact-item"><small>Affected record</small><b>'+esc(impactRecord)+'</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Before</small><b>'+esc(impactBefore)+'</b></div>'+ 
+        '<div class="ov4-impact-item"><small>After approval</small><b>'+esc(impactAfter)+'</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Notifications</small><b>'+esc(impactNotify)+'</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Follow-up</small><b>'+esc(impactFollow)+'</b></div>'+ 
+      '</div></div>';
+    }
+  }
 
   var committed=ST.queueDecisions&&ST.queueDecisions[rq.id];
   var trailDecision=committed||'Pending';
