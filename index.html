@@ -2726,6 +2726,8 @@ function viewOperatingView(){
   var capacityValue=affectedAssignment==='No assignment change'?'Not affected':(capacityCheck?'Review required':'Within capacity');
   var ruleValue=highConflict?'Human review':(anyConflict?'Review required':'No hard block');
   var isPriyaDemo=rq.id==='rq3';
+  var committedDecisionCurrent=ST.queueDecisions&&ST.queueDecisions[rq.id];
+  var isApprovedCurrent=committedDecisionCurrent==='Approved';
   if(isPriyaDemo){
     capacityValue='Confirmed';
     ruleValue='Passed';
@@ -2752,17 +2754,19 @@ function viewOperatingView(){
     '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Source freshness</b><span>Current</span></div>'+
   '</div><div class="ov4-evidence-overall"><b>Overall:</b> '+esc(overallText)+'</div></div></section>';
 
-  var recommendationLabel=isPriyaDemo?'Approve':focusRow.readiness.label;
-  var recommendationText=isPriyaDemo?'Capacity, calendar, and rotation requirements are satisfied. Approve the assignment change and notify the student and site.':(recommendation+'. '+reason);
+  var recommendationLabel=isApprovedCurrent?'Approved':(isPriyaDemo?'Approve':focusRow.readiness.label);
+  var recommendationText=isApprovedCurrent?'Priya’s assignment change has been committed. Her schedule and readiness impact have been recalculated.':(isPriyaDemo?'Capacity, calendar, and rotation requirements are satisfied. Approve the assignment change and notify the student and site.':(recommendation+'. '+reason));
   var recommendationConfidence=isPriyaDemo?92:focusRow.readiness.score;
   var decisionQueue='<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">3</span>Recommendation</div><div class="ov4-section-content"><div class="ov4-recommendation"><div><strong>Arc recommendation: '+esc(recommendationLabel)+'</strong><p>'+esc(recommendationText)+'</p></div><span class="ov4-confidence-pill">'+recommendationConfidence+'% confidence</span></div></div></section>';
 
-  var makeDecision='<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Make decision</div><div class="ov4-section-content"><div class="ov4-decision-grid"><div class="ov4-choice-grid">'+
-    choiceButton('approve','Approve','check')+
-    choiceButton('deny','Deny','x')+
-    choiceButton('clarify','Request clarification','info')+
-    choiceButton('escalate','Escalate','arrowr')+
-    '</div><button class="ov4-commit" data-act="ovmakedecision">'+ic('check',18,'#fff')+'<span>'+(choice==='approve'?'Approve Request':'Make Decision: '+choiceLabel)+'</span></button></div></div></section>';
+  var makeDecision=isApprovedCurrent?
+    '<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Decision committed</div><div class="ov4-section-content"><div class="queue-success" style="--decision:#16A34A"><h3>Request approved</h3><p>Priya’s assignment change is committed. The schedule was updated, readiness was recalculated, and notifications are ready.</p></div></div></section>':
+    '<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Make decision</div><div class="ov4-section-content"><div class="ov4-decision-grid"><div class="ov4-choice-grid">'+
+      choiceButton('approve','Approve','check')+
+      choiceButton('deny','Deny','x')+
+      choiceButton('clarify','Request clarification','info')+
+      choiceButton('escalate','Escalate','arrowr')+
+      '</div><button class="ov4-commit" data-act="ovmakedecision">'+ic('check',18,'#fff')+'<span>'+(choice==='approve'?'Approve Request':'Make Decision: '+choiceLabel)+'</span></button></div></div></section>';
 
   var linkedAssignments=requestAssignments(rq);
   var linkedAssignment=linkedAssignments[0]||null;
@@ -2847,7 +2851,7 @@ function viewOperatingView(){
     '</section>'+
     '<section class="ov4-work">'+
       '<article class="ov4-panel"><header class="ov4-panel-head"><div><h2>Decision Workspace</h2></div><span class="ov4-request-id">'+esc(String(rq.id||'CHG-2026-0914-027').toUpperCase())+'</span></header>'+
-        '<div class="ov4-casebar"><span class="student">'+esc(student.name)+'</span><span class="ov4-request-type">'+esc(requestLabel)+'</span><span class="ov4-dates">'+esc(dates)+'</span><span class="ov4-status">'+esc(focusRow.readiness.label)+'</span><span class="ov4-confidence">'+focusRow.readiness.score+'%</span></div>'+
+        '<div class="ov4-casebar"><span class="student">'+esc(student.name)+'</span><span class="ov4-request-type">'+esc(requestLabel)+'</span><span class="ov4-dates">'+esc(dates)+'</span><span class="ov4-status">'+esc(isApprovedCurrent?'Approved':focusRow.readiness.label)+'</span><span class="ov4-confidence">'+(isPriyaDemo?92:focusRow.readiness.score)+'%</span></div>'+
         '<div class="ov4-decision-body">'+summary+evidence+decisionQueue+makeDecision+
           '<button class="ov4-collapsed'+(ST.ovImpactOpen?' open':'')+'" type="button" data-act="ovtoggleimpact" aria-expanded="'+(ST.ovImpactOpen?'true':'false')+'"><span>5 &nbsp; Change impact</span>'+ic('chevr',13,'#52677C')+'</button>'+impactPanel+
           '<button class="ov4-collapsed'+(ST.ovTrailOpen?' open':'')+'" type="button" data-act="ovtoggletrail" aria-expanded="'+(ST.ovTrailOpen?'true':'false')+'"><span>6 &nbsp; Execution trail</span>'+ic('chevr',13,'#52677C')+'</button>'+trailPanel+
@@ -4151,11 +4155,16 @@ document.addEventListener('click',function(e){
     var oq=operatingQueue(), orow=oq.filter(function(r){return r.rq.id===ST.queueFocus;})[0]||oq[0];
     if(!orow)return;
     var od=orow.rq, oc=ST.ovDecisionChoice||'approve', ol='Approved';
-    if(oc==='approve'){od.status='Approved';od.closed=true;ol='Approved';}
+    if(oc==='approve'){
+      od.status='Approved';od.closed=true;od.published=true;od.notificationsSent=3;ol='Approved';
+      var oa=assignmentById(od.assignmentId);
+      if(oa){oa.start=od.start;oa.end=od.end;oa.published=true;oa.preceptorConfirmed=true;oa.notes='Approved assignment change; schedule updated and notifications prepared.';}
+    }
     else if(oc==='deny'){od.status='Denied';od.closed=true;ol='Denied';}
     else if(oc==='clarify'){od.status='Returned';od.closed=false;ol='Clarification requested';}
     else {od.status='Needs Review';od.closed=false;ol='Escalated';}
     ST.queueDecisions[od.id]=ol;
+    ST.ovImpactOpen=true;
     ST.ovTrailOpen=true;
     render();
     toast('Decision confirmed: '+ol+' — '+(orow.student?orow.student.name:'request'));
