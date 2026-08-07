@@ -2756,7 +2756,7 @@ function viewOperatingView(){
 
   var recommendationLabel=isApprovedCurrent?'Approved':(isPriyaDemo?'Approve':focusRow.readiness.label);
   var recommendationText=isApprovedCurrent?'Priya’s assignment change has been committed. Her schedule and readiness impact have been recalculated.':(isPriyaDemo?'Capacity, calendar, and rotation requirements are satisfied. Approve the assignment change and notify the student and site.':(recommendation+'. '+reason));
-  var recommendationConfidence=isPriyaDemo?92:focusRow.readiness.score;
+  var recommendationConfidence=(isPriyaDemo&&isApprovedCurrent)?92:focusRow.readiness.score;
   var decisionQueue='<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">3</span>Recommendation</div><div class="ov4-section-content"><div class="ov4-recommendation"><div><strong>Arc recommendation: '+esc(recommendationLabel)+'</strong><p>'+esc(recommendationText)+'</p></div><span class="ov4-confidence-pill">'+recommendationConfidence+'% confidence</span></div></div></section>';
 
   var makeDecision=isApprovedCurrent?
@@ -2873,7 +2873,7 @@ function viewOperatingView(){
     '</section>'+
     '<section class="ov4-work">'+
       '<article class="ov4-panel"><header class="ov4-panel-head"><div><h2>Decision Workspace</h2></div><span class="ov4-request-id">'+esc(String(rq.id||'CHG-2026-0914-027').toUpperCase())+'</span></header>'+
-        '<div class="ov4-casebar"><span class="student">'+esc(student.name)+'</span><span class="ov4-request-type">'+esc(requestLabel)+'</span><span class="ov4-dates">'+esc(dates)+'</span><span class="ov4-status">'+esc(isApprovedCurrent?'Approved':focusRow.readiness.label)+'</span><span class="ov4-confidence">'+(isPriyaDemo?92:focusRow.readiness.score)+'%</span></div>'+
+        '<div class="ov4-casebar"><span class="student">'+esc(student.name)+'</span><span class="ov4-request-type">'+esc(requestLabel)+'</span><span class="ov4-dates">'+esc(dates)+'</span><span class="ov4-status">'+esc(isApprovedCurrent?'Approved':focusRow.readiness.label)+'</span><span class="ov4-confidence">'+((isPriyaDemo&&isApprovedCurrent)?92:focusRow.readiness.score)+'%</span></div>'+
         '<div class="ov4-decision-body">'+summary+evidence+decisionQueue+makeDecision+
           '<button class="ov4-collapsed'+(ST.ovImpactOpen?' open':'')+'" type="button" data-act="ovtoggleimpact" aria-expanded="'+(ST.ovImpactOpen?'true':'false')+'"><span>5 &nbsp; Change impact</span>'+ic('chevr',13,'#52677C')+'</button>'+impactPanel+
           '<button class="ov4-collapsed'+(ST.ovTrailOpen?' open':'')+'" type="button" data-act="ovtoggletrail" aria-expanded="'+(ST.ovTrailOpen?'true':'false')+'"><span>6 &nbsp; Execution trail</span>'+ic('chevr',13,'#52677C')+'</button>'+trailPanel+
