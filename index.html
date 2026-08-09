@@ -3038,6 +3038,20 @@ function viewOperatingView(){
   var isAwaitingResponse=committedDecisionCurrent==='Clarification requested'||committedDecisionCurrent==='Escalated';
   var followupCurrent=ST.ovFollowups&&ST.ovFollowups[rq.id];
   var responseHistoryCurrent=ST.ovResponseHistory&&ST.ovResponseHistory[rq.id];
+  var responseOutcomeTitle='';
+  var responseOutcomeText='';
+  var responseNextAction='';
+  if(responseHistoryCurrent){
+    if(isEmilyBlockedDemo){
+      responseOutcomeTitle='No material change — hard conflict remains';
+      responseOutcomeText='Arc captured the response, refreshed the evidence, and recalculated the request. The required clinical-assignment conflict is still present.';
+      responseNextAction='Escalate or deny';
+    }else{
+      responseOutcomeTitle='Response recorded — evidence refreshed';
+      responseOutcomeText='Arc captured the response, refreshed the evidence, and returned the request to decision review.';
+      responseNextAction='Resume decision review';
+    }
+  }
   if(isPriyaDemo){
     capacityValue='Within capacity';
     allowanceValue='Within policy';
@@ -3129,7 +3143,7 @@ function viewOperatingView(){
     (isAwaitingResponse?
     '<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Awaiting response</div><div class="ov4-section-content"><div class="queue-success" style="--decision:#C9871F"><h3>Decision temporarily held</h3><p>'+esc(committedDecisionCurrent==='Escalated'?'Site Coordinator owns the response. Arc will hold approval until the response is captured and evidence is refreshed.':'The requested information is outstanding. Arc will hold approval until the response is captured and evidence is refreshed.')+'</p></div></div></section>':
     '<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Make decision</div><div class="ov4-section-content">'+
-      (responseHistoryCurrent?'<div class="queue-success" style="--decision:#2B7A72;margin-bottom:10px"><h3>Response received — evidence refreshed</h3><p>Arc captured the response and returned this request for decision. Review the refreshed evidence and choose the next action.</p></div>':'')+
+      (responseHistoryCurrent?'<div class="queue-success" style="--decision:'+(isEmilyBlockedDemo?'#C9871F':'#2B7A72')+';margin-bottom:10px"><h3>'+esc(responseOutcomeTitle)+'</h3><p>'+esc(responseOutcomeText)+' <b>Next action: '+esc(responseNextAction)+'.</b></p></div>':'')+
       '<div class="ov4-decision-grid"><div class="ov4-choice-grid">'+
       choiceButton('approve','Approve','check')+
       choiceButton('deny','Deny','x')+
@@ -3197,6 +3211,13 @@ function viewOperatingView(){
         '<div class="ov4-impact-item"><small>Decision</small><b>Clean approval</b></div>'+ 
         '<div class="ov4-impact-item"><small>Follow-up created</small><b>No · Request closed</b></div>'+ 
       '</div></div>';
+    }else if(responseHistoryCurrent&&!committedDecisionCurrent){
+      impactPanel='<div class="ov4-impact-panel"><div class="ov4-impact-grid">'+
+        '<div class="ov4-impact-item"><small>Response</small><b>Recorded</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Evidence</small><b>Refreshed</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Status recalculated</small><b>'+esc(isEmilyBlockedDemo?'Blocked · no material change':'Needs Review · decision resumed')+'</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Next action</small><b>'+esc(responseNextAction)+'</b></div>'+ 
+      '</div></div>';
     }else if(committedDecisionCurrent==='Clarification requested'){
       impactPanel='<div class="ov4-impact-panel"><div class="ov4-impact-grid">'+
         '<div class="ov4-impact-item"><small>Status</small><b>Awaiting response</b></div>'+ 
@@ -3241,10 +3262,20 @@ function viewOperatingView(){
   if(!committed){
     addTrail('complete','Request assembled','Arc',capturedTime,'Request normalized','Request, dates, student, and source connected.');
     if(responseHistoryCurrent){
+      if(responseHistoryCurrent.type==='escalate'){
+        addTrail('complete','Escalation routed','System',ovEventTime(rq.id+':followup','Earlier'),'Owner: Site Coordinator','Request, evidence, and operator context delivered.');
+        addTrail('complete','Awaiting response','Site Coordinator',ovEventTime(rq.id+':followup','Earlier'),'Approval held','Arc held the request until the Site Coordinator response was captured.');
+      }else{
+        addTrail('complete','Clarification sent','System',ovEventTime(rq.id+':followup','Earlier'),'Owner: Student','Specific information request delivered.');
+        addTrail('complete','Awaiting response','Student',ovEventTime(rq.id+':followup','Earlier'),'Approval held','Arc held the request until the requested clarification was captured.');
+      }
       addTrail('complete','Response received',responseHistoryCurrent.type==='escalate'?'Site Coordinator':'Student',ovEventTime(rq.id+':response',responseHistoryCurrent.received||'Now'),'Response captured','New information saved to the request history.');
-      addTrail('complete','Evidence refreshed','Arc',ovEventTime(rq.id+':evidence','Now'),'Evidence re-evaluated','Source freshness updated and Arc reassessed the request.');
+      addTrail('complete','Evidence refreshed','Arc',ovEventTime(rq.id+':evidence','Now'),'Evidence re-evaluated','Source freshness updated from the response.');
+      addTrail('complete','Status recalculated','Arc',ovEventTime(rq.id+':status','Now'),isEmilyBlockedDemo?'Blocked · no material change':'Needs Review · decision resumed',isEmilyBlockedDemo?'The hard clinical-assignment conflict remains.':'The response was incorporated and the request is decision-ready again.');
+      addTrail('active','Next action','Program Coordinator','Current',isEmilyBlockedDemo?'Escalate or deny':'Resume decision review',isEmilyBlockedDemo?'Approval remains unavailable until the hard conflict is resolved.':'Review the refreshed evidence and make the next decision.');
+    }else{
+      addTrail('active','Decision pending','Program Coordinator','Current',focusRow.readiness.label,'Human review is required before any operational update.');
     }
-    addTrail('active','Decision pending','Program Coordinator','Current',focusRow.readiness.label,'Human review is required before any operational update.');
     addTrail('','Record update','System','Next','No change yet','Assignment or calendar remains unchanged.');
     addTrail('','Notifications','System','Next','Held','Messages remain in draft until a decision is committed.');
     addTrail('','Readiness recalculation','Arc','Next','Pending','Arc will re-check the affected record after execution.');
@@ -4667,6 +4698,7 @@ document.addEventListener('click',function(e){
       if(!ST.ovResponseHistory)ST.ovResponseHistory={};
       var responseTime=stampOvEvent(responseId+':response');
       stampOvEvent(responseId+':evidence');
+      stampOvEvent(responseId+':status');
       ST.ovResponseHistory[responseId]={type:rfollow.type,received:responseTime};
       if(ST.ovActionLocks){
         /* A captured response advances the workflow; do not immediately recreate the same
@@ -4683,7 +4715,7 @@ document.addEventListener('click',function(e){
       ST.ovDecisionChoice=(responseId==='rq12'?'escalate':'approve');
       ST.ovImpactOpen=true;ST.ovTrailOpen=true;
       render();
-      toast('Response captured — evidence refreshed and request returned for decision.');
+      toast(responseId==='rq12'?'Response recorded — no material change; hard conflict remains.':'Response recorded — evidence refreshed and request returned for decision.');
     }
   }
   else if(act==='queuefocus'){
