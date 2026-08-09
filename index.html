@@ -2844,6 +2844,10 @@ function operatingQueue(){
          ready, review, and blocked examples instead of clustering at 100. */
       var demoScores={rq2:85,rq3:70,rq4:65,rq12:35};
       if(Object.prototype.hasOwnProperty.call(demoScores,rq.id))readiness=readinessFromScore(demoScores[rq.id]);
+      /* Once Emily's coordinator-resolution task is confirmed, the hard conflict is cleared.
+         The request remains in Attention because a final human decision is still required,
+         but its readiness advances from Blocked to Ready. */
+      if(rq.id==='rq12'&&ST.ovResolutionHistory&&ST.ovResolutionHistory[rq.id])readiness=readinessFromScore(85);
       /* VPOC trust rule: once a canonical request is approved, the resolved request must
          reconcile to 100 rather than carrying its pre-decision readiness score. */
       if((rq.id==='rq2'||rq.id==='rq3'||rq.id==='rq4') && ST.queueDecisions && ST.queueDecisions[rq.id]==='Approved')readiness=readinessFromScore(100);
@@ -2963,7 +2967,7 @@ function viewOperatingView(){
   function choiceButton(key,label,iconName){
     var committed=ST.queueDecisions&&focusRow&&focusRow.rq?ST.queueDecisions[focusRow.rq.id]:null;
     var committedKey=committed==='Approved'?'approve':(committed==='Denied'?'deny':(committed==='Clarification requested'?'clarify':(committed==='Escalated'?'escalate':null)));
-    var isHardBlocked=focusRow&&focusRow.rq&&focusRow.rq.id==='rq12';
+    var isHardBlocked=focusRow&&focusRow.rq&&focusRow.rq.id==='rq12'&&!(ST.ovResolutionHistory&&ST.ovResolutionHistory[focusRow.rq.id]);
     var responseHistoryForRecord=ST.ovResponseHistory&&ST.ovResponseHistory[focusRow.rq.id];
     var defaultChoice=isHardBlocked?(responseHistoryForRecord?'escalate':'clarify'):'approve';
     var currentChoice=committedKey||ST.ovDecisionChoice||defaultChoice;
@@ -3054,6 +3058,7 @@ function viewOperatingView(){
   var isDanielReviewDemo=rq.id==='rq4';
   var isMarcusReadyDemo=rq.id==='rq2';
   var isEmilyBlockedDemo=rq.id==='rq12';
+  var isEmilyResolutionComplete=isEmilyBlockedDemo&&ST.ovResolutionHistory&&ST.ovResolutionHistory[rq.id];
   var committedDecisionCurrent=ST.queueDecisions&&ST.queueDecisions[rq.id];
   var isApprovedCurrent=committedDecisionCurrent==='Approved';
   var isDeniedCurrent=committedDecisionCurrent==='Denied';
@@ -3112,9 +3117,15 @@ function viewOperatingView(){
   var responseNextAction='';
   if(responseHistoryCurrent){
     if(isEmilyBlockedDemo){
-      responseOutcomeTitle='No material change — hard conflict remains';
-      responseOutcomeText='Arc captured the response, refreshed the evidence, and recalculated the request. The required clinical-assignment conflict is still present.';
-      responseNextAction='Escalate or deny';
+      if(isEmilyResolutionComplete){
+        responseOutcomeTitle='Resolution confirmed — hard conflict cleared';
+        responseOutcomeText='Arc recorded the coordinator resolution, refreshed the evidence, and returned Emily’s request to a decision-ready state.';
+        responseNextAction='Approve or deny';
+      }else{
+        responseOutcomeTitle='No material change — hard conflict remains';
+        responseOutcomeText='Arc captured the response, refreshed the evidence, and recalculated the request. The required clinical-assignment conflict is still present.';
+        responseNextAction='Escalate or deny';
+      }
     }else{
       responseOutcomeTitle='Response recorded — evidence refreshed';
       responseOutcomeText='Arc captured the response, refreshed the evidence, and returned the request to decision review.';
@@ -3145,9 +3156,14 @@ function viewOperatingView(){
   if(isEmilyBlockedDemo){
     capacityValue='Not affected';
     allowanceValue='2 days remaining';
-    calendarValue='Conflict detected';
     overlapValue='None';
-    ruleValue='Hard block';
+    if(isEmilyResolutionComplete){
+      calendarValue='Conflict resolved';
+      ruleValue='Passed';
+    }else{
+      calendarValue='Conflict detected';
+      ruleValue='Hard block';
+    }
   }
   var reviewReasons=[];
   if(capacityValue==='Review required')reviewReasons.push('site capacity');
@@ -3162,7 +3178,7 @@ function viewOperatingView(){
   }else if(isMarcusReadyDemo){
     overallText='All evaluated checks support readiness. No conflicts or policy exceptions detected.';
   }else if(isEmilyBlockedDemo){
-    overallText='Hard conflict detected. Meeting-day request conflicts with a required clinical assignment.';
+    overallText=isEmilyResolutionComplete?'Coordinator resolution cleared the required clinical-assignment conflict. The request is ready for final decision.':'Hard conflict detected. Meeting-day request conflicts with a required clinical assignment.';
   }else if(reviewReasons.length){
     overallText='No hard conflict found. Human review is required for '+reviewReasons.join(' and ')+'.';
   }else{
@@ -3190,12 +3206,12 @@ function viewOperatingView(){
     evidenceItem('Source freshness',responseHistoryCurrent?'Updated from response':'Current')+
   '</div><div class="ov4-evidence-overall"><b>Overall:</b> '+esc(overallText)+'</div></div></section>';
 
-  var recommendationLabel=isAwaitingResponse?'Awaiting response':(isApprovedCurrent?'Approved':(isDeniedCurrent?'Denied':(isPriyaDemo?'Approve':(isEmilyBlockedDemo?'Blocked':(isMarcusReadyDemo?'Ready':(isDanielReviewDemo?'Needs Review':focusRow.readiness.label))))));
+  var recommendationLabel=isAwaitingResponse?'Awaiting response':(isApprovedCurrent?'Approved':(isDeniedCurrent?'Denied':(isPriyaDemo?'Approve':(isEmilyBlockedDemo?(isEmilyResolutionComplete?'Ready':'Blocked'):(isMarcusReadyDemo?'Ready':(isDanielReviewDemo?'Needs Review':focusRow.readiness.label))))));
   var recommendationText=isAwaitingResponse?(committedDecisionCurrent==='Escalated'?'Site Coordinator response is required before Arc can return this request to decision-ready status.':'Requested clarification must be received before Arc can return this request to decision-ready status.'):
-    (responseHistoryCurrent&&isEmilyBlockedDemo?'Response received and evidence refreshed. The required clinical-assignment conflict remains unresolved, so approval is still unavailable.':
+    (responseHistoryCurrent&&isEmilyBlockedDemo?(isEmilyResolutionComplete?'Coordinator resolution is confirmed and the hard conflict is cleared. Review the refreshed evidence and make the final decision.':'Response received and evidence refreshed. The required clinical-assignment conflict remains unresolved, so approval is still unavailable.'):
     (isApprovedCurrent?(isPriyaDemo?'Priya’s assignment change has been committed. Her student readiness is fully reconciled; downstream publishing work is tracked separately.':(isDanielReviewDemo?'Daniel’s meeting-day request has been approved. Human review is complete and the request is fully resolved.':(isMarcusReadyDemo?'Marcus’s ready request has been approved and fully resolved.':'The approved request is fully resolved.'))):
     (isPriyaDemo?'Capacity, calendar, and rotation requirements are satisfied. Approve the assignment change and notify the student and site.':
-    (isEmilyBlockedDemo?'Do not approve until the required clinical-assignment conflict is resolved. Request clarification, escalate, or deny as appropriate.':
+    (isEmilyBlockedDemo?(isEmilyResolutionComplete?'The required conflict has been resolved. Approve the request if the refreshed evidence is acceptable.':'Do not approve until the required clinical-assignment conflict is resolved. Request clarification, escalate, or deny as appropriate.'):
     (isDanielReviewDemo?'Review the remaining meeting-day allowance. Approve if the remaining allowance is acceptable; no hard conflict is present.':
     (isMarcusReadyDemo?'All evaluated checks are clear. Approve the request.':(recommendation+'. '+reason)))))));
   var recommendationConfidence=isApprovedCurrent?100:focusRow.readiness.score;
@@ -3203,8 +3219,9 @@ function viewOperatingView(){
   var decisionQueue='<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">3</span>Recommendation</div><div class="ov4-section-content"><div class="ov4-recommendation"><div><span class="ov4-recommendation-label">Arc recommendation</span><strong class="ov4-recommendation-value">'+esc(recommendationLabel)+'</strong><p>'+esc(recommendationText)+'</p></div><span class="ov4-confidence-pill '+confidenceBand+'">'+recommendationConfidence+'% confidence</span></div></div></section>';
 
   var effectiveChoice=choice;
-  if(isEmilyBlockedDemo&&choice==='approve')effectiveChoice=responseHistoryCurrent?'escalate':'clarify';
-  if(isEmilyBlockedDemo&&responseHistoryCurrent&&choice==='clarify')effectiveChoice='escalate';
+  if(isEmilyBlockedDemo&&!isEmilyResolutionComplete&&choice==='approve')effectiveChoice=responseHistoryCurrent?'escalate':'clarify';
+  if(isEmilyBlockedDemo&&!isEmilyResolutionComplete&&responseHistoryCurrent&&choice==='clarify')effectiveChoice='escalate';
+  if(isEmilyResolutionComplete)effectiveChoice=choice||'approve';
   var effectiveChoiceLabel=effectiveChoice==='approve'?'Approve':(effectiveChoice==='deny'?'Deny':(effectiveChoice==='clarify'?'Request clarification':'Escalate'));
   var approvedDecisionCopy=isPriyaDemo?'Priya’s assignment change is committed. Readiness is 100, and the downstream publishing task is now owned separately.':(isDanielReviewDemo?'Daniel’s meeting-day request is approved. Human review is complete, readiness is 100, and no follow-up task is required.':(isMarcusReadyDemo?'Marcus’s ready request is approved. Readiness is 100 and the request is closed with no follow-up required.':'The request is approved and fully reconciled.'));
   var makeDecision=(isApprovedCurrent||isDeniedCurrent)?
@@ -4734,7 +4751,7 @@ function resetDemoState(showConfirmation){
   ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';
   ST.queueFocus='rq12';ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.queueDecisions={};
   ST.ovDecisionChoice='clarify';ST.ovImpactOpen=false;ST.ovTrailOpen=false;ST.ovConditionFilter='All';
-  ST.ovTaskStatus='Open';ST.ovPriyaTaskCreatedAt=0;ST.ovFollowups={};ST.ovResponseHistory={};ST.ovActionLocks={};ST.ovEventTimes={};ST.ovKeepResolvedFocus=false;ST.ovCommitInFlight=false;
+  ST.ovTaskStatus='Open';ST.ovPriyaTaskCreatedAt=0;ST.ovFollowups={};ST.ovResponseHistory={};ST.ovResolutionHistory={};ST.ovActionLocks={};ST.ovEventTimes={};ST.ovKeepResolvedFocus=false;ST.ovCommitInFlight=false;
   /* Canonical demo reset: no decisions, no tasks, no filters, no transient response state. */
   ST.queueDecisions={};ST.queueFocus='rq12';ST.ovDecisionChoice='clarify';ST.ovConditionFilter='All';
   render();
@@ -4785,12 +4802,21 @@ document.addEventListener('click',function(e){
       resolutionFollowup.status='Complete';
       stampOvEvent(resolutionId+':resolutioncomplete');
       stampOvEvent(resolutionId+':taskclosed');
+      stampOvEvent(resolutionId+':evidence');
+      stampOvEvent(resolutionId+':status');
+      if(!ST.ovResolutionHistory)ST.ovResolutionHistory={};
+      ST.ovResolutionHistory[resolutionId]={confirmed:true,at:Date.now()};
       delete ST.ovFollowups[resolutionId];
-      var resolutionDecision=ST.queueDecisions&&ST.queueDecisions[resolutionId];
-      ST.ovKeepResolvedFocus=(resolutionDecision==='Approved'||resolutionDecision==='Denied');
+      var resolutionRq=requestById(resolutionId);
+      if(resolutionRq){resolutionRq.status='Needs Review';resolutionRq.closed=false;}
+      ST.queueDecisions[resolutionId]=null;
+      ST.queueFocus=resolutionId;
+      ST.ovDecisionChoice='approve';
+      ST.ovKeepResolvedFocus=false;
+      ST.ovImpactOpen=true;
       ST.ovTrailOpen=true;
       render();
-      toast('Follow-up completed — coordinator resolution recorded.');
+      toast('Resolution confirmed — conflict cleared; final decision required.');
     }
   }
   else if(act==='ovrecordresponse'){
@@ -4854,7 +4880,7 @@ document.addEventListener('click',function(e){
     if(ST.ovCommitInFlight){toast('Decision is already being recorded.');return;}
     ST.ovCommitInFlight=true;
     var od=orow.rq, oc=t.getAttribute('data-choice')||ST.ovDecisionChoice||'approve', ol='Approved';
-    if(od.id==='rq12'&&oc==='approve'){oc='clarify';}
+    if(od.id==='rq12'&&oc==='approve'&&!(ST.ovResolutionHistory&&ST.ovResolutionHistory[od.id])){oc='clarify';}
     if(!ST.ovActionLocks)ST.ovActionLocks={};
     var actionLockKey=od.id+':'+oc;
     if(ST.ovActionLocks[actionLockKey]){ST.ovCommitInFlight=false;toast('That action is already recorded.');return;}
