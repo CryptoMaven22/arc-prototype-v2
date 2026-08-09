@@ -2369,6 +2369,16 @@
 </style>
 
 <!-- Arc VPOC Checkpoint 08: post-decision closure + task handoff hardening -->
+
+<style>
+  /* Checkpoint 09 — execution trail audit hierarchy */
+  .ov4-trail-step{display:flex;flex-direction:column;gap:0}
+  .ov4-trail-step .ov4-trail-meta{order:2;margin-top:5px}
+  .ov4-trail-step b{order:1;margin-top:0 !important;font-size:11.5px;line-height:1.25;color:#24384B}
+  .ov4-trail-step .ov4-trail-proof{order:3;margin-top:7px;font-size:10.5px;font-weight:700;color:#30465B;line-height:1.35}
+  .ov4-trail-step .ov4-trail-detail{order:4;margin-top:4px;font-size:10px;color:#65778A;line-height:1.4}
+  .ov4-trail-step small{font-size:9.5px;text-transform:none;letter-spacing:0;color:#7A8999;font-weight:650}
+</style>
 </head>
 <body>
 <!-- Arc operational workspace. Capture now sits directly beneath Overview in the primary workflow. -->
@@ -2534,7 +2544,7 @@ function bankFor(studentId){
 function badgeSt(s,sm){var c=STATUS[s]||STATUS['Not Checked'];return '<span class="badge-st'+(sm?' sm':'')+'" style="color:'+c.text+';background:'+c.bg+'"><span class="dot" style="background:'+c.dot+'"></span>'+s+'</span>';}
 function sevBadge(s){var c=SEV[s]||SEV.Low;return '<span class="sev" style="color:'+c.text+';background:'+c.bg+'">'+s+'</span>';}
 
-var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,requestFocus:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4',queueFocus:null,queueAction:null,queueStage:0,queueChoice:null,queueDecisions:{},ovDecisionChoice:'approve',ovImpactOpen:false,ovTrailOpen:false,ovConditionFilter:'All',ovTaskStatus:'Open',ovFollowups:{},ovResponseHistory:{}};
+var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,requestFocus:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4',queueFocus:null,queueAction:null,queueStage:0,queueChoice:null,queueDecisions:{},ovDecisionChoice:'approve',ovImpactOpen:false,ovTrailOpen:false,ovConditionFilter:'All',ovTaskStatus:'Open',ovFollowups:{},ovResponseHistory:{},ovActionLocks:{},ovEventTimes:{}};
 var lastFocusedElement=null;
 
 function demoFlow(){
@@ -3196,52 +3206,58 @@ function viewOperatingView(){
 
   var committed=ST.queueDecisions&&ST.queueDecisions[rq.id];
   var trailSteps=[];
+  function addTrail(state,title,actor,time,proof,detail){
+    trailSteps.push({state:state,title:title,actor:actor,time:time,proof:proof||'',detail:detail||''});
+  }
+  var capturedTime='6:02 AM';
   if(!committed){
-    trailSteps.push({state:'complete',time:'Captured',title:'Request assembled',detail:'Request, dates, student, and source normalized.'});
+    addTrail('complete','Request assembled','Arc',capturedTime,'Request normalized','Request, dates, student, and source connected.');
     if(responseHistoryCurrent){
-      trailSteps.push({state:'complete',time:'Now',title:'Response received',detail:responseHistoryCurrent.type==='escalate'?'Site Coordinator response captured into the request history.':'Requested clarification captured into the request history.'});
-      trailSteps.push({state:'complete',time:'Now',title:'Evidence refreshed',detail:'Source freshness updated and Arc reassessed the request.'});
+      addTrail('complete','Response received',responseHistoryCurrent.type==='escalate'?'Site Coordinator':'Student',ovEventTime(rq.id+':response',responseHistoryCurrent.received||'Now'),'Response captured','New information saved to the request history.');
+      addTrail('complete','Evidence refreshed','Arc',ovEventTime(rq.id+':evidence','Now'),'Evidence re-evaluated','Source freshness updated and Arc reassessed the request.');
     }
-    trailSteps.push({state:'active',time:'Current',title:'Decision pending',detail:'Human review is required before any operational update.'});
-    trailSteps.push({state:'',time:'Next',title:'Record update',detail:'Assignment or calendar remains unchanged.'});
-    trailSteps.push({state:'',time:'Next',title:'Notifications',detail:'Messages remain in draft until a decision is committed.'});
-    trailSteps.push({state:'',time:'Next',title:'Readiness recalculation',detail:'Arc will re-check the affected record after execution.'});
+    addTrail('active','Decision pending','Program Coordinator','Current',focusRow.readiness.label,'Human review is required before any operational update.');
+    addTrail('','Record update','System','Next','No change yet','Assignment or calendar remains unchanged.');
+    addTrail('','Notifications','System','Next','Held','Messages remain in draft until a decision is committed.');
+    addTrail('','Readiness recalculation','Arc','Next','Pending','Arc will re-check the affected record after execution.');
   }else if(committed==='Approved'){
     if(isPriyaDemo && isApprovedCurrent){
-      trailSteps.push({state:'complete',time:'6:15 AM',title:'Decision recorded',detail:'Approved by Ryan · Needs Review → Approved'});
-      trailSteps.push({state:'complete',time:'Now',title:'Record updated',detail:'Assignment changed · Jul 6–10 → Jul 13–17'});
-      trailSteps.push({state:'complete',time:'Now',title:'Readiness recalculated',detail:'70% → 100%'});
-      trailSteps.push({state:ST.ovTaskStatus==='Complete'?'complete':'active',time:ST.ovTaskStatus==='Complete'?'Completed':'Due today',title:ST.ovTaskStatus==='Complete'?'Task completed':'Next action created',detail:ST.ovTaskStatus==='Complete'?'Publish revised schedule · Program Coordinator · Complete':'Publish revised schedule · Owner: Program Coordinator'});
-      if(ST.ovTaskStatus==='Complete')trailSteps.push({state:'complete',time:'Now',title:'Loop closed',detail:'No remaining downstream obligation. Workflow closed.'});
+      addTrail('complete','Decision recorded','Program Coordinator',ovEventTime(rq.id+':decision','6:15 AM'),'Needs Review → Approved','Operator approval saved to the request.');
+      addTrail('complete','Record updated','System',ovEventTime(rq.id+':record','6:15 AM'),'Jul 6–10 → Jul 13–17','Assignment dates updated.');
+      addTrail('complete','Readiness recalculated','Arc',ovEventTime(rq.id+':readiness','6:15 AM'),'70% → 100%','Evidence re-evaluated after the approved change.');
+      if(ST.ovTaskStatus==='Complete'){
+        addTrail('complete','Task completed','Program Coordinator',ovEventTime('rq3:taskcomplete','Now'),'Publish revised schedule · Complete','Downstream publishing work finished.');
+        addTrail('complete','Loop closed','System',ovEventTime('rq3:loopclosed','Now'),'No open obligations','Workflow closed with completion retained in history.');
+      }else{
+        addTrail('active','Next action created','Arc',ovEventTime('rq3:followup','6:15 AM'),'Publish revised schedule','Owner: Program Coordinator · Due today · Status: '+esc(ST.ovTaskStatus||'Open'));
+      }
     }else{
-      trailSteps.push({state:'complete',time:'Captured',title:'Request assembled',detail:'Request, dates, student, and source normalized.'});
-      trailSteps.push({state:'complete',time:'Now',title:'Decision recorded',detail:'Approval and operator judgment saved to the request.'});
-      trailSteps.push({state:'complete',time:'Now',title:'Record updated',detail:rq.type==='MOVE'?'Assignment dates updated to '+dates+'.':'Program calendar updated for '+dates+'.'});
-      trailSteps.push({state:'complete',time:'Now',title:'Notifications released',detail:impactNotify+' notified.'});
-      trailSteps.push({state:impactFollow==='No additional dependency'||impactFollow==='No assignment change'?'complete':'active',time:impactFollow==='No additional dependency'||impactFollow==='No assignment change'?'Now':'Next',title:impactFollow==='No additional dependency'||impactFollow==='No assignment change'?'Request closed':'Follow-up queued',detail:impactFollow==='No additional dependency'||impactFollow==='No assignment change'?'Request closed with no remaining dependency.':impactFollow+'.'});
+      addTrail('complete','Request assembled','Arc',capturedTime,'Request normalized','Request, dates, student, and source connected.');
+      addTrail('complete','Decision recorded','Program Coordinator',ovEventTime(rq.id+':decision','Now'),'Decision → Approved','Approval and operator judgment saved to the request.');
+      addTrail('complete','Record updated','System',ovEventTime(rq.id+':record','Now'),rq.type==='MOVE'?'Assignment updated':'Calendar updated',rq.type==='MOVE'?'Assignment dates updated to '+dates+'.':'Program calendar updated for '+dates+'.');
+      addTrail('complete','Readiness recalculated','Arc',ovEventTime(rq.id+':readiness','Now'),'Evidence re-evaluated','Readiness recalculated from the updated record.');
+      addTrail(impactFollow==='No additional dependency'||impactFollow==='No assignment change'?'complete':'active',impactFollow==='No additional dependency'||impactFollow==='No assignment change'?'Request closed':'Follow-up queued',impactFollow==='No additional dependency'||impactFollow==='No assignment change'?'System':'Arc',ovEventTime(rq.id+':followup','Now'),impactFollow==='No additional dependency'||impactFollow==='No assignment change'?'No open obligations':impactFollow,impactFollow==='No additional dependency'||impactFollow==='No assignment change'?'Request closed with no remaining dependency.':'Downstream work retained until complete.');
     }
   }else if(committed==='Denied'){
-    trailSteps.push({state:'complete',time:'Captured',title:'Request assembled',detail:'Request, dates, student, and source normalized.'});
-    trailSteps.push({state:'complete',time:'Now',title:'Decision recorded',detail:'Denial and operator judgment saved to the request.'});
-    trailSteps.push({state:'complete',time:'Now',title:'Schedule retained',detail:'No assignment or calendar change was applied.'});
-    trailSteps.push({state:'complete',time:'Now',title:'Student notified',detail:'Denial notice prepared with the recorded reason.'});
-    trailSteps.push({state:'complete',time:'Now',title:'Request closed',detail:'Readiness remains based on the existing schedule.'});
+    addTrail('complete','Request assembled','Arc',capturedTime,'Request normalized','Request, dates, student, and source connected.');
+    addTrail('complete','Decision recorded','Program Coordinator',ovEventTime(rq.id+':decision','Now'),'Decision → Denied','Denial and operator judgment saved to the request.');
+    addTrail('complete','Schedule retained','System',ovEventTime(rq.id+':record','Now'),'No schedule change','Existing assignment remains in place.');
+    addTrail('complete','Student notified','System',ovEventTime(rq.id+':decision','Now'),'Denial notice prepared','Recorded reason included in the notification.');
+    addTrail('complete','Request closed','System',ovEventTime(rq.id+':decision','Now'),'No open obligations','Readiness remains based on the existing schedule.');
   }else if(committed==='Clarification requested'){
-    trailSteps.push({state:'complete',time:'Captured',title:'Request assembled',detail:'Request, dates, student, and source normalized.'});
-    trailSteps.push({state:'complete',time:'Now',title:'Decision recorded',detail:'Request returned for additional information.'});
-    trailSteps.push({state:'active',time:'Pending',title:'Record held',detail:'No assignment or calendar change was applied.'});
-    trailSteps.push({state:'complete',time:'Now',title:'Clarification sent',detail:'Student receives the specific information request.'});
-    trailSteps.push({state:'warning',time:'Awaiting reply',title:'Readiness on hold',detail:'Arc will re-check the request when new information arrives.'});
+    addTrail('complete','Request assembled','Arc',capturedTime,'Request normalized','Request, dates, student, and source connected.');
+    addTrail('complete','Decision recorded','Program Coordinator',ovEventTime(rq.id+':decision','Now'),'Decision → Clarification requested','Request returned for additional information.');
+    addTrail('complete','Clarification sent','System',ovEventTime(rq.id+':followup','Now'),'Owner: Student','Specific information request delivered.');
+    addTrail('warning','Awaiting response','Student','Pending','Approval held','Arc will re-check the request when new information arrives.');
   }else{
-    trailSteps.push({state:'complete',time:'Captured',title:'Request assembled',detail:'Request, dates, student, and source normalized.'});
-    trailSteps.push({state:'complete',time:'Now',title:'Decision recorded',detail:'Escalation and operator context saved to the request.'});
-    trailSteps.push({state:'active',time:'Pending',title:'Record held',detail:'No assignment or calendar change was applied.'});
-    trailSteps.push({state:'complete',time:'Now',title:'Escalation routed',detail:'Site Coordinator receives the request, evidence, and operator context.'});
-    trailSteps.push({state:'warning',time:'Awaiting reply',title:'Awaiting response',detail:'Approval is held until the Site Coordinator response is captured.'});
+    addTrail('complete','Request assembled','Arc',capturedTime,'Request normalized','Request, dates, student, and source connected.');
+    addTrail('complete','Decision recorded','Program Coordinator',ovEventTime(rq.id+':decision','Now'),'Decision → Escalated','Operator context saved to the request.');
+    addTrail('complete','Escalation routed','System',ovEventTime(rq.id+':followup','Now'),'Owner: Site Coordinator','Request, evidence, and operator context delivered.');
+    addTrail('warning','Awaiting response','Site Coordinator','Pending','Approval held','Arc will reassess when the response is captured.');
   }
   var trailCols='repeat('+trailSteps.length+', minmax(150px,1fr))';
   var trailMinWidth=Math.max(trailSteps.length*150,760);
-  var trailPanel=ST.ovTrailOpen?'<div class="ov4-trail-panel"><div class="ov4-trail" style="grid-template-columns:'+trailCols+';min-width:'+trailMinWidth+'px">'+trailSteps.map(function(s){return '<div class="ov4-trail-step '+s.state+'"><div class="ov4-trail-meta"><i class="ov4-trail-dot"></i><small>'+esc(s.time)+'</small></div><b>'+esc(s.title)+'</b><span>'+esc(s.detail)+'</span></div>';}).join('')+'</div></div>':'';
+  var trailPanel=ST.ovTrailOpen?'<div class="ov4-trail-panel"><div class="ov4-trail" style="grid-template-columns:'+trailCols+';min-width:'+trailMinWidth+'px">'+trailSteps.map(function(s){return '<div class="ov4-trail-step '+s.state+'"><b>'+esc(s.title)+'</b><div class="ov4-trail-meta"><i class="ov4-trail-dot"></i><small>'+esc(s.actor)+' · '+esc(s.time)+'</small></div>'+(s.proof?'<div class="ov4-trail-proof">'+esc(s.proof)+'</div>':'')+(s.detail?'<div class="ov4-trail-detail">'+esc(s.detail)+'</div>':'')+'</div>';}).join('')+'</div></div>':'';
 
 
   return '<div class="ov4-page">'+
@@ -4550,6 +4566,18 @@ function clearArcToast(){
   if(t)t.innerHTML='';
   if(toastTimer){clearTimeout(toastTimer);toastTimer=null;}
 }
+function arcNowTime(){
+  try{return new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});}catch(e){return 'Now';}
+}
+function stampOvEvent(key){
+  if(!ST.ovEventTimes)ST.ovEventTimes={};
+  if(!ST.ovEventTimes[key])ST.ovEventTimes[key]=arcNowTime();
+  return ST.ovEventTimes[key];
+}
+function ovEventTime(key,fallback){
+  return (ST.ovEventTimes&&ST.ovEventTimes[key])||fallback||'Now';
+}
+
 function resetDemoState(showConfirmation){
   clearArcToast();
   ST.data=seed();
@@ -4561,7 +4589,7 @@ function resetDemoState(showConfirmation){
   ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';
   ST.queueFocus='rq12';ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.queueDecisions={};
   ST.ovDecisionChoice='clarify';ST.ovImpactOpen=false;ST.ovTrailOpen=false;ST.ovConditionFilter='All';
-  ST.ovTaskStatus='Open';ST.ovFollowups={};ST.ovResponseHistory={};
+  ST.ovTaskStatus='Open';ST.ovFollowups={};ST.ovResponseHistory={};ST.ovActionLocks={};ST.ovEventTimes={};
   render();
   if(typeof window.scrollTo==='function')window.scrollTo(0,0);
   if(showConfirmation)toast('Demo reset — canonical starting state restored.');
@@ -4573,7 +4601,7 @@ document.addEventListener('click',function(e){
   var act=t.getAttribute('data-act');
   if(act==='goto'){ST.view=t.getAttribute('data-v');if(ST.view==='dashboard')ST.view='overview';ST.siteFocus=null;render();}
   else if(act==='captureplay'){runArcCapture();}
-  else if(act==='home'){ST.role='leader';ST.view='overview';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;ST.queueFocus=null;ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.ovConditionFilter='All';ST.ovTaskStatus='Open';ST.ovFollowups={};ST.ovResponseHistory={};render();}
+  else if(act==='home'){ST.role='leader';ST.view='overview';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;ST.queueFocus=null;ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.ovConditionFilter='All';ST.ovTaskStatus='Open';ST.ovFollowups={};ST.ovResponseHistory={};ST.ovActionLocks={};ST.ovEventTimes={};render();}
   else if(act==='ovconditionfilter'){
     var nextCondition=t.getAttribute('data-condition')||'All';
     ST.ovConditionFilter=(ST.ovConditionFilter===nextCondition&&nextCondition!=='All')?'All':nextCondition;
@@ -4582,7 +4610,10 @@ document.addEventListener('click',function(e){
   }
   else if(act==='ovtaskstatus'){
     var nextTaskStatus=t.getAttribute('data-status')||'Open';
+    if(ST.ovTaskStatus===nextTaskStatus)return;
     ST.ovTaskStatus=nextTaskStatus;
+    if(nextTaskStatus==='Complete'){stampOvEvent('rq3:taskcomplete');stampOvEvent('rq3:loopclosed');}
+    else stampOvEvent('rq3:taskstatus:'+nextTaskStatus);
     ST.ovTrailOpen=true;
     render();
     if(nextTaskStatus==='Complete')toast('Task completed — Arc closed the loop.');
@@ -4594,7 +4625,10 @@ document.addEventListener('click',function(e){
     var rfollow=ST.ovFollowups&&ST.ovFollowups[responseId];
     if(rrq&&rfollow){
       if(!ST.ovResponseHistory)ST.ovResponseHistory={};
-      ST.ovResponseHistory[responseId]={type:rfollow.type,received:'Now'};
+      var responseTime=stampOvEvent(responseId+':response');
+      stampOvEvent(responseId+':evidence');
+      ST.ovResponseHistory[responseId]={type:rfollow.type,received:responseTime};
+      if(ST.ovActionLocks){delete ST.ovActionLocks[responseId+':clarify'];delete ST.ovActionLocks[responseId+':escalate'];}
       rfollow.status='Complete';
       delete ST.ovFollowups[responseId];
       ST.queueDecisions[responseId]=null;
@@ -4621,6 +4655,13 @@ document.addEventListener('click',function(e){
     if(!orow)return;
     var od=orow.rq, oc=t.getAttribute('data-choice')||ST.ovDecisionChoice||'approve', ol='Approved';
     if(od.id==='rq12'&&oc==='approve'){oc='clarify';}
+    if(!ST.ovActionLocks)ST.ovActionLocks={};
+    var actionLockKey=od.id+':'+oc;
+    if(ST.ovActionLocks[actionLockKey]){toast('That action is already recorded.');return;}
+    ST.ovActionLocks[actionLockKey]=true;
+    stampOvEvent(od.id+':decision');
+    stampOvEvent(od.id+':record');
+    stampOvEvent(od.id+':readiness');
     if(oc==='approve'){
       od.status='Approved';od.closed=true;od.published=true;od.notificationsSent=3;ol='Approved';
       var oa=assignmentById(od.assignmentId);
@@ -4636,10 +4677,10 @@ document.addEventListener('click',function(e){
     if(!ST.ovFollowups)ST.ovFollowups={};
     if(!ST.ovResponseHistory)ST.ovResponseHistory={};
     delete ST.ovResponseHistory[od.id];
-    if(ol==='Clarification requested')ST.ovFollowups[od.id]={type:'clarify',task:'Provide requested clarification',owner:'Student',requested:'Now',linked:(orow.student?orow.student.name:'Student')+' · '+(TYPE_LABEL[od.type]||od.type),status:'Open'};
-    else if(ol==='Escalated')ST.ovFollowups[od.id]={type:'escalate',task:'Review request and respond',owner:'Site Coordinator',requested:'Now',linked:(orow.student?orow.student.name:'Student')+' · '+(TYPE_LABEL[od.type]||od.type),status:'Open'};
+    if(ol==='Clarification requested'){stampOvEvent(od.id+':followup');ST.ovFollowups[od.id]={type:'clarify',task:'Provide requested clarification',owner:'Student',requested:'Now',linked:(orow.student?orow.student.name:'Student')+' · '+(TYPE_LABEL[od.type]||od.type),status:'Open'};}
+    else if(ol==='Escalated'){stampOvEvent(od.id+':followup');ST.ovFollowups[od.id]={type:'escalate',task:'Review request and respond',owner:'Site Coordinator',requested:'Now',linked:(orow.student?orow.student.name:'Student')+' · '+(TYPE_LABEL[od.type]||od.type),status:'Open'};}
     else delete ST.ovFollowups[od.id];
-    if(od.id==='rq3'&&ol==='Approved')ST.ovTaskStatus='Open';
+    if(od.id==='rq3'&&ol==='Approved'){ST.ovTaskStatus='Open';stampOvEvent('rq3:followup');}
     ST.ovImpactOpen=true;
     ST.ovTrailOpen=true;
     render();
