@@ -2268,6 +2268,43 @@
     .brand-wordmark-new{height:54px;max-width:190px;}
   }
 </style>
+
+<style>
+  /* Arc VPOC checkpoint 03 — decision clarity + evidence hierarchy */
+  .ov4-blocker-note{
+    display:flex;flex-direction:column;align-items:flex-start;gap:3px;
+    padding:11px 12px;min-width:0;
+  }
+  .ov4-blocker-note b{white-space:normal;font-size:11px;line-height:1.25}
+  .ov4-blocker-note span{display:block;font-size:10.5px;line-height:1.4}
+  .ov4-choice:disabled{cursor:not-allowed;opacity:.58;background:#F7F8F9;color:#64748B}
+  .ov4-choice:disabled:hover{transform:none;box-shadow:none;border-color:#DDE4EA;background:#F7F8F9}
+  .ov4-choice:disabled .ov4-choice-radio{background:#EEF1F4;border-color:#CBD5DF;color:#64748B}
+
+  .ov4-casebar{min-height:50px;padding:5px 8px}
+  .ov4-casebar .ov4-casefield{display:flex;flex-direction:column;justify-content:center;gap:2px;min-height:38px}
+  .ov4-casebar .ov4-casefield small{display:block;font-size:8.5px;line-height:1;text-transform:uppercase;letter-spacing:.06em;color:#8795A4;font-weight:600}
+  .ov4-casebar .ov4-casefield b{display:block;font-size:11px;line-height:1.2;color:#2D4053;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ov4-casebar .ov4-status,.ov4-casebar .ov4-confidence{background:transparent;color:inherit;border-radius:0;padding:0 8px}
+  .ov4-casebar .ov4-status b{color:#365A83}
+  .ov4-casebar .ov4-confidence b{color:#1F7666;font-weight:800}
+
+  .ov4-recommendation-label{display:block;font-size:9px;line-height:1.1;text-transform:uppercase;letter-spacing:.07em;color:#738397;font-weight:650}
+  .ov4-recommendation-value{display:block;font-size:15px !important;line-height:1.15;color:#203447 !important;margin-top:3px;font-weight:800 !important}
+  .ov4-recommendation p{margin-top:4px}
+  .ov4-confidence-pill.low{border-color:#F2B8B5;background:#FFF1F0;color:#B42318}
+  .ov4-confidence-pill.review{border-color:#E8CC91;background:#FFF8E7;color:#9A6700}
+  .ov4-confidence-pill.high{border-color:#C7DED8;background:#EEF8F5;color:#236D61}
+
+  .ov4-evidence .ov4-evidence-label{font-weight:500;color:#66788A}
+  .ov4-evidence .ov4-evidence-result{font-weight:800;color:#25374A;white-space:nowrap;text-align:right}
+  .ov4-evidence.review .ov4-evidence-result{color:#8A5A00}
+  .ov4-evidence.blocked .ov4-evidence-result{color:#A61B1B}
+  @media(max-width:980px){
+    .ov4-casebar{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:6px;padding:8px 12px}
+    .ov4-casebar .ov4-casefield{min-height:34px}
+  }
+</style>
 </head>
 <body>
 <!-- Arc operational workspace. Capture now sits directly beneath Overview in the primary workflow. -->
@@ -2289,6 +2326,7 @@ var P = {
   checkc:'<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
   clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
   x:'<path d="M18 6 6 18M6 6l12 12"/>',
+  lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
   chevr:'<path d="m9 18 6-6-6-6"/>',
   arrowr:'<path d="M5 12h14M12 5l7 7-7 7"/>',
   send:'<path d="M14.5 21.7a.5.5 0 0 0 .94-.02l6.5-19a.5.5 0 0 0-.64-.64l-19 6.5a.5.5 0 0 0-.02.94l7.93 3.18a2 2 0 0 1 1.11 1.11z"/><path d="m21.85 2.15-10.94 10.94"/>',
@@ -2802,7 +2840,8 @@ function viewOperatingView(){
     if(isHardBlocked&&currentChoice==='approve')currentChoice='clarify';
     var selected=currentChoice===key;
     var disabled=isHardBlocked&&key==='approve';
-    return '<button class="ov4-choice'+(selected?' selected':'')+'" data-act="ovdecisionselect" data-choice="'+key+'"'+(disabled?' disabled aria-disabled="true"':'')+'><span class="ov4-choice-radio">'+(selected?ic('check',11,'#fff'):ic(iconName,12,'currentColor'))+'</span><span>'+label+'</span></button>';
+    var renderedIcon=disabled?ic('lock',12,'currentColor'):(selected?ic('check',11,'#fff'):ic(iconName,12,'currentColor'));
+    return '<button class="ov4-choice'+(selected?' selected':'')+'" data-act="ovdecisionselect" data-choice="'+key+'"'+(disabled?' disabled aria-disabled="true"':'')+'><span class="ov4-choice-radio">'+renderedIcon+'</span><span>'+label+'</span></button>';
   }
 
   var conditionCounts={Pending:0,Late:0,Conflicting:0};
@@ -2932,13 +2971,26 @@ function viewOperatingView(){
   }else{
     overallText='No hard conflict found. All evaluated checks are clear.';
   }
+  function evidenceClass(value){
+    if(/Hard block|Conflict detected|Blocked/i.test(value))return ' blocked';
+    if(/Human review required|Review required/i.test(value))return ' review';
+    return '';
+  }
+  function evidenceIcon(value){
+    if(/Hard block|Conflict detected|Blocked/i.test(value))return ic('alert',12,'#B91C1C');
+    if(/Human review required|Review required/i.test(value))return ic('info',12,'#B45309');
+    return ic('check',12,'#238469');
+  }
+  function evidenceItem(label,value){
+    return '<div class="ov4-evidence'+evidenceClass(value)+'"><span class="ok">'+evidenceIcon(value)+'</span><span class="ov4-evidence-label">'+esc(label)+'</span><strong class="ov4-evidence-result">'+esc(value)+'</strong></div>';
+  }
   var evidence='<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">2</span>Evidence and rules</div><div class="ov4-section-content"><div class="ov4-evidence-grid">'+
-    '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Site capacity</b><span>'+esc(capacityValue)+'</span></div>'+
-    '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Request allowance</b><span>'+esc(allowanceValue)+'</span></div>'+
-    '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Calendar conflict</b><span>'+esc(calendarValue)+'</span></div>'+
-    '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Absence overlap</b><span>'+esc(overlapValue)+'</span></div>'+
-    '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Rule status</b><span>'+esc(ruleValue)+'</span></div>'+
-    '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Source freshness</b><span>Current</span></div>'+
+    evidenceItem('Site capacity',capacityValue)+
+    evidenceItem('Request allowance',allowanceValue)+
+    evidenceItem('Calendar conflict',calendarValue)+
+    evidenceItem('Absence overlap',overlapValue)+
+    evidenceItem('Rule status',ruleValue)+
+    evidenceItem('Source freshness','Current')+
   '</div><div class="ov4-evidence-overall"><b>Overall:</b> '+esc(overallText)+'</div></div></section>';
 
   var recommendationLabel=isApprovedCurrent?'Approved':(isPriyaDemo?'Approve':(isEmilyBlockedDemo?'Blocked':(isMarcusReadyDemo?'Ready':(isDanielReviewDemo?'Needs Review':focusRow.readiness.label))));
@@ -2948,7 +3000,8 @@ function viewOperatingView(){
     (isDanielReviewDemo?'Review the remaining meeting-day allowance. Approve if the remaining allowance is acceptable; no hard conflict is present.':
     (isMarcusReadyDemo?'All evaluated checks are clear. Approve the request.':(recommendation+'. '+reason)))));
   var recommendationConfidence=(isPriyaDemo&&isApprovedCurrent)?100:focusRow.readiness.score;
-  var decisionQueue='<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">3</span>Recommendation</div><div class="ov4-section-content"><div class="ov4-recommendation"><div><strong>Arc recommendation: '+esc(recommendationLabel)+'</strong><p>'+esc(recommendationText)+'</p></div><span class="ov4-confidence-pill">'+recommendationConfidence+'% confidence</span></div></div></section>';
+  var confidenceBand=recommendationConfidence<50?'low':(recommendationConfidence<80?'review':'high');
+  var decisionQueue='<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">3</span>Recommendation</div><div class="ov4-section-content"><div class="ov4-recommendation"><div><span class="ov4-recommendation-label">Arc recommendation</span><strong class="ov4-recommendation-value">'+esc(recommendationLabel)+'</strong><p>'+esc(recommendationText)+'</p></div><span class="ov4-confidence-pill '+confidenceBand+'">'+recommendationConfidence+'% confidence</span></div></div></section>';
 
   var effectiveChoice=isEmilyBlockedDemo&&choice==='approve'?'clarify':choice;
   var effectiveChoiceLabel=effectiveChoice==='approve'?'Approve':(effectiveChoice==='deny'?'Deny':(effectiveChoice==='clarify'?'Request clarification':'Escalate'));
@@ -3068,7 +3121,13 @@ function viewOperatingView(){
     '</section>'+
     '<section class="ov4-work">'+
       '<article class="ov4-panel"><header class="ov4-panel-head"><div><h2>Decision Workspace</h2></div><span class="ov4-request-id">'+esc(String(rq.id||'CHG-2026-0914-027').toUpperCase())+'</span></header>'+
-        '<div class="ov4-casebar"><span class="student">'+esc(student.name)+'</span><span class="ov4-request-type">'+esc(requestLabel)+'</span><span class="ov4-dates">'+esc(dates)+'</span><span class="ov4-status">'+esc(isApprovedCurrent?'Approved':focusRow.readiness.label)+'</span><span class="ov4-confidence">'+((isPriyaDemo&&isApprovedCurrent)?100:focusRow.readiness.score)+'%</span></div>'+
+        '<div class="ov4-casebar">'+
+          '<span class="student ov4-casefield"><small>Student</small><b>'+esc(student.name)+'</b></span>'+
+          '<span class="ov4-request-type ov4-casefield"><small>Request</small><b>'+esc(requestLabel)+'</b></span>'+
+          '<span class="ov4-dates ov4-casefield"><small>Dates</small><b>'+esc(dates)+'</b></span>'+
+          '<span class="ov4-status ov4-casefield"><small>Status</small><b>'+esc(isApprovedCurrent?'Approved':focusRow.readiness.label)+'</b></span>'+
+          '<span class="ov4-confidence ov4-casefield"><small>Score</small><b>'+((isPriyaDemo&&isApprovedCurrent)?100:focusRow.readiness.score)+'%</b></span>'+
+        '</div>'+
         '<div class="ov4-decision-body">'+summary+evidence+decisionQueue+makeDecision+
           '<button class="ov4-collapsed'+(ST.ovImpactOpen?' open':'')+'" type="button" data-act="ovtoggleimpact" aria-expanded="'+(ST.ovImpactOpen?'true':'false')+'"><span>5 &nbsp; Change impact</span>'+ic('chevr',13,'#52677C')+'</button>'+impactPanel+
           '<button class="ov4-collapsed'+(ST.ovTrailOpen?' open':'')+'" type="button" data-act="ovtoggletrail" aria-expanded="'+(ST.ovTrailOpen?'true':'false')+'"><span>6 &nbsp; Execution trail</span>'+ic('chevr',13,'#52677C')+'</button>'+trailPanel+
