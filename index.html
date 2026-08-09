@@ -532,6 +532,10 @@
   .ov-health-card{border:1px solid var(--hair);border-radius:12px;background:#FCFEFD;padding:14px;display:flex;align-items:center;gap:14px;}
   .ov-health-ring{width:82px;height:82px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--teal) calc(var(--pct)*1%),#E8EEEC 0);position:relative;flex:0 0 auto;}.ov-health-ring:after{content:"";position:absolute;width:60px;height:60px;border-radius:50%;background:#fff;}.ov-health-ring b{position:relative;z-index:1;font-size:22px;}.ov-health-copy strong{display:block;font-size:14px;}.ov-health-copy span{display:block;font-size:11px;color:var(--muted);line-height:1.4;margin-top:4px;}
   .condition-pill{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:10px;font-weight:800;white-space:nowrap;}
+  .ov4-choice:disabled{opacity:.42;cursor:not-allowed;background:#F1F5F9;border-color:#E2E8F0;transform:none!important;box-shadow:none!important;}
+  .ov4-blocker-note{display:flex;align-items:flex-start;gap:8px;margin-top:10px;padding:10px 12px;border-left:3px solid #DC2626;background:#FEF2F2;border-radius:8px;color:#991B1B;font-size:11.5px;line-height:1.4;}
+  .ov4-blocker-note b{white-space:nowrap;}
+  .ov4-blocker-note span{color:#7F1D1D;}
   @media(max-width:1100px){.ov-signal-grid{grid-template-columns:repeat(2,1fr)}.ov-command-main{grid-template-columns:1fr}.ov-integrity{grid-template-columns:repeat(2,1fr)}.ov-integrity-item:nth-child(2){border-right:none}.ov-integrity-item:nth-child(-n+2){border-bottom:1px solid var(--hair)}}
   @media(max-width:640px){.ov-signal-grid{grid-template-columns:1fr}.ov-attention{align-items:flex-start;flex-direction:column}.ov-integrity{grid-template-columns:1fr}.ov-integrity-item{border-right:none;border-bottom:1px solid var(--hair)}.ov-integrity-item:last-child{border-bottom:none}}
 
@@ -2686,6 +2690,9 @@ function operatingQueue(){
          ready, review, and blocked examples instead of clustering at 100. */
       var demoScores={rq2:85,rq3:70,rq4:65,rq12:35};
       if(Object.prototype.hasOwnProperty.call(demoScores,rq.id))readiness=readinessFromScore(demoScores[rq.id]);
+      /* VPOC trust rule: once Priya's decision is committed and the student is resolved,
+         the readiness state must reconcile immediately rather than retaining the pre-decision 70. */
+      if(rq.id==='rq3' && ST.queueDecisions && ST.queueDecisions[rq.id]==='Approved')readiness=readinessFromScore(100);
       return {
         rq:rq,
         student:ST.data.students.filter(function(s){return s.id===rq.studentId;})[0],
@@ -2766,8 +2773,13 @@ function viewOperatingView(){
   function choiceButton(key,label,iconName){
     var committed=ST.queueDecisions&&focusRow&&focusRow.rq?ST.queueDecisions[focusRow.rq.id]:null;
     var committedKey=committed==='Approved'?'approve':(committed==='Denied'?'deny':(committed==='Clarification requested'?'clarify':(committed==='Escalated'?'escalate':null)));
-    var selected=(committedKey||ST.ovDecisionChoice||'approve')===key;
-    return '<button class="ov4-choice'+(selected?' selected':'')+'" data-act="ovdecisionselect" data-choice="'+key+'"><span class="ov4-choice-radio">'+(selected?ic('check',11,'#fff'):ic(iconName,12,'currentColor'))+'</span><span>'+label+'</span></button>';
+    var isHardBlocked=focusRow&&focusRow.rq&&focusRow.rq.id==='rq12';
+    var defaultChoice=isHardBlocked?'clarify':'approve';
+    var currentChoice=committedKey||ST.ovDecisionChoice||defaultChoice;
+    if(isHardBlocked&&currentChoice==='approve')currentChoice='clarify';
+    var selected=currentChoice===key;
+    var disabled=isHardBlocked&&key==='approve';
+    return '<button class="ov4-choice'+(selected?' selected':'')+'" data-act="ovdecisionselect" data-choice="'+key+'"'+(disabled?' disabled aria-disabled="true"':'')+'><span class="ov4-choice-radio">'+(selected?ic('check',11,'#fff'):ic(iconName,12,'currentColor'))+'</span><span>'+label+'</span></button>';
   }
 
   var conditionCounts={Pending:0,Late:0,'Post-schedule':0,Conflicting:0};
@@ -2847,11 +2859,35 @@ function viewOperatingView(){
   var capacityValue=affectedAssignment==='No assignment change'?'Not affected':(capacityCheck?'Review required':'Within capacity');
   var ruleValue=highConflict?'Human review':(anyConflict?'Review required':'No hard block');
   var isPriyaDemo=rq.id==='rq3';
+  var isDanielReviewDemo=rq.id==='rq4';
+  var isMarcusReadyDemo=rq.id==='rq2';
+  var isEmilyBlockedDemo=rq.id==='rq12';
   var committedDecisionCurrent=ST.queueDecisions&&ST.queueDecisions[rq.id];
   var isApprovedCurrent=committedDecisionCurrent==='Approved';
   if(isPriyaDemo){
     capacityValue='Confirmed';
     ruleValue='Passed';
+  }
+  if(isDanielReviewDemo){
+    capacityValue='Not affected';
+    allowanceValue='2 days remaining — review required';
+    calendarValue='No conflict';
+    overlapValue='None';
+    ruleValue='Review required';
+  }
+  if(isMarcusReadyDemo){
+    capacityValue='Within capacity';
+    allowanceValue='Within policy';
+    calendarValue='No conflict';
+    overlapValue='None';
+    ruleValue='Passed';
+  }
+  if(isEmilyBlockedDemo){
+    capacityValue='Not affected';
+    allowanceValue='2 days remaining';
+    calendarValue='Conflict detected';
+    overlapValue='None';
+    ruleValue='Hard block';
   }
   var reviewReasons=[];
   if(capacityValue==='Review required')reviewReasons.push('site capacity');
@@ -2861,6 +2897,12 @@ function viewOperatingView(){
   var overallText;
   if(isPriyaDemo){
     overallText='No hard conflicts found. Preceptor coverage is confirmed for the requested dates.';
+  }else if(isDanielReviewDemo){
+    overallText='No hard conflicts found. The request is within policy, but the remaining meeting-day allowance is low and requires coordinator review.';
+  }else if(isMarcusReadyDemo){
+    overallText='All evaluated checks support readiness. No conflicts or policy exceptions detected.';
+  }else if(isEmilyBlockedDemo){
+    overallText='Hard conflict detected. Meeting-day request conflicts with a required clinical assignment.';
   }else if(reviewReasons.length){
     overallText='No hard conflict found. Human review is required for '+reviewReasons.join(' and ')+'.';
   }else{
@@ -2875,11 +2917,17 @@ function viewOperatingView(){
     '<div class="ov4-evidence"><span class="ok">'+ic('check',12,'#238469')+'</span><b>Source freshness</b><span>Current</span></div>'+
   '</div><div class="ov4-evidence-overall"><b>Overall:</b> '+esc(overallText)+'</div></div></section>';
 
-  var recommendationLabel=isApprovedCurrent?'Approved':(isPriyaDemo?'Approve':focusRow.readiness.label);
-  var recommendationText=isApprovedCurrent?'Priya’s assignment change has been committed. Her schedule and readiness impact have been recalculated.':(isPriyaDemo?'Capacity, calendar, and rotation requirements are satisfied. Approve the assignment change and notify the student and site.':(recommendation+'. '+reason));
-  var recommendationConfidence=(isPriyaDemo&&isApprovedCurrent)?92:focusRow.readiness.score;
+  var recommendationLabel=isApprovedCurrent?'Approved':(isPriyaDemo?'Approve':(isEmilyBlockedDemo?'Blocked':(isMarcusReadyDemo?'Ready':(isDanielReviewDemo?'Needs Review':focusRow.readiness.label))));
+  var recommendationText=isApprovedCurrent?'Priya’s assignment change has been committed. Her student readiness is fully reconciled; any downstream operational work is tracked separately.':
+    (isPriyaDemo?'Capacity, calendar, and rotation requirements are satisfied. Approve the assignment change and notify the student and site.':
+    (isEmilyBlockedDemo?'Do not approve until the required clinical-assignment conflict is resolved. Request clarification, escalate, or deny as appropriate.':
+    (isDanielReviewDemo?'Review the remaining meeting-day allowance. Approve if the remaining allowance is acceptable; no hard conflict is present.':
+    (isMarcusReadyDemo?'All evaluated checks are clear. Approve the request.':(recommendation+'. '+reason)))));
+  var recommendationConfidence=(isPriyaDemo&&isApprovedCurrent)?100:focusRow.readiness.score;
   var decisionQueue='<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">3</span>Recommendation</div><div class="ov4-section-content"><div class="ov4-recommendation"><div><strong>Arc recommendation: '+esc(recommendationLabel)+'</strong><p>'+esc(recommendationText)+'</p></div><span class="ov4-confidence-pill">'+recommendationConfidence+'% confidence</span></div></div></section>';
 
+  var effectiveChoice=isEmilyBlockedDemo&&choice==='approve'?'clarify':choice;
+  var effectiveChoiceLabel=effectiveChoice==='approve'?'Approve':(effectiveChoice==='deny'?'Deny':(effectiveChoice==='clarify'?'Request clarification':'Escalate'));
   var makeDecision=isApprovedCurrent?
     '<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Decision committed</div><div class="ov4-section-content"><div class="queue-success" style="--decision:#16A34A"><h3>Request approved</h3><p>Priya’s assignment change is committed. The schedule was updated, readiness was recalculated, and notifications are ready.</p></div></div></section>':
     '<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Make decision</div><div class="ov4-section-content"><div class="ov4-decision-grid"><div class="ov4-choice-grid">'+
@@ -2887,7 +2935,7 @@ function viewOperatingView(){
       choiceButton('deny','Deny','x')+
       choiceButton('clarify','Request clarification','info')+
       choiceButton('escalate','Escalate','arrowr')+
-      '</div><button class="ov4-commit" data-act="ovmakedecision">'+ic('check',18,'#fff')+'<span>'+(choice==='approve'?'Approve Request':'Make Decision: '+choiceLabel)+'</span></button></div></div></section>';
+      '</div>'+(isEmilyBlockedDemo?'<div class="ov4-blocker-note"><b>Approval unavailable</b><span>Resolve the required clinical-assignment conflict or choose another action.</span></div>':'')+'<button class="ov4-commit" data-act="ovmakedecision" data-choice="'+effectiveChoice+'">'+ic(effectiveChoice==='deny'?'x':(effectiveChoice==='escalate'?'arrowr':'info'),18,'#fff')+'<span>'+(effectiveChoice==='approve'?'Approve Request':'Make Decision: '+effectiveChoiceLabel)+'</span></button></div></div></section>';
 
   var linkedAssignments=requestAssignments(rq);
   var linkedAssignment=linkedAssignments[0]||null;
@@ -4292,14 +4340,22 @@ document.addEventListener('click',function(e){
     ST.queueFocus=null;ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.ovImpactOpen=false;ST.ovTrailOpen=false;
     render();
   }
-  else if(act==='queuefocus'){ST.queueFocus=t.getAttribute('data-id');ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.ovDecisionChoice='approve';ST.ovImpactOpen=false;ST.ovTrailOpen=false;render();}
+  else if(act==='queuefocus'){
+    /* VPOC trust rule: changing the selected request must create a clean workspace bind.
+       Clear every transient decision/detail state before re-rendering from the new focus row. */
+    ST.queueFocus=t.getAttribute('data-id');
+    ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;
+    ST.ovDecisionChoice='approve';ST.ovImpactOpen=false;ST.ovTrailOpen=false;
+    render();
+  }
   else if(act==='ovtoggleimpact'){ST.ovImpactOpen=!ST.ovImpactOpen;render();}
   else if(act==='ovtoggletrail'){ST.ovTrailOpen=!ST.ovTrailOpen;render();}
   else if(act==='ovdecisionselect'){ST.ovDecisionChoice=t.getAttribute('data-choice')||'approve';render();}
   else if(act==='ovmakedecision'){
     var oq=operatingQueue(), orow=oq.filter(function(r){return r.rq.id===ST.queueFocus;})[0]||oq[0];
     if(!orow)return;
-    var od=orow.rq, oc=ST.ovDecisionChoice||'approve', ol='Approved';
+    var od=orow.rq, oc=t.getAttribute('data-choice')||ST.ovDecisionChoice||'approve', ol='Approved';
+    if(od.id==='rq12'&&oc==='approve'){oc='clarify';}
     if(oc==='approve'){
       od.status='Approved';od.closed=true;od.published=true;od.notificationsSent=3;ol='Approved';
       var oa=assignmentById(od.assignmentId);
@@ -4685,4 +4741,4 @@ window.addEventListener('hashchange',function(){
 </script>
 
 </body></html>
-<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_HtmuNRAFgACSejK4nZwcpVrDkLzN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_Cp3YwdBSW58B2z4jMHyYwq3SS7FM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_212ZZKQ76m76PK6skyQFHKYfEu4u" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_71RMNwqH1WDEHXTJG4jP5D5qmMCz" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_7rcy9uSJ9HqcQz1hUEB7zNPUqfRq" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_FV849egG16YvZYmwwLZUTsMb96fN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_5UyvHp3wekJqPQTDSeSK7emm69sx" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_89ZtfmKDTf5CUJYHqWnfQXypbh4x" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_21TJ6o7StFq1DBvXwRU2uCSyW1J8" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_E46fpy4z6qLRnbvQ9rgsL9pXuLxn" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_J1Zd3LJp5eNYkvJRRqXEbak9Z9Xd" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_BhxuV3e7RxEY5FVwarvnpnR3MCxN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_BqK1jGiwgBmK2DMZ12McTskitrQU" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_CnA149KpM2td6NEDSDocaTfoEYkf" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_64EW74bkhacQMZeweWcSfYVJXpea" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_C8N7sKFTZtBywFKCMeA63NMJdpaK" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_EquExTyjBzqhwct6UVikcM1v1LHe" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_5DTsFrZybLvJKwMZgeLUa29cpdBX" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_5D9xFXCTipiWxR235A4ruX683FxM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_8t1TLKM3Za2jKAUrBBDfncL6mZLx" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_E5b1RPKswNnA5jRCaPZr75icM886" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
+<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_HtmuNRAFgACSejK4nZwcpVrDkLzN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_Cp3YwdBSW58B2z4jMHyYwq3SS7FM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_212ZZKQ76m76PK6skyQFHKYfEu4u" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_71RMNwqH1WDEHXTJG4jP5D5qmMCz" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_7rcy9uSJ9HqcQz1hUEB7zNPUqfRq" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_FV849egG16YvZYmwwLZUTsMb96fN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_5UyvHp3wekJqPQTDSeSK7emm69sx" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_89ZtfmKDTf5CUJYHqWnfQXypbh4x" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_21TJ6o7StFq1DBvXwRU2uCSyW1J8" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_E46fpy4z6qLRnbvQ9rgsL9pXuLxn" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_J1Zd3LJp5eNYkvJRRqXEbak9Z9Xd" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_BhxuV3e7RxEY5FVwarvnpnR3MCxN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_BqK1jGiwgBmK2DMZ12McTskitrQU" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_CnA149KpM2td6NEDSDocaTfoEYkf" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_64EW74bkhacQMZeweWcSfYVJXpea" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_C8N7sKFTZtBywFKCMeA63NMJdpaK" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_EquExTyjBzqhwct6UVikcM1v1LHe" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_5DTsFrZybLvJKwMZgeLUa29cpdBX" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_5D9xFXCTipiWxR235A4ruX683FxM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_8t1TLKM3Za2jKAUrBBDfncL6mZLx" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_E5b1RPKswNnA5jRCaPZr75icM886" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_Az48eNktkkoRXN2qMhreQbqJ5TFY" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
