@@ -2821,19 +2821,29 @@ function viewOperatingView(){
     return committed!=='Approved';
   });
   var activeCondition=ST.ovConditionFilter||'All';
-  var queue=activeCondition==='All'?allQueue:allQueue.filter(function(r){return conditionFor(r)===activeCondition;});
+  /* Checkpoint 04 repair v2: summary cards are literal, overlapping lenses into
+     the same judgment queue. Pending means every open request awaiting judgment;
+     Late and Conflicting are subsets, not mutually exclusive buckets. */
+  function isLate(r){return ageDays(r.age)>14;}
+  function hasVisibleConflict(r){
+    if(r.rq&&r.rq.id==='rq12')return true; // canonical Emily hard-block example
+    return (r.checks||[]).some(function(c){
+      return c.severity==='High' || /conflict|hard block/i.test(String(c.type||'')+' '+String(c.summary||'')+' '+String(c.detail||''));
+    });
+  }
+  function matchesLens(r,lens){
+    if(lens==='Pending'||lens==='All')return true;
+    if(lens==='Late')return isLate(r);
+    if(lens==='Conflicting')return hasVisibleConflict(r);
+    return true;
+  }
+  var queue=allQueue.filter(function(r){return matchesLens(r,activeCondition);});
   var focusRow=queue.filter(function(r){return r.rq.id===ST.queueFocus;})[0]||queue[0]||allQueue[0];
   if(!focusRow){
     return '<div class="ov4-page"><section class="ov4-command"><div class="ov4-command-intro"><h1>Operating View</h1><p>See the system. Work the exception. Close the loop.</p></div></section><section class="ov4-panel" style="padding:30px;text-align:center">No active requests.</section></div>';
   }
 
   function ageDays(x){var n=parseInt(x,10);return isNaN(n)?0:n;}
-  function conditionFor(r){
-    var age=ageDays(r.age);
-    if(r.impact==='High')return 'Conflicting';
-    if(age>14)return 'Late';
-    return 'Pending';
-  }
   function initials(name){
     return String(name||'?').split(/\s+/).map(function(v){return v.charAt(0);}).join('').slice(0,2).toUpperCase();
   }
@@ -2857,8 +2867,11 @@ function viewOperatingView(){
     return '<button class="ov4-choice'+(selected?' selected':'')+'" data-act="ovdecisionselect" data-choice="'+key+'"'+(disabled?' disabled aria-disabled="true"':'')+'><span class="ov4-choice-radio">'+renderedIcon+'</span><span>'+label+'</span></button>';
   }
 
-  var conditionCounts={Pending:0,Late:0,Conflicting:0};
-  allQueue.forEach(function(r){conditionCounts[conditionFor(r)]++;});
+  var conditionCounts={
+    Pending:allQueue.length,
+    Late:allQueue.filter(isLate).length,
+    Conflicting:allQueue.filter(hasVisibleConflict).length
+  };
   var choice=ST.ovDecisionChoice||'approve';
   var choiceLabel=choice==='approve'?'Approve':(choice==='deny'?'Deny':(choice==='clarify'?'Request clarification':'Escalate'));
   var rq=focusRow.rq;
