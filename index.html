@@ -1786,6 +1786,26 @@
   .ov4-trail-step span{display:block;color:#65778A;font-size:10px;line-height:1.4;margin-top:5px}
   @media(max-width:980px){.ov4-trail{gap:12px}.ov4-trail-step{min-width:140px;min-height:0}.ov4-trail-step:not(:last-child):after{right:-6px}}
 
+  /* Arc VPOC checkpoint 02 — closure + queue coherence */
+  .ov4-trail-panel{background:transparent;border:0;padding:0;overflow:visible}
+  .ov4-trail{display:grid;grid-template-columns:repeat(2,minmax(0,1fr)) !important;min-width:0 !important;gap:9px}
+  .ov4-trail-step{min-width:0;min-height:0;border:1px solid #DCE4EA;border-radius:9px;background:#FBFCFD;padding:11px 12px}
+  .ov4-trail-step:not(:last-child):after{display:none}
+  .ov4-trail-meta{min-height:0}
+  .ov4-trail-step b{margin-top:7px;font-size:11px}
+  .ov4-trail-step span{font-size:10px;margin-top:4px}
+  .ov4-task-created{display:inline-flex;align-items:center;gap:5px;margin-top:5px;padding:3px 7px;border-radius:999px;background:#E7F1EF;color:#0B4F47;font-size:9.5px;font-weight:800}
+  .ov4-followup{border-top:1px solid #E1E7EB;padding:12px 13px 14px;background:#FCFEFD}
+  .ov4-followup-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+  .ov4-followup-head h3{margin:0;font-size:12px;color:#25374A}
+  .ov4-followup-head span{font-size:9.5px;color:#6A7B8E}
+  .ov4-task{border:1px solid #CFE0DB;border-left:4px solid #0E6E63;border-radius:9px;background:#fff;padding:9px 10px}
+  .ov4-task b{display:block;font-size:11px;color:#23384A}
+  .ov4-task small{display:block;font-size:9.5px;color:#718196;margin-top:3px}
+  .ov4-task .meta{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px;font-size:9px;color:#53677B}
+  .ov4-task-empty{font-size:10px;color:#7A8999;padding:4px 0 2px}
+  @media(max-width:720px){.ov4-trail{grid-template-columns:1fr !important}}
+
   .ov4-queue-head{align-items:center}
   .ov4-queue-score{display:flex;align-items:center;gap:10px}
   .ov4-mini-ring{width:64px;height:64px}
@@ -2744,7 +2764,11 @@ function requestDetailPanel(row){
 }
 
 function viewOperatingView(){
-  var allQueue=operatingQueue();
+  var allQueue=operatingQueue().filter(function(r){
+    var committed=ST.queueDecisions&&ST.queueDecisions[r.rq.id];
+    if(committed==='Approved')return false;
+    return r.readiness.label!=='Ready';
+  });
   var activeCondition=ST.ovConditionFilter||'All';
   var queue=activeCondition==='All'?allQueue:allQueue.filter(function(r){return conditionFor(r)===activeCondition;});
   var focusRow=queue.filter(function(r){return r.rq.id===ST.queueFocus;})[0]||queue[0]||allQueue[0];
@@ -2755,7 +2779,6 @@ function viewOperatingView(){
   function ageDays(x){var n=parseInt(x,10);return isNaN(n)?0:n;}
   function conditionFor(r){
     var age=ageDays(r.age);
-    if(r.impact==='High' && age>30)return 'Post-schedule';
     if(r.impact==='High')return 'Conflicting';
     if(age>14)return 'Late';
     return 'Pending';
@@ -2782,10 +2805,8 @@ function viewOperatingView(){
     return '<button class="ov4-choice'+(selected?' selected':'')+'" data-act="ovdecisionselect" data-choice="'+key+'"'+(disabled?' disabled aria-disabled="true"':'')+'><span class="ov4-choice-radio">'+(selected?ic('check',11,'#fff'):ic(iconName,12,'currentColor'))+'</span><span>'+label+'</span></button>';
   }
 
-  var conditionCounts={Pending:0,Late:0,'Post-schedule':0,Conflicting:0};
+  var conditionCounts={Pending:0,Late:0,Conflicting:0};
   allQueue.forEach(function(r){conditionCounts[conditionFor(r)]++;});
-  var decidedToday=Object.keys(ST.queueDecisions||{}).length;
-  var healthScore=Math.max(45,100-(conditionCounts.Conflicting*8)-(conditionCounts['Post-schedule']*10)-(conditionCounts.Late*4)-((decidedToday?0:1)*6));
   var choice=ST.ovDecisionChoice||'approve';
   var choiceLabel=choice==='approve'?'Approve':(choice==='deny'?'Deny':(choice==='clarify'?'Request clarification':'Escalate'));
   var rq=focusRow.rq;
@@ -2804,17 +2825,16 @@ function viewOperatingView(){
   var overlapCheck=evidenceChecks.filter(function(c){return c.type==='Time-Off Conflict';})[0];
 
   var signals=[
-    {label:'Pending',value:conditionCounts.Pending,icon:'inbox',color:'#2B7A72',bg:'#EAF4F2',detail:'Open less than 15 days'},
+    {label:'Pending',value:conditionCounts.Pending,icon:'inbox',color:'#2B7A72',bg:'#EAF4F2',detail:'Open requests awaiting judgment'},
     {label:'Late',value:conditionCounts.Late,icon:'clock',color:'#C9871F',bg:'#FBF3E5',detail:'Open 15+ days'},
-    {label:'Post-schedule',value:conditionCounts['Post-schedule'],icon:'calendar',color:'#365E91',bg:'#EDF2F8',detail:'High-impact and 30+ days'},
-    {label:'Conflicting',value:conditionCounts.Conflicting,icon:'alert',color:'#A95555',bg:'#F8ECEC',detail:'Current high-impact issues'}
+    {label:'Conflicting',value:conditionCounts.Conflicting,icon:'alert',color:'#A95555',bg:'#F8ECEC',detail:'Requests with a visible conflict'}
   ];
   var signalHtml=signals.map(function(s){
     var active=activeCondition===s.label;
     return '<button class="ov4-signal'+(active?' active':'')+'" data-act="ovconditionfilter" data-condition="'+s.label+'" style="--sig:'+s.color+';--sig-bg:'+s.bg+'" aria-pressed="'+(active?'true':'false')+'"><span class="ov4-signal-icon">'+ic(s.icon,17,s.color)+'</span><div><div class="ov4-signal-label">'+s.label+'</div><div class="ov4-signal-value">'+s.value+'</div><div class="ov4-signal-detail">'+s.detail+'</div></div></button>';
   }).join('');
 
-  var displayedQueue=activeCondition==='All'?queue.slice(0,5):queue;
+  var displayedQueue=queue;
   var queueRows=displayedQueue.map(function(r,index){
     var active=r.rq.id===focusRow.rq.id;
     var blocked=r.readiness.label==='Blocked';
@@ -2867,10 +2887,14 @@ function viewOperatingView(){
   if(isPriyaDemo){
     capacityValue='Confirmed';
     ruleValue='Passed';
+    if(isApprovedCurrent){
+      overlapValue='None';
+      calendarValue='No conflict';
+    }
   }
   if(isDanielReviewDemo){
     capacityValue='Not affected';
-    allowanceValue='2 days remaining — review required';
+    allowanceValue='2 days remaining · Human review required';
     calendarValue='No conflict';
     overlapValue='None';
     ruleValue='Review required';
@@ -2979,9 +3003,9 @@ function viewOperatingView(){
       impactPanel='<div class="ov4-impact-panel"><div class="ov4-impact-grid">'+
         '<div class="ov4-impact-item"><small>Assignment</small><b>Jul 6–10 → Jul 13–17</b></div>'+ 
         '<div class="ov4-impact-item"><small>Preceptor</small><b>Unconfirmed → Confirmed</b></div>'+ 
-        '<div class="ov4-impact-item"><small>Readiness</small><b>70% → 92%</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Readiness</small><b>70% → 100%</b></div>'+ 
         '<div class="ov4-impact-item"><small>Notifications</small><b>Student, site coordinator, and preceptor</b></div>'+ 
-        '<div class="ov4-impact-item"><small>Next action</small><b>Publish revised schedule</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Next action</small><b>Publish revised schedule</b><span class="ov4-task-created">Task created</span></div>'+ 
       '</div></div>';
     }else{
       impactPanel='<div class="ov4-impact-panel"><div class="ov4-impact-grid">'+
@@ -2996,36 +3020,39 @@ function viewOperatingView(){
 
   var committed=ST.queueDecisions&&ST.queueDecisions[rq.id];
   var trailSteps=[];
-  trailSteps.push({state:'complete',time:'Captured',title:'Request assembled',detail:'Request, dates, student, and source normalized.'});
   if(!committed){
+    trailSteps.push({state:'complete',time:'Captured',title:'Request assembled',detail:'Request, dates, student, and source normalized.'});
     trailSteps.push({state:'active',time:'Current',title:'Decision pending',detail:'Human review is required before any operational update.'});
     trailSteps.push({state:'',time:'Next',title:'Record update',detail:'Assignment or calendar remains unchanged.'});
     trailSteps.push({state:'',time:'Next',title:'Notifications',detail:'Messages remain in draft until a decision is committed.'});
     trailSteps.push({state:'',time:'Next',title:'Readiness recalculation',detail:'Arc will re-check the affected record after execution.'});
   }else if(committed==='Approved'){
     if(isPriyaDemo && isApprovedCurrent){
-      trailSteps.push({state:'complete',time:'Now',title:'Decision recorded',detail:'Approval and operator judgment saved to the request.'});
-      trailSteps.push({state:'complete',time:'Now',title:'Record updated',detail:'Assignment dates updated to Jul 13–17.'});
-      trailSteps.push({state:'complete',time:'Now',title:'Readiness recalculated',detail:'The affected record moved from 70% to 92%.'});
-      trailSteps.push({state:'complete',time:'Now',title:'Notifications released',detail:'Student, site coordinator, and preceptor notified.'});
-      trailSteps.push({state:'active',time:'Next',title:'Follow-up queued',detail:'Publish revised schedule.'});
+      trailSteps.push({state:'complete',time:'6:15 AM',title:'Decision recorded',detail:'Approved by Ryan · Needs Review → Approved'});
+      trailSteps.push({state:'complete',time:'Now',title:'Record updated',detail:'Assignment changed · Jul 6–10 → Jul 13–17'});
+      trailSteps.push({state:'complete',time:'Now',title:'Readiness recalculated',detail:'70% → 100%'});
+      trailSteps.push({state:'active',time:'Due today',title:'Next action created',detail:'Publish revised schedule · Owner: Program Coordinator'});
     }else{
+      trailSteps.push({state:'complete',time:'Captured',title:'Request assembled',detail:'Request, dates, student, and source normalized.'});
       trailSteps.push({state:'complete',time:'Now',title:'Decision recorded',detail:'Approval and operator judgment saved to the request.'});
       trailSteps.push({state:'complete',time:'Now',title:'Record updated',detail:rq.type==='MOVE'?'Assignment dates updated to '+dates+'.':'Program calendar updated for '+dates+'.'});
       trailSteps.push({state:'complete',time:'Now',title:'Notifications released',detail:impactNotify+' notified.'});
       trailSteps.push({state:impactFollow==='No additional dependency'||impactFollow==='No assignment change'?'complete':'active',time:impactFollow==='No additional dependency'||impactFollow==='No assignment change'?'Now':'Next',title:impactFollow==='No additional dependency'||impactFollow==='No assignment change'?'Request closed':'Follow-up queued',detail:impactFollow==='No additional dependency'||impactFollow==='No assignment change'?'Request closed with no remaining dependency.':impactFollow+'.'});
     }
   }else if(committed==='Denied'){
+    trailSteps.push({state:'complete',time:'Captured',title:'Request assembled',detail:'Request, dates, student, and source normalized.'});
     trailSteps.push({state:'complete',time:'Now',title:'Decision recorded',detail:'Denial and operator judgment saved to the request.'});
     trailSteps.push({state:'complete',time:'Now',title:'Schedule retained',detail:'No assignment or calendar change was applied.'});
     trailSteps.push({state:'complete',time:'Now',title:'Student notified',detail:'Denial notice prepared with the recorded reason.'});
     trailSteps.push({state:'complete',time:'Now',title:'Request closed',detail:'Readiness remains based on the existing schedule.'});
   }else if(committed==='Clarification requested'){
+    trailSteps.push({state:'complete',time:'Captured',title:'Request assembled',detail:'Request, dates, student, and source normalized.'});
     trailSteps.push({state:'complete',time:'Now',title:'Decision recorded',detail:'Request returned for additional information.'});
     trailSteps.push({state:'active',time:'Pending',title:'Record held',detail:'No assignment or calendar change was applied.'});
     trailSteps.push({state:'complete',time:'Now',title:'Clarification sent',detail:'Student receives the specific information request.'});
     trailSteps.push({state:'warning',time:'Awaiting reply',title:'Readiness on hold',detail:'Arc will re-check the request when new information arrives.'});
   }else{
+    trailSteps.push({state:'complete',time:'Captured',title:'Request assembled',detail:'Request, dates, student, and source normalized.'});
     trailSteps.push({state:'complete',time:'Now',title:'Decision recorded',detail:'Escalation and operator context saved to the request.'});
     trailSteps.push({state:'active',time:'Pending',title:'Record held',detail:'No assignment or calendar change was applied.'});
     trailSteps.push({state:'complete',time:'Now',title:'Escalation routed',detail:'Program leadership receives the request and supporting evidence.'});
@@ -3038,19 +3065,21 @@ function viewOperatingView(){
 
   return '<div class="ov4-page">'+
     '<section class="ov4-command"><div class="ov4-command-intro"><h1>Operating View</h1><p>See the system. Work the exception. Close the loop.</p></div>'+signalHtml+
-      '<div class="ov4-score-help" tabindex="0" aria-describedby="readinessScoreTooltip"><div class="ov4-score-card"><div class="ov4-score-ring" style="--score:'+healthScore+'"><b>'+healthScore+'</b></div><div class="ov4-score-copy"><strong>Attention required</strong><span>Unresolved conflicts and request aging.</span></div></div><div class="ov4-score-tooltip" id="readinessScoreTooltip" role="tooltip"><span class="ov4-score-tooltip-title">Readiness Score</span><p>The Readiness Score provides a single, consistent view of clinical readiness—so teams can quickly see where attention may be needed without interpreting every underlying signal individually.</p><p>The score combines key operational factors such as <strong>assignment status, capacity, schedule conflicts, open requests, timing, and data freshness</strong> into a 0–100 measure.</p><p><strong>The Overall Readiness Score reflects conditions across all relevant records in the system. A Student Readiness Score reflects the conditions specific to that individual student record.</strong></p><p>As conditions change, the score changes with them, providing a current view of readiness while preserving the underlying evidence for review.</p></div></div>'+
     '</section>'+
     '<section class="ov4-work">'+
       '<article class="ov4-panel"><header class="ov4-panel-head"><div><h2>Decision Workspace</h2></div><span class="ov4-request-id">'+esc(String(rq.id||'CHG-2026-0914-027').toUpperCase())+'</span></header>'+
-        '<div class="ov4-casebar"><span class="student">'+esc(student.name)+'</span><span class="ov4-request-type">'+esc(requestLabel)+'</span><span class="ov4-dates">'+esc(dates)+'</span><span class="ov4-status">'+esc(isApprovedCurrent?'Approved':focusRow.readiness.label)+'</span><span class="ov4-confidence">'+((isPriyaDemo&&isApprovedCurrent)?92:focusRow.readiness.score)+'%</span></div>'+
+        '<div class="ov4-casebar"><span class="student">'+esc(student.name)+'</span><span class="ov4-request-type">'+esc(requestLabel)+'</span><span class="ov4-dates">'+esc(dates)+'</span><span class="ov4-status">'+esc(isApprovedCurrent?'Approved':focusRow.readiness.label)+'</span><span class="ov4-confidence">'+((isPriyaDemo&&isApprovedCurrent)?100:focusRow.readiness.score)+'%</span></div>'+
         '<div class="ov4-decision-body">'+summary+evidence+decisionQueue+makeDecision+
           '<button class="ov4-collapsed'+(ST.ovImpactOpen?' open':'')+'" type="button" data-act="ovtoggleimpact" aria-expanded="'+(ST.ovImpactOpen?'true':'false')+'"><span>5 &nbsp; Change impact</span>'+ic('chevr',13,'#52677C')+'</button>'+impactPanel+
           '<button class="ov4-collapsed'+(ST.ovTrailOpen?' open':'')+'" type="button" data-act="ovtoggletrail" aria-expanded="'+(ST.ovTrailOpen?'true':'false')+'"><span>6 &nbsp; Execution trail</span>'+ic('chevr',13,'#52677C')+'</button>'+trailPanel+
         '</div>'+
       '</article>'+
-      '<aside class="ov4-panel"><header class="ov4-panel-head ov4-queue-head"><div><h2>Attention Queue</h2><p>Prioritized requests requiring judgment.</p></div><div class="ov4-queue-score"><div class="ov4-mini-ring" style="--score:'+healthScore+'"><b>'+healthScore+'</b></div><strong>Attention required</strong></div></header>'+
+      '<aside class="ov4-panel"><header class="ov4-panel-head ov4-queue-head"><div><h2>Attention Queue</h2><p>Student requests that still require judgment.</p></div></header>'+
         (activeCondition!=='All'?'<div class="ov4-queue-filter-note"><span>Showing '+activeCondition+' · '+queue.length+' request'+(queue.length===1?'':'s')+'</span><button data-act="ovconditionfilter" data-condition="All">Show all</button></div>':'')+
-        '<div class="ov4-queue-list">'+(queueRows||'<div style="padding:22px;text-align:center;color:#64748B;font-size:12px">No requests match this condition.</div>')+(activeCondition==='All'&&queue.length>5?'<button class="ov4-view-more">View '+(queue.length-5)+' more</button>':'')+'</div>'+
+        '<div class="ov4-queue-list">'+(queueRows||'<div style="padding:22px;text-align:center;color:#64748B;font-size:12px">No requests match this condition.</div>')+'</div>'+
+        '<div class="ov4-followup"><div class="ov4-followup-head"><h3>My Tasks / Follow-up</h3><span>Owned work until closed</span></div>'+
+          ((ST.queueDecisions&&ST.queueDecisions['rq3']==='Approved')?'<div class="ov4-task"><b>Publish revised schedule</b><small>Created from Priya Shah · Move assignment</small><div class="meta"><span>Owner: Program Coordinator</span><span>Due: Today</span><span>Status: Open</span></div></div>':'<div class="ov4-task-empty">No follow-up tasks created in this session.</div>')+
+        '</div>'+
       '</aside>'+
     '</section>'+
   '</div>';
