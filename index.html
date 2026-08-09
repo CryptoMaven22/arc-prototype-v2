@@ -2313,6 +2313,51 @@
     .ov4-casebar .ov4-casefield{min-height:34px}
   }
 </style>
+
+<style>
+  /* Checkpoint 05 red blocker note alignment fix */
+  .ov4-decision-grid{grid-template-columns:minmax(0,1fr) 265px;align-items:start}
+  .ov4-blocker-note{
+    width:100%;
+    box-sizing:border-box;
+    min-height:74px;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    gap:6px;
+    padding:13px 14px;
+    border-left:3px solid #DC2626;
+    background:#FEF2F2;
+    border-radius:10px;
+  }
+  .ov4-blocker-note b{
+    display:block;
+    margin:0;
+    white-space:normal;
+    font-size:12px;
+    line-height:1.25;
+  }
+  .ov4-blocker-note span{
+    display:block;
+    font-size:11px;
+    line-height:1.42;
+    max-width:24ch;
+  }
+  @media(max-width:1240px){
+    .ov4-decision-grid{grid-template-columns:minmax(0,1fr) 245px}
+  }
+</style>
+
+
+<style>
+  /* Red blocker note alignment repair v2 */
+  .ov4-blocker-note{
+    margin-top:0 !important;
+    align-self:start;
+  }
+</style>
+
 </head>
 <body>
 <!-- Arc operational workspace. Capture now sits directly beneath Overview in the primary workflow. -->
