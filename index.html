@@ -2478,7 +2478,7 @@ function bankFor(studentId){
 function badgeSt(s,sm){var c=STATUS[s]||STATUS['Not Checked'];return '<span class="badge-st'+(sm?' sm':'')+'" style="color:'+c.text+';background:'+c.bg+'"><span class="dot" style="background:'+c.dot+'"></span>'+s+'</span>';}
 function sevBadge(s){var c=SEV[s]||SEV.Low;return '<span class="sev" style="color:'+c.text+';background:'+c.bg+'">'+s+'</span>';}
 
-var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,requestFocus:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4',queueFocus:null,queueAction:null,queueStage:0,queueChoice:null,queueDecisions:{},ovDecisionChoice:'approve',ovImpactOpen:false,ovTrailOpen:false,ovConditionFilter:'All',ovTaskStatus:'Open'};
+var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,requestFocus:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4',queueFocus:null,queueAction:null,queueStage:0,queueChoice:null,queueDecisions:{},ovDecisionChoice:'approve',ovImpactOpen:false,ovTrailOpen:false,ovConditionFilter:'All',ovTaskStatus:'Open',ovFollowups:{},ovResponseHistory:{}};
 var lastFocusedElement=null;
 
 function demoFlow(){
@@ -2910,7 +2910,7 @@ function viewOperatingView(){
       (committedDecision==='Escalated'?' decision-escalate':'')));
     var decisionBadge='';
     if(committedDecision){
-      var badgeLabel=committedDecision==='Returned'?'Clarification requested':committedDecision;
+      var badgeLabel=(committedDecision==='Clarification requested'||committedDecision==='Returned'||committedDecision==='Escalated')?'Awaiting response':committedDecision;
       var badgeClass=committedDecision==='Approved'?'approved':
         (committedDecision==='Denied'?'denied':
         ((committedDecision==='Clarification requested'||committedDecision==='Returned')?'clarification':'escalated'));
@@ -2924,7 +2924,7 @@ function viewOperatingView(){
       '<span class="ov4-queue-main"><b>'+esc(r.student?r.student.name:'Unknown')+'</b><span class="ov4-queue-meta">'+esc((TYPE_LABEL[r.rq.type]||r.rq.type)+(r.siteRotation&&r.siteRotation!=='No assignment change'?' · '+shortSite(r.siteRotation):''))+'</span><span class="ov4-queue-reason">'+esc(r.nextAction)+'</span>'+decisionBadge+'</span>'+
       '<span class="ov4-age">'+esc(r.age)+' ago</span>'+
       '<span class="ov4-meter">'+meter(r.readiness.score,r.readiness.tone.ring)+'</span>'+
-      '<span class="ov4-queue-state'+(blocked?' blocked':'')+'">'+esc(r.readiness.label)+'</span>'+
+      '<span class="ov4-queue-state'+(blocked?' blocked':'')+'">'+esc((committedDecision==='Clarification requested'||committedDecision==='Escalated')?'Awaiting response':r.readiness.label)+'</span>'+
       '<span>'+ic('chevr',13,'#52677C')+'</span>'+
     '</button>';
   }).join('');
@@ -2949,6 +2949,9 @@ function viewOperatingView(){
   var isEmilyBlockedDemo=rq.id==='rq12';
   var committedDecisionCurrent=ST.queueDecisions&&ST.queueDecisions[rq.id];
   var isApprovedCurrent=committedDecisionCurrent==='Approved';
+  var isAwaitingResponse=committedDecisionCurrent==='Clarification requested'||committedDecisionCurrent==='Escalated';
+  var followupCurrent=ST.ovFollowups&&ST.ovFollowups[rq.id];
+  var responseHistoryCurrent=ST.ovResponseHistory&&ST.ovResponseHistory[rq.id];
   if(isPriyaDemo){
     capacityValue='Confirmed';
     ruleValue='Passed';
@@ -3016,15 +3019,16 @@ function viewOperatingView(){
     evidenceItem('Calendar conflict',calendarValue)+
     evidenceItem('Absence overlap',overlapValue)+
     evidenceItem('Rule status',ruleValue)+
-    evidenceItem('Source freshness','Current')+
+    evidenceItem('Source freshness',responseHistoryCurrent?'Updated from response':'Current')+
   '</div><div class="ov4-evidence-overall"><b>Overall:</b> '+esc(overallText)+'</div></div></section>';
 
-  var recommendationLabel=isApprovedCurrent?'Approved':(isPriyaDemo?'Approve':(isEmilyBlockedDemo?'Blocked':(isMarcusReadyDemo?'Ready':(isDanielReviewDemo?'Needs Review':focusRow.readiness.label))));
-  var recommendationText=isApprovedCurrent?'Priya’s assignment change has been committed. Her student readiness is fully reconciled; any downstream operational work is tracked separately.':
+  var recommendationLabel=isAwaitingResponse?'Awaiting response':(isApprovedCurrent?'Approved':(isPriyaDemo?'Approve':(isEmilyBlockedDemo?'Blocked':(isMarcusReadyDemo?'Ready':(isDanielReviewDemo?'Needs Review':focusRow.readiness.label)))));
+  var recommendationText=isAwaitingResponse?(committedDecisionCurrent==='Escalated'?'Site Coordinator response is required before Arc can return this request to decision-ready status.':'Requested clarification must be received before Arc can return this request to decision-ready status.'):
+    (isApprovedCurrent?'Priya’s assignment change has been committed. Her student readiness is fully reconciled; any downstream operational work is tracked separately.':
     (isPriyaDemo?'Capacity, calendar, and rotation requirements are satisfied. Approve the assignment change and notify the student and site.':
     (isEmilyBlockedDemo?'Do not approve until the required clinical-assignment conflict is resolved. Request clarification, escalate, or deny as appropriate.':
     (isDanielReviewDemo?'Review the remaining meeting-day allowance. Approve if the remaining allowance is acceptable; no hard conflict is present.':
-    (isMarcusReadyDemo?'All evaluated checks are clear. Approve the request.':(recommendation+'. '+reason)))));
+    (isMarcusReadyDemo?'All evaluated checks are clear. Approve the request.':(recommendation+'. '+reason))))));
   var recommendationConfidence=(isPriyaDemo&&isApprovedCurrent)?100:focusRow.readiness.score;
   var confidenceBand=recommendationConfidence<50?'low':(recommendationConfidence<80?'review':'high');
   var decisionQueue='<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">3</span>Recommendation</div><div class="ov4-section-content"><div class="ov4-recommendation"><div><span class="ov4-recommendation-label">Arc recommendation</span><strong class="ov4-recommendation-value">'+esc(recommendationLabel)+'</strong><p>'+esc(recommendationText)+'</p></div><span class="ov4-confidence-pill '+confidenceBand+'">'+recommendationConfidence+'% confidence</span></div></div></section>';
@@ -3033,12 +3037,14 @@ function viewOperatingView(){
   var effectiveChoiceLabel=effectiveChoice==='approve'?'Approve':(effectiveChoice==='deny'?'Deny':(effectiveChoice==='clarify'?'Request clarification':'Escalate'));
   var makeDecision=isApprovedCurrent?
     '<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Decision committed</div><div class="ov4-section-content"><div class="queue-success" style="--decision:#16A34A"><h3>Request approved</h3><p>Priya’s assignment change is committed. The schedule was updated, readiness was recalculated, and notifications are ready.</p></div></div></section>':
+    (isAwaitingResponse?
+    '<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Awaiting response</div><div class="ov4-section-content"><div class="queue-success" style="--decision:#C9871F"><h3>Decision temporarily held</h3><p>'+esc(committedDecisionCurrent==='Escalated'?'Site Coordinator owns the response. Arc will hold approval until the response is captured and evidence is refreshed.':'The requested information is outstanding. Arc will hold approval until the response is captured and evidence is refreshed.')+'</p></div></div></section>':
     '<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Make decision</div><div class="ov4-section-content"><div class="ov4-decision-grid"><div class="ov4-choice-grid">'+
       choiceButton('approve','Approve','check')+
       choiceButton('deny','Deny','x')+
       choiceButton('clarify','Request clarification','info')+
       choiceButton('escalate','Escalate','arrowr')+
-      '</div>'+(isEmilyBlockedDemo?'<div class="ov4-blocker-note"><b>Approval unavailable</b><span>Resolve the required clinical-assignment conflict or choose another action.</span></div>':'')+'<button class="ov4-commit" data-act="ovmakedecision" data-choice="'+effectiveChoice+'">'+ic(effectiveChoice==='deny'?'x':(effectiveChoice==='escalate'?'arrowr':'info'),18,'#fff')+'<span>'+(effectiveChoice==='approve'?'Approve Request':'Make Decision: '+effectiveChoiceLabel)+'</span></button></div></div></section>';
+      '</div>'+(isEmilyBlockedDemo?'<div class="ov4-blocker-note"><b>Approval unavailable</b><span>Resolve the required clinical-assignment conflict or choose another action.</span></div>':'')+'<button class="ov4-commit" data-act="ovmakedecision" data-choice="'+effectiveChoice+'">'+ic(effectiveChoice==='deny'?'x':(effectiveChoice==='escalate'?'arrowr':'info'),18,'#fff')+'<span>'+(effectiveChoice==='approve'?'Approve Request':'Make Decision: '+effectiveChoiceLabel)+'</span></button></div></div></section>');
 
   var linkedAssignments=requestAssignments(rq);
   var linkedAssignment=linkedAssignments[0]||null;
@@ -3078,22 +3084,46 @@ function viewOperatingView(){
   }
   var impactPanel='';
   if(ST.ovImpactOpen){
+    var impactDecision=committedDecisionCurrent||effectiveChoiceLabel;
     if(isPriyaDemo && isApprovedCurrent){
       impactPanel='<div class="ov4-impact-panel"><div class="ov4-impact-grid">'+
-        '<div class="ov4-impact-item"><small>Assignment</small><b>Jul 6–10 → Jul 13–17</b></div>'+ 
-        '<div class="ov4-impact-item"><small>Preceptor</small><b>Unconfirmed → Confirmed</b></div>'+ 
         '<div class="ov4-impact-item"><small>Readiness</small><b>70% → 100%</b></div>'+ 
-        '<div class="ov4-impact-item"><small>Notifications</small><b>Student, site coordinator, and preceptor</b></div>'+ 
-        '<div class="ov4-impact-item"><small>Next action</small><b>Publish revised schedule</b><span class="ov4-task-created">Task created</span></div>'+ 
+        '<div class="ov4-impact-item"><small>Assignment</small><b>Jul 6–10 → Jul 13–17</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Next action</small><b>Publish revised schedule</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Task created</small><b>Yes · Program Coordinator · Due today</b></div>'+ 
+      '</div></div>';
+    }else if(committedDecisionCurrent==='Clarification requested'){
+      impactPanel='<div class="ov4-impact-panel"><div class="ov4-impact-grid">'+
+        '<div class="ov4-impact-item"><small>Status</small><b>Awaiting response</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Next action</small><b>Provide requested clarification</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Owner</small><b>Student</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Follow-up created</small><b>Yes</b></div>'+ 
+      '</div></div>';
+    }else if(committedDecisionCurrent==='Escalated'){
+      impactPanel='<div class="ov4-impact-panel"><div class="ov4-impact-grid">'+
+        '<div class="ov4-impact-item"><small>Status</small><b>Awaiting response</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Next action</small><b>Review request and respond</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Owner</small><b>Site Coordinator</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Follow-up created</small><b>Yes · request context included</b></div>'+ 
+      '</div></div>';
+    }else if(committedDecisionCurrent==='Denied'){
+      impactPanel='<div class="ov4-impact-panel"><div class="ov4-impact-grid">'+
+        '<div class="ov4-impact-item"><small>Status</small><b>Denied · Closed</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Schedule</small><b>No change</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Next action</small><b>Student notified</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Follow-up created</small><b>No</b></div>'+ 
       '</div></div>';
     }else{
-      impactPanel='<div class="ov4-impact-panel"><div class="ov4-impact-grid">'+
-        '<div class="ov4-impact-item"><small>Affected record</small><b>'+esc(impactRecord)+'</b></div>'+ 
-        '<div class="ov4-impact-item"><small>Before</small><b>'+esc(impactBefore)+'</b></div>'+ 
-        '<div class="ov4-impact-item"><small>After approval</small><b>'+esc(impactAfter)+'</b></div>'+ 
-        '<div class="ov4-impact-item"><small>Notifications</small><b>'+esc(impactNotify)+'</b></div>'+ 
-        '<div class="ov4-impact-item"><small>Follow-up</small><b>'+esc(impactFollow)+'</b></div>'+ 
-      '</div></div>';
+      var previewChoice=effectiveChoice;
+      if(previewChoice==='clarify'){
+        impactPanel='<div class="ov4-impact-panel"><div class="ov4-impact-grid"><div class="ov4-impact-item"><small>Status</small><b>'+esc(focusRow.readiness.label)+' → Awaiting response</b></div><div class="ov4-impact-item"><small>Next action</small><b>Provide requested clarification</b></div><div class="ov4-impact-item"><small>Owner</small><b>Student</b></div><div class="ov4-impact-item"><small>Follow-up created</small><b>Yes</b></div></div></div>';
+      }else if(previewChoice==='escalate'){
+        impactPanel='<div class="ov4-impact-panel"><div class="ov4-impact-grid"><div class="ov4-impact-item"><small>Status</small><b>'+esc(focusRow.readiness.label)+' → Awaiting response</b></div><div class="ov4-impact-item"><small>Next action</small><b>Site Coordinator review</b></div><div class="ov4-impact-item"><small>Owner</small><b>Site Coordinator</b></div><div class="ov4-impact-item"><small>Follow-up created</small><b>Yes · request context included</b></div></div></div>';
+      }else if(previewChoice==='deny'){
+        impactPanel='<div class="ov4-impact-panel"><div class="ov4-impact-grid"><div class="ov4-impact-item"><small>Status</small><b>'+esc(focusRow.readiness.label)+' → Denied</b></div><div class="ov4-impact-item"><small>Schedule</small><b>No change</b></div><div class="ov4-impact-item"><small>Next action</small><b>Notify student</b></div><div class="ov4-impact-item"><small>Follow-up created</small><b>No</b></div></div></div>';
+      }else{
+        impactPanel='<div class="ov4-impact-panel"><div class="ov4-impact-grid"><div class="ov4-impact-item"><small>Status</small><b>'+esc(focusRow.readiness.label)+' → Approved</b></div><div class="ov4-impact-item"><small>Affected record</small><b>'+esc(impactRecord)+'</b></div><div class="ov4-impact-item"><small>Operational change</small><b>'+esc(impactAfter)+'</b></div><div class="ov4-impact-item"><small>Next action</small><b>'+esc(impactFollow)+'</b></div></div></div>';
+      }
     }
   }
 
@@ -3101,6 +3131,10 @@ function viewOperatingView(){
   var trailSteps=[];
   if(!committed){
     trailSteps.push({state:'complete',time:'Captured',title:'Request assembled',detail:'Request, dates, student, and source normalized.'});
+    if(responseHistoryCurrent){
+      trailSteps.push({state:'complete',time:'Now',title:'Response received',detail:responseHistoryCurrent.type==='escalate'?'Site Coordinator response captured into the request history.':'Requested clarification captured into the request history.'});
+      trailSteps.push({state:'complete',time:'Now',title:'Evidence refreshed',detail:'Source freshness updated and Arc reassessed the request.'});
+    }
     trailSteps.push({state:'active',time:'Current',title:'Decision pending',detail:'Human review is required before any operational update.'});
     trailSteps.push({state:'',time:'Next',title:'Record update',detail:'Assignment or calendar remains unchanged.'});
     trailSteps.push({state:'',time:'Next',title:'Notifications',detail:'Messages remain in draft until a decision is committed.'});
@@ -3135,8 +3169,8 @@ function viewOperatingView(){
     trailSteps.push({state:'complete',time:'Captured',title:'Request assembled',detail:'Request, dates, student, and source normalized.'});
     trailSteps.push({state:'complete',time:'Now',title:'Decision recorded',detail:'Escalation and operator context saved to the request.'});
     trailSteps.push({state:'active',time:'Pending',title:'Record held',detail:'No assignment or calendar change was applied.'});
-    trailSteps.push({state:'complete',time:'Now',title:'Escalation routed',detail:'Program leadership receives the request and supporting evidence.'});
-    trailSteps.push({state:'warning',time:'Open',title:'Readiness unresolved',detail:'Request remains in review until leadership responds.'});
+    trailSteps.push({state:'complete',time:'Now',title:'Escalation routed',detail:'Site Coordinator receives the request, evidence, and operator context.'});
+    trailSteps.push({state:'warning',time:'Awaiting reply',title:'Awaiting response',detail:'Approval is held until the Site Coordinator response is captured.'});
   }
   var trailCols='repeat('+trailSteps.length+', minmax(150px,1fr))';
   var trailMinWidth=Math.max(trailSteps.length*150,760);
@@ -3152,7 +3186,7 @@ function viewOperatingView(){
           '<span class="student ov4-casefield"><small>Student</small><b>'+esc(student.name)+'</b></span>'+
           '<span class="ov4-request-type ov4-casefield"><small>Request</small><b>'+esc(requestLabel)+'</b></span>'+
           '<span class="ov4-dates ov4-casefield"><small>Dates</small><b>'+esc(dates)+'</b></span>'+
-          '<span class="ov4-status ov4-casefield"><small>Status</small><b>'+esc(isApprovedCurrent?'Approved':focusRow.readiness.label)+'</b></span>'+
+          '<span class="ov4-status ov4-casefield"><small>Status</small><b>'+esc(isAwaitingResponse?'Awaiting response':(isApprovedCurrent?'Approved':focusRow.readiness.label))+'</b></span>'+
           '<span class="ov4-confidence ov4-casefield"><small>Score</small><b>'+((isPriyaDemo&&isApprovedCurrent)?100:focusRow.readiness.score)+'%</b></span>'+
         '</div>'+
         '<div class="ov4-decision-body">'+summary+evidence+decisionQueue+makeDecision+
@@ -3163,8 +3197,9 @@ function viewOperatingView(){
       '<aside class="ov4-panel"><header class="ov4-panel-head ov4-queue-head"><div><h2>Attention Queue</h2><p>Student requests that still require judgment.</p></div></header>'+
         (activeCondition!=='All'?'<div class="ov4-queue-filter-note"><span>Showing '+activeCondition+' · '+queue.length+' request'+(queue.length===1?'':'s')+'</span><button data-act="ovconditionfilter" data-condition="All">Show all</button></div>':'')+
         '<div class="ov4-queue-list">'+(queueRows||'<div style="padding:22px;text-align:center;color:#64748B;font-size:12px">No requests match this condition.</div>')+'</div>'+
-        '<div class="ov4-followup"><div class="ov4-followup-head"><h3>My Tasks / Follow-up</h3><span>Owned work until closed</span></div>'+
-          ((ST.queueDecisions&&ST.queueDecisions['rq3']==='Approved'&&ST.ovTaskStatus!=='Complete')?'<div class="ov4-task"><div class="ov4-task-top"><div><b>Publish revised schedule</b><small>Created from Priya Shah · Move assignment</small></div><span class="ov4-task-status '+(ST.ovTaskStatus==='In progress'?'working':'open')+'">'+esc(ST.ovTaskStatus||'Open')+'</span></div><div class="meta"><span>Owner: Program Coordinator</span><span>Due: Today</span></div><div class="ov4-task-actions"><button data-act="ovtaskstatus" data-status="Open"'+(ST.ovTaskStatus==='Open'?' class="active"':'')+'>Open</button><button data-act="ovtaskstatus" data-status="In progress"'+(ST.ovTaskStatus==='In progress'?' class="active"':'')+'>In progress</button><button data-act="ovtaskstatus" data-status="Complete">Complete</button></div></div>':((ST.queueDecisions&&ST.queueDecisions['rq3']==='Approved'&&ST.ovTaskStatus==='Complete')?'<div class="ov4-task-empty"><b>Loop closed.</b> Priya’s follow-up task is complete and retained in the request history.</div>':'<div class="ov4-task-empty">No follow-up tasks created in this session.</div>'))+
+        '<div class="ov4-followup"><div class="ov4-followup-head"><h3>My Tasks / Follow-up</h3><span>Owned work until closed</span></div>'+ 
+          (followupCurrent&&followupCurrent.status!=='Complete'?'<div class="ov4-task"><div class="ov4-task-top"><div><b>'+esc(followupCurrent.task)+'</b><small>'+esc(followupCurrent.linked)+'</small></div><span class="ov4-task-status open">Awaiting response</span></div><div class="meta"><span>Owner: '+esc(followupCurrent.owner)+'</span><span>Requested: '+esc(followupCurrent.requested)+'</span></div><div class="ov4-task-actions"><button data-act="ovrecordresponse" data-id="'+esc(rq.id)+'">Record response</button></div></div>':
+          ((ST.queueDecisions&&ST.queueDecisions['rq3']==='Approved'&&ST.ovTaskStatus!=='Complete')?'<div class="ov4-task"><div class="ov4-task-top"><div><b>Publish revised schedule</b><small>Created from Priya Shah · Move assignment</small></div><span class="ov4-task-status '+(ST.ovTaskStatus==='In progress'?'working':'open')+'">'+esc(ST.ovTaskStatus||'Open')+'</span></div><div class="meta"><span>Owner: Program Coordinator</span><span>Due: Today</span></div><div class="ov4-task-actions"><button data-act="ovtaskstatus" data-status="Open"'+(ST.ovTaskStatus==='Open'?' class="active"':'')+'>Open</button><button data-act="ovtaskstatus" data-status="In progress"'+(ST.ovTaskStatus==='In progress'?' class="active"':'')+'>In progress</button><button data-act="ovtaskstatus" data-status="Complete">Complete</button></div></div>':((ST.queueDecisions&&ST.queueDecisions['rq3']==='Approved'&&ST.ovTaskStatus==='Complete')?'<div class="ov4-task-empty"><b>Loop closed.</b> Priya’s follow-up task is complete and retained in the request history.</div>':'<div class="ov4-task-empty">No follow-up tasks created in this session.</div>'))) +
         '</div>'+
       '</aside>'+
     '</section>'+
@@ -4448,7 +4483,7 @@ document.addEventListener('click',function(e){
   var act=t.getAttribute('data-act');
   if(act==='goto'){ST.view=t.getAttribute('data-v');if(ST.view==='dashboard')ST.view='overview';ST.siteFocus=null;render();}
   else if(act==='captureplay'){runArcCapture();}
-  else if(act==='home'){ST.role='leader';ST.view='overview';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;ST.queueFocus=null;ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.ovConditionFilter='All';ST.ovTaskStatus='Open';render();}
+  else if(act==='home'){ST.role='leader';ST.view='overview';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;ST.queueFocus=null;ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.ovConditionFilter='All';ST.ovTaskStatus='Open';ST.ovFollowups={};ST.ovResponseHistory={};render();}
   else if(act==='ovconditionfilter'){
     var nextCondition=t.getAttribute('data-condition')||'All';
     ST.ovConditionFilter=(ST.ovConditionFilter===nextCondition&&nextCondition!=='All')?'All':nextCondition;
@@ -4462,6 +4497,23 @@ document.addEventListener('click',function(e){
     render();
     if(nextTaskStatus==='Complete')toast('Task completed — Arc closed the loop.');
     else toast('Task status updated: '+nextTaskStatus);
+  }
+  else if(act==='ovrecordresponse'){
+    var responseId=t.getAttribute('data-id')||ST.queueFocus;
+    var rrq=requestById(responseId);
+    var rfollow=ST.ovFollowups&&ST.ovFollowups[responseId];
+    if(rrq&&rfollow){
+      if(!ST.ovResponseHistory)ST.ovResponseHistory={};
+      ST.ovResponseHistory[responseId]={type:rfollow.type,received:'Now'};
+      rfollow.status='Complete';
+      delete ST.ovFollowups[responseId];
+      ST.queueDecisions[responseId]=null;
+      rrq.status='Needs Review';rrq.closed=false;
+      ST.ovDecisionChoice=(responseId==='rq12'?'clarify':'approve');
+      ST.ovImpactOpen=true;ST.ovTrailOpen=true;
+      render();
+      toast('Response captured — evidence refreshed and request returned for decision.');
+    }
   }
   else if(act==='queuefocus'){
     /* VPOC trust rule: changing the selected request must create a clean workspace bind.
@@ -4488,6 +4540,12 @@ document.addEventListener('click',function(e){
     else if(oc==='clarify'){od.status='Returned';od.closed=false;ol='Clarification requested';}
     else {od.status='Needs Review';od.closed=false;ol='Escalated';}
     ST.queueDecisions[od.id]=ol;
+    if(!ST.ovFollowups)ST.ovFollowups={};
+    if(!ST.ovResponseHistory)ST.ovResponseHistory={};
+    delete ST.ovResponseHistory[od.id];
+    if(ol==='Clarification requested')ST.ovFollowups[od.id]={type:'clarify',task:'Provide requested clarification',owner:'Student',requested:'Now',linked:(orow.student?orow.student.name:'Student')+' · '+(TYPE_LABEL[od.type]||od.type),status:'Open'};
+    else if(ol==='Escalated')ST.ovFollowups[od.id]={type:'escalate',task:'Review request and respond',owner:'Site Coordinator',requested:'Now',linked:(orow.student?orow.student.name:'Student')+' · '+(TYPE_LABEL[od.type]||od.type),status:'Open'};
+    else delete ST.ovFollowups[od.id];
     if(od.id==='rq3'&&ol==='Approved')ST.ovTaskStatus='Open';
     ST.ovImpactOpen=true;
     ST.ovTrailOpen=true;
@@ -4682,7 +4740,7 @@ document.addEventListener('click',function(e){
     toast(s==='Approved'?'Request approved \u2014 re-checking the schedule.':'Request marked '+s.toLowerCase()+'.');
     render();
   }
-  else if(act==='reset'){ST.data=seed();ST.view='overview';ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.demoFlow=null;ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';ST.queueDecisions={};ST.ovDecisionChoice='approve';ST.ovImpactOpen=false;ST.ovTrailOpen=false;ST.ovTaskStatus='Open';toast('Demo reset to starting data.');render();}
+  else if(act==='reset'){ST.data=seed();ST.view='overview';ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.demoFlow=null;ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';ST.queueDecisions={};ST.ovDecisionChoice='approve';ST.ovImpactOpen=false;ST.ovTrailOpen=false;ST.ovTaskStatus='Open';ST.ovFollowups={};ST.ovResponseHistory={};toast('Demo reset to starting data.');render();}
 });
 document.addEventListener('change',function(e){
   var t=e.target.closest('[data-act="reassign"]');
