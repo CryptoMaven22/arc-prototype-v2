@@ -2546,7 +2546,7 @@ function bankFor(studentId){
 function badgeSt(s,sm){var c=STATUS[s]||STATUS['Not Checked'];return '<span class="badge-st'+(sm?' sm':'')+'" style="color:'+c.text+';background:'+c.bg+'"><span class="dot" style="background:'+c.dot+'"></span>'+s+'</span>';}
 function sevBadge(s){var c=SEV[s]||SEV.Low;return '<span class="sev" style="color:'+c.text+';background:'+c.bg+'">'+s+'</span>';}
 
-var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,requestFocus:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4',queueFocus:null,queueAction:null,queueStage:0,queueChoice:null,queueDecisions:{},ovDecisionChoice:'approve',ovImpactOpen:false,ovTrailOpen:false,ovConditionFilter:'All',ovTaskStatus:'Open',ovFollowups:{},ovResponseHistory:{},ovActionLocks:{},ovEventTimes:{}};
+var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,requestFocus:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4',queueFocus:null,queueAction:null,queueStage:0,queueChoice:null,queueDecisions:{},ovDecisionChoice:'approve',ovImpactOpen:false,ovTrailOpen:false,ovConditionFilter:'All',ovTaskStatus:'Open',ovFollowups:{},ovResponseHistory:{},ovActionLocks:{},ovEventTimes:{},ovCommitInFlight:false};
 var lastFocusedElement=null;
 
 function demoFlow(){
@@ -4660,7 +4660,7 @@ function resetDemoState(showConfirmation){
   ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';
   ST.queueFocus='rq12';ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.queueDecisions={};
   ST.ovDecisionChoice='clarify';ST.ovImpactOpen=false;ST.ovTrailOpen=false;ST.ovConditionFilter='All';
-  ST.ovTaskStatus='Open';ST.ovFollowups={};ST.ovResponseHistory={};ST.ovActionLocks={};ST.ovEventTimes={};ST.ovKeepResolvedFocus=false;
+  ST.ovTaskStatus='Open';ST.ovFollowups={};ST.ovResponseHistory={};ST.ovActionLocks={};ST.ovEventTimes={};ST.ovKeepResolvedFocus=false;ST.ovCommitInFlight=false;
   render();
   if(typeof window.scrollTo==='function')window.scrollTo(0,0);
   if(showConfirmation)toast('Demo reset — canonical starting state restored.');
@@ -4672,7 +4672,7 @@ document.addEventListener('click',function(e){
   var act=t.getAttribute('data-act');
   if(act==='goto'){ST.view=t.getAttribute('data-v');if(ST.view==='dashboard')ST.view='overview';ST.siteFocus=null;render();}
   else if(act==='captureplay'){runArcCapture();}
-  else if(act==='home'){ST.role='leader';ST.view='overview';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;ST.queueFocus=null;ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.ovConditionFilter='All';ST.ovTaskStatus='Open';ST.ovFollowups={};ST.ovResponseHistory={};ST.ovActionLocks={};ST.ovEventTimes={};render();}
+  else if(act==='home'){ST.role='leader';ST.view='overview';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;ST.queueFocus=null;ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.ovConditionFilter='All';ST.ovTaskStatus='Open';ST.ovFollowups={};ST.ovResponseHistory={};ST.ovActionLocks={};ST.ovEventTimes={};ST.ovCommitInFlight=false;render();}
   else if(act==='ovconditionfilter'){
     var nextCondition=t.getAttribute('data-condition')||'All';
     ST.ovConditionFilter=(ST.ovConditionFilter===nextCondition&&nextCondition!=='All')?'All':nextCondition;
@@ -4719,24 +4719,28 @@ document.addEventListener('click',function(e){
     }
   }
   else if(act==='queuefocus'){
-    /* VPOC trust rule: changing the selected request must create a clean workspace bind.
-       Clear every transient decision/detail state before re-rendering from the new focus row. */
+    /* Checkpoint 12 — no-op/cross-record isolation rule:
+       switching records discards uncommitted UI preview state only. It must never mutate the
+       request, queue counts, tasks, follow-ups, or execution history. */
     ST.queueFocus=t.getAttribute('data-id');
     ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;
     ST.ovDecisionChoice='approve';ST.ovImpactOpen=false;ST.ovTrailOpen=false;ST.ovKeepResolvedFocus=false;
+    ST.ovCommitInFlight=false;
     render();
   }
   else if(act==='ovtoggleimpact'){ST.ovImpactOpen=!ST.ovImpactOpen;render();}
   else if(act==='ovtoggletrail'){ST.ovTrailOpen=!ST.ovTrailOpen;render();}
-  else if(act==='ovdecisionselect'){ST.ovDecisionChoice=t.getAttribute('data-choice')||'approve';render();}
+  else if(act==='ovdecisionselect'){/* Preview only: no request/task/trail mutation until Make Decision. */ST.ovDecisionChoice=t.getAttribute('data-choice')||'approve';render();}
   else if(act==='ovmakedecision'){
     var oq=operatingQueue(), orow=oq.filter(function(r){return r.rq.id===ST.queueFocus;})[0]||oq[0];
     if(!orow)return;
+    if(ST.ovCommitInFlight){toast('Decision is already being recorded.');return;}
+    ST.ovCommitInFlight=true;
     var od=orow.rq, oc=t.getAttribute('data-choice')||ST.ovDecisionChoice||'approve', ol='Approved';
     if(od.id==='rq12'&&oc==='approve'){oc='clarify';}
     if(!ST.ovActionLocks)ST.ovActionLocks={};
     var actionLockKey=od.id+':'+oc;
-    if(ST.ovActionLocks[actionLockKey]){toast('That action is already recorded.');return;}
+    if(ST.ovActionLocks[actionLockKey]){ST.ovCommitInFlight=false;toast('That action is already recorded.');return;}
     ST.ovActionLocks[actionLockKey]=true;
     stampOvEvent(od.id+':decision');
     stampOvEvent(od.id+':record');
@@ -4751,6 +4755,9 @@ document.addEventListener('click',function(e){
     else {od.status='Needs Review';od.closed=false;ol='Escalated';}
     ST.queueDecisions[od.id]=ol;
     if(ol==='Approved'||ol==='Denied'){
+      /* Terminal decisions must not leave exception work hanging on the same request. */
+      if(ST.ovFollowups)delete ST.ovFollowups[od.id];
+      if(ST.ovResponseHistory)delete ST.ovResponseHistory[od.id];
       /* Keep the just-resolved request in the Decision Workspace as a completion confirmation,
          while removing it from the Attention Queue. */
       ST.queueFocus=od.id;ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.ovKeepResolvedFocus=true;
@@ -4777,6 +4784,7 @@ document.addEventListener('click',function(e){
     }else{
       toast('Decision recorded — '+ol+' · '+decisionName+'.');
     }
+    ST.ovCommitInFlight=false;
   }
   else if(act==='queueactionopen'){ST.queueAction=t.getAttribute('data-id');ST.queueFocus=ST.queueAction;ST.queueStage=1;ST.queueChoice=null;render();}
   else if(act==='queueactionclose'){ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;render();}
