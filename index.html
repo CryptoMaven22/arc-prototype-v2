@@ -2817,7 +2817,7 @@ function ageLabel(iso){
 }
 function operatingQueue(){
   var all=ST.data.requests
-    .filter(function(rq){return rq.status==='Requested'||rq.status==='Needs Review'||rq.status==='Returned'||rq.status==='Approved'||rq.status==='Denied';})
+    .filter(function(rq){return rq.status==='Requested'||rq.status==='Needs Review'||rq.status==='Returned'||rq.status==='Blocked'||rq.status==='Approved'||rq.status==='Denied';})
     .map(function(rq){
       var checks=checksForRequest(rq);
       var d=dominantCheck(checks);
