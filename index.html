@@ -2903,12 +2903,14 @@ function viewOperatingView(){
     return true;
   }
   var queue=allQueue.filter(function(r){return matchesLens(r,activeCondition);});
+  var fullOperatingQueue=operatingQueue();
   var conditionCountsEarly={
     Pending:allQueue.length,
     Late:allQueue.filter(isLate).length,
     Conflicting:allQueue.filter(hasVisibleConflict).length
   };
-  var focusRow=queue.filter(function(r){return r.rq.id===ST.queueFocus;})[0]||queue[0]||null;
+  var resolvedFocusRow=(ST.ovKeepResolvedFocus&&ST.queueFocus)?fullOperatingQueue.filter(function(r){return r.rq.id===ST.queueFocus;})[0]:null;
+  var focusRow=queue.filter(function(r){return r.rq.id===ST.queueFocus;})[0]||resolvedFocusRow||queue[0]||null;
   if(!focusRow){
     var emptySignals=[
       {label:'Pending',value:conditionCountsEarly.Pending,icon:'inbox',color:'#2B7A72',bg:'#EAF4F2',detail:'Open requests awaiting judgment'},
@@ -3101,11 +3103,12 @@ function viewOperatingView(){
 
   var recommendationLabel=isAwaitingResponse?'Awaiting response':(isApprovedCurrent?'Approved':(isPriyaDemo?'Approve':(isEmilyBlockedDemo?'Blocked':(isMarcusReadyDemo?'Ready':(isDanielReviewDemo?'Needs Review':focusRow.readiness.label)))));
   var recommendationText=isAwaitingResponse?(committedDecisionCurrent==='Escalated'?'Site Coordinator response is required before Arc can return this request to decision-ready status.':'Requested clarification must be received before Arc can return this request to decision-ready status.'):
+    (responseHistoryCurrent&&isEmilyBlockedDemo?'Response received and evidence refreshed. The required clinical-assignment conflict remains unresolved, so approval is still unavailable.':
     (isApprovedCurrent?'Priya’s assignment change has been committed. Her student readiness is fully reconciled; any downstream operational work is tracked separately.':
     (isPriyaDemo?'Capacity, calendar, and rotation requirements are satisfied. Approve the assignment change and notify the student and site.':
     (isEmilyBlockedDemo?'Do not approve until the required clinical-assignment conflict is resolved. Request clarification, escalate, or deny as appropriate.':
     (isDanielReviewDemo?'Review the remaining meeting-day allowance. Approve if the remaining allowance is acceptable; no hard conflict is present.':
-    (isMarcusReadyDemo?'All evaluated checks are clear. Approve the request.':(recommendation+'. '+reason))))));
+    (isMarcusReadyDemo?'All evaluated checks are clear. Approve the request.':(recommendation+'. '+reason)))))));
   var recommendationConfidence=(isPriyaDemo&&isApprovedCurrent)?100:focusRow.readiness.score;
   var confidenceBand=recommendationConfidence<50?'low':(recommendationConfidence<80?'review':'high');
   var decisionQueue='<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">3</span>Recommendation</div><div class="ov4-section-content"><div class="ov4-recommendation"><div><span class="ov4-recommendation-label">Arc recommendation</span><strong class="ov4-recommendation-value">'+esc(recommendationLabel)+'</strong><p>'+esc(recommendationText)+'</p></div><span class="ov4-confidence-pill '+confidenceBand+'">'+recommendationConfidence+'% confidence</span></div></div></section>';
@@ -3116,7 +3119,9 @@ function viewOperatingView(){
     '<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Decision committed</div><div class="ov4-section-content"><div class="queue-success" style="--decision:#16A34A"><h3>Request approved</h3><p>Priya’s assignment change is committed. The schedule was updated, readiness was recalculated, and notifications are ready.</p></div></div></section>':
     (isAwaitingResponse?
     '<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Awaiting response</div><div class="ov4-section-content"><div class="queue-success" style="--decision:#C9871F"><h3>Decision temporarily held</h3><p>'+esc(committedDecisionCurrent==='Escalated'?'Site Coordinator owns the response. Arc will hold approval until the response is captured and evidence is refreshed.':'The requested information is outstanding. Arc will hold approval until the response is captured and evidence is refreshed.')+'</p></div></div></section>':
-    '<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Make decision</div><div class="ov4-section-content"><div class="ov4-decision-grid"><div class="ov4-choice-grid">'+
+    '<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Make decision</div><div class="ov4-section-content">'+
+      (responseHistoryCurrent?'<div class="queue-success" style="--decision:#2B7A72;margin-bottom:10px"><h3>Response received — evidence refreshed</h3><p>Arc captured the response and returned this request for decision. Review the refreshed evidence and choose the next action.</p></div>':'')+
+      '<div class="ov4-decision-grid"><div class="ov4-choice-grid">'+
       choiceButton('approve','Approve','check')+
       choiceButton('deny','Deny','x')+
       choiceButton('clarify','Request clarification','info')+
@@ -4589,7 +4594,7 @@ function resetDemoState(showConfirmation){
   ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';
   ST.queueFocus='rq12';ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.queueDecisions={};
   ST.ovDecisionChoice='clarify';ST.ovImpactOpen=false;ST.ovTrailOpen=false;ST.ovConditionFilter='All';
-  ST.ovTaskStatus='Open';ST.ovFollowups={};ST.ovResponseHistory={};ST.ovActionLocks={};ST.ovEventTimes={};
+  ST.ovTaskStatus='Open';ST.ovFollowups={};ST.ovResponseHistory={};ST.ovActionLocks={};ST.ovEventTimes={};ST.ovKeepResolvedFocus=false;
   render();
   if(typeof window.scrollTo==='function')window.scrollTo(0,0);
   if(showConfirmation)toast('Demo reset — canonical starting state restored.');
@@ -4605,7 +4610,7 @@ document.addEventListener('click',function(e){
   else if(act==='ovconditionfilter'){
     var nextCondition=t.getAttribute('data-condition')||'All';
     ST.ovConditionFilter=(ST.ovConditionFilter===nextCondition&&nextCondition!=='All')?'All':nextCondition;
-    ST.queueFocus=null;ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.ovImpactOpen=false;ST.ovTrailOpen=false;
+    ST.queueFocus=null;ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.ovImpactOpen=false;ST.ovTrailOpen=false;ST.ovKeepResolvedFocus=false;
     render();
   }
   else if(act==='ovtaskstatus'){
@@ -4633,6 +4638,8 @@ document.addEventListener('click',function(e){
       delete ST.ovFollowups[responseId];
       ST.queueDecisions[responseId]=null;
       rrq.status='Needs Review';rrq.closed=false;
+      ST.queueFocus=responseId;
+      ST.ovKeepResolvedFocus=false;
       ST.ovDecisionChoice=(responseId==='rq12'?'clarify':'approve');
       ST.ovImpactOpen=true;ST.ovTrailOpen=true;
       render();
@@ -4644,7 +4651,7 @@ document.addEventListener('click',function(e){
        Clear every transient decision/detail state before re-rendering from the new focus row. */
     ST.queueFocus=t.getAttribute('data-id');
     ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;
-    ST.ovDecisionChoice='approve';ST.ovImpactOpen=false;ST.ovTrailOpen=false;
+    ST.ovDecisionChoice='approve';ST.ovImpactOpen=false;ST.ovTrailOpen=false;ST.ovKeepResolvedFocus=false;
     render();
   }
   else if(act==='ovtoggleimpact'){ST.ovImpactOpen=!ST.ovImpactOpen;render();}
@@ -4672,7 +4679,11 @@ document.addEventListener('click',function(e){
     else {od.status='Needs Review';od.closed=false;ol='Escalated';}
     ST.queueDecisions[od.id]=ol;
     if(ol==='Approved'||ol==='Denied'){
-      ST.queueFocus=null;ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;
+      /* Keep the just-resolved request in the Decision Workspace as a completion confirmation,
+         while removing it from the Attention Queue. */
+      ST.queueFocus=od.id;ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.ovKeepResolvedFocus=true;
+    }else{
+      ST.ovKeepResolvedFocus=false;
     }
     if(!ST.ovFollowups)ST.ovFollowups={};
     if(!ST.ovResponseHistory)ST.ovResponseHistory={};
