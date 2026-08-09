@@ -1814,6 +1814,9 @@
   .ov4-task-actions .ov4-primary-response:hover{border-color:#0B5C53;background:#0B5C53;color:#fff}
   .ov4-task-actions .ov4-primary-complete{margin-left:auto;border-color:#0E6E63;background:#0E6E63;color:#fff;padding:8px 14px;font-size:10px;font-weight:800;box-shadow:0 1px 0 rgba(0,0,0,.03)}
   .ov4-task-actions .ov4-primary-complete:hover{border-color:#0B5C53;background:#0B5C53;color:#fff}
+
+  /* Checkpoint 15 — final hardening: only the true next task action is visually primary. */
+  .ov4-task-actions .ov4-primary-response,.ov4-task-actions .ov4-primary-complete{min-width:92px}
   .ov4-task-empty{font-size:10px;color:#7A8999;padding:4px 0 2px}
   .ov4-task-empty b{color:#0B4F47}
   .ov4-followup-count{display:inline-flex;align-items:center;gap:4px;font-size:9.5px;font-weight:800;color:#0B4F47;background:#E7F1EF;border-radius:999px;padding:3px 7px}
@@ -2389,6 +2392,15 @@
   .ov4-trail-step .ov4-trail-detail{order:4;margin-top:4px;font-size:10px;color:#65778A;line-height:1.4}
   .ov4-trail-step small{font-size:9.5px;text-transform:none;letter-spacing:0;color:#7A8999;font-weight:650}
 </style>
+
+<style>
+  /* Checkpoint 14 — resolved request reference state + task traceability */
+  .ov4-resolved-banner{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 12px 0;padding:9px 11px;border:1px solid #CFE0DB;border-radius:9px;background:#F5FAF8;color:#28594F;font-size:10.5px}
+  .ov4-resolved-banner b{font-size:11px;color:#1F4F46}
+  .ov4-resolved-banner span{color:#60776F}
+  .ov4-task-linked-note{display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:3px 7px;border-radius:999px;background:#F1F5F9;color:#52677C;font-size:9px;font-weight:700}
+</style>
+
 </head>
 <body>
 <!-- Arc operational workspace. Capture now sits directly beneath Overview in the primary workflow. -->
@@ -2887,14 +2899,15 @@ function requestDetailPanel(row){
 
 function viewOperatingView(){
   var vpocQueueIds={rq12:true,rq4:true,rq3:true,rq2:true};
+  function isResolvedDecision(id){
+    var committed=ST.queueDecisions&&ST.queueDecisions[id];
+    return committed==='Approved'||committed==='Denied';
+  }
   var allQueue=operatingQueue().filter(function(r){
-    var committed=ST.queueDecisions&&ST.queueDecisions[r.rq.id];
-    /* VPOC repair: the Attention Queue is intentionally limited to the four
-       canonical decision examples used in the demo. This prevents historical
-       Ready/100 records from flooding the queue while still allowing Marcus's
-       Ready-but-undecided request to demonstrate a clean approval case. */
+    /* Attention Queue = unresolved judgment only. Resolved decision work stays
+       available through request history and My Tasks / Follow-up, never here. */
     if(!vpocQueueIds[r.rq.id])return false;
-    return committed!=='Approved' && committed!=='Denied';
+    return !isResolvedDecision(r.rq.id);
   });
   var activeCondition=ST.ovConditionFilter||'All';
   /* Checkpoint 04 repair v2: summary cards are literal, overlapping lenses into
@@ -2931,8 +2944,8 @@ function viewOperatingView(){
       var active=activeCondition===s.label;
       return '<button class="ov4-signal'+(active?' active':'')+'" data-act="ovconditionfilter" data-condition="'+s.label+'" style="--sig:'+s.color+';--sig-bg:'+s.bg+'" aria-pressed="'+(active?'true':'false')+'"><span class="ov4-signal-icon">'+ic(s.icon,17,s.color)+'</span><div><div class="ov4-signal-label">'+s.label+'</div><div class="ov4-signal-value">'+s.value+'</div><div class="ov4-signal-detail">'+s.detail+'</div></div></button>';
     }).join('');
-    var emptyTitle=allQueue.length?'No matching requests':'No requests require judgment';
-    var emptyCopy=allQueue.length?'No requests currently match the '+esc(activeCondition)+' filter. Choose another lens or show all attention.':'The Attention Queue is clear. Resolved work remains available in request history.';
+    var emptyTitle='No matching requests';
+    var emptyCopy=allQueue.length?'No requests currently match the '+esc(activeCondition)+' filter. Choose another lens or show all attention.':'No requests currently require judgment. Resolved work remains available in request history.';
     return '<div class="ov4-page"><section class="ov4-command"><div class="ov4-command-intro"><h1>Operating View</h1><p>See the system. Work the exception. Close the loop.</p></div>'+emptySignalHtml+'</section><section class="ov4-work"><article class="ov4-panel"><div class="ov4-empty-state" style="padding:48px 30px;text-align:center"><h2 style="margin:0 0 8px">'+emptyTitle+'</h2><p style="margin:0;color:#64748B">'+emptyCopy+'</p>'+(activeCondition!=='All'?'<button class="tbtn" style="margin-top:16px" data-act="ovconditionfilter" data-condition="All">Show all attention</button>':'')+'</div></article><aside class="ov4-panel"><header class="ov4-panel-head ov4-queue-head"><div><h2>Attention Queue</h2><p>Student requests that still require judgment.</p></div></header><div class="ov4-queue-list"><div style="padding:28px;text-align:center;color:#64748B;font-size:12px">'+emptyTitle+'.</div></div><div class="ov4-followup"><div class="ov4-followup-head"><h3>My Tasks / Follow-up</h3><span>Owned work until closed</span></div><div class="ov4-task-empty">No open follow-up tasks.</div></div></aside></section></div>';
   }
 
@@ -3043,6 +3056,8 @@ function viewOperatingView(){
   var isEmilyBlockedDemo=rq.id==='rq12';
   var committedDecisionCurrent=ST.queueDecisions&&ST.queueDecisions[rq.id];
   var isApprovedCurrent=committedDecisionCurrent==='Approved';
+  var isDeniedCurrent=committedDecisionCurrent==='Denied';
+  var isResolvedReference=!!(ST.ovKeepResolvedFocus&&(isApprovedCurrent||isDeniedCurrent));
   var isAwaitingResponse=committedDecisionCurrent==='Clarification requested'||committedDecisionCurrent==='Escalated';
   /* Checkpoint 13 — My Tasks / Follow-up is a true cross-request operating queue. */
   var activeFollowups=[];
@@ -3088,7 +3103,7 @@ function viewOperatingView(){
       actions='<div class="ov4-task-actions"><button data-act="ovtaskstatus" data-status="Open"'+(ST.ovTaskStatus==='Open'?' class="active"':'')+'>Open</button><button data-act="ovtaskstatus" data-status="In progress"'+(ST.ovTaskStatus==='In progress'?' class="active"':'')+'>In progress</button><button class="ov4-primary-complete" data-act="ovtaskstatus" data-status="Complete">Complete</button></div>';
     }
     var timingLabel=isResponse?'Requested':'Created';
-    return '<div class="ov4-task" data-act="ovtaskfocus" data-id="'+esc(task.id)+'"><div class="ov4-task-top"><div><b>'+esc(task.task)+'</b><small>Linked request: '+esc(task.linked)+'</small></div><div class="ov4-task-top-right"><span class="ov4-task-type">'+esc(taskTypeLabel(task.type))+'</span><span class="ov4-task-status '+statusClass+'">'+esc(task.status)+'</span></div></div><div class="meta"><span>Owner: '+esc(task.owner)+'</span><span>'+timingLabel+': '+esc(task.requested)+'</span><span>Status: '+esc(task.status)+'</span></div>'+actions+'</div>';
+    return '<div class="ov4-task" data-act="ovtaskfocus" data-id="'+esc(task.id)+'" title="Open linked request"><div class="ov4-task-top"><div><b>'+esc(task.task)+'</b><small>Linked request: '+esc(task.linked)+'</small><span class="ov4-task-linked-note">Open linked request →</span></div><div class="ov4-task-top-right"><span class="ov4-task-type">'+esc(taskTypeLabel(task.type))+'</span><span class="ov4-task-status '+statusClass+'">'+esc(task.status)+'</span></div></div><div class="meta"><span>Owner: '+esc(task.owner)+'</span><span>'+timingLabel+': '+esc(task.requested)+'</span><span>Status: '+esc(task.status)+'</span></div>'+actions+'</div>';
   }
   var followupHtml=activeFollowups.length?'<div class="ov4-task-list">'+activeFollowups.map(renderFollowupTask).join('')+'</div>':'<div class="ov4-task-empty">No open follow-up tasks.</div>';
   var responseHistoryCurrent=ST.ovResponseHistory&&ST.ovResponseHistory[rq.id];
@@ -3175,7 +3190,7 @@ function viewOperatingView(){
     evidenceItem('Source freshness',responseHistoryCurrent?'Updated from response':'Current')+
   '</div><div class="ov4-evidence-overall"><b>Overall:</b> '+esc(overallText)+'</div></div></section>';
 
-  var recommendationLabel=isAwaitingResponse?'Awaiting response':(isApprovedCurrent?'Approved':(isPriyaDemo?'Approve':(isEmilyBlockedDemo?'Blocked':(isMarcusReadyDemo?'Ready':(isDanielReviewDemo?'Needs Review':focusRow.readiness.label)))));
+  var recommendationLabel=isAwaitingResponse?'Awaiting response':(isApprovedCurrent?'Approved':(isDeniedCurrent?'Denied':(isPriyaDemo?'Approve':(isEmilyBlockedDemo?'Blocked':(isMarcusReadyDemo?'Ready':(isDanielReviewDemo?'Needs Review':focusRow.readiness.label))))));
   var recommendationText=isAwaitingResponse?(committedDecisionCurrent==='Escalated'?'Site Coordinator response is required before Arc can return this request to decision-ready status.':'Requested clarification must be received before Arc can return this request to decision-ready status.'):
     (responseHistoryCurrent&&isEmilyBlockedDemo?'Response received and evidence refreshed. The required clinical-assignment conflict remains unresolved, so approval is still unavailable.':
     (isApprovedCurrent?(isPriyaDemo?'Priya’s assignment change has been committed. Her student readiness is fully reconciled; downstream publishing work is tracked separately.':(isDanielReviewDemo?'Daniel’s meeting-day request has been approved. Human review is complete and the request is fully resolved.':(isMarcusReadyDemo?'Marcus’s ready request has been approved and fully resolved.':'The approved request is fully resolved.'))):
@@ -3192,8 +3207,8 @@ function viewOperatingView(){
   if(isEmilyBlockedDemo&&responseHistoryCurrent&&choice==='clarify')effectiveChoice='escalate';
   var effectiveChoiceLabel=effectiveChoice==='approve'?'Approve':(effectiveChoice==='deny'?'Deny':(effectiveChoice==='clarify'?'Request clarification':'Escalate'));
   var approvedDecisionCopy=isPriyaDemo?'Priya’s assignment change is committed. Readiness is 100, and the downstream publishing task is now owned separately.':(isDanielReviewDemo?'Daniel’s meeting-day request is approved. Human review is complete, readiness is 100, and no follow-up task is required.':(isMarcusReadyDemo?'Marcus’s ready request is approved. Readiness is 100 and the request is closed with no follow-up required.':'The request is approved and fully reconciled.'));
-  var makeDecision=isApprovedCurrent?
-    '<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Decision committed</div><div class="ov4-section-content"><div class="queue-success" style="--decision:#16A34A"><h3>Request approved</h3><p>'+esc(approvedDecisionCopy)+'</p></div></div></section>':
+  var makeDecision=(isApprovedCurrent||isDeniedCurrent)?
+    '<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Decision committed</div><div class="ov4-section-content"><div class="queue-success" style="--decision:'+(isDeniedCurrent?'#A95555':'#16A34A')+'"><h3>'+(isDeniedCurrent?'Request denied':'Request approved')+'</h3><p>'+esc(isDeniedCurrent?'The decision is closed. This request is shown for reference only; no judgment action is active.':approvedDecisionCopy)+'</p></div></div></section>':
     (isAwaitingResponse?
     '<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Awaiting response</div><div class="ov4-section-content"><div class="queue-success" style="--decision:#C9871F"><h3>Decision temporarily held</h3><p>'+esc(committedDecisionCurrent==='Escalated'?'Site Coordinator owns the response. Arc will hold approval until the response is captured and evidence is refreshed.':'The requested information is outstanding. Arc will hold approval until the response is captured and evidence is refreshed.')+'</p></div></div></section>':
     '<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Make decision</div><div class="ov4-section-content">'+
@@ -3380,6 +3395,13 @@ function viewOperatingView(){
     addTrail('complete','Escalation routed','System',ovEventTime(rq.id+':followup','Now'),'Owner: Site Coordinator','Request, evidence, and operator context delivered.');
     addTrail('warning','Awaiting response','Site Coordinator','Pending','Approval held','Arc will reassess when the response is captured.');
   }
+  /* Task-to-request traceability: if this request still owns downstream work, show it in the
+     request history as well as in My Tasks / Follow-up. */
+  var linkedOpenTask=activeFollowups.filter(function(tf){return tf.id===rq.id;})[0];
+  var alreadyShowsPriyaTask=(committed==='Approved'&&isPriyaDemo);
+  if(linkedOpenTask&&!alreadyShowsPriyaTask){
+    addTrail('active','Open follow-up','Arc','Current',linkedOpenTask.task,'Owner: '+linkedOpenTask.owner+' · Status: '+linkedOpenTask.status+' · Type: '+taskTypeLabel(linkedOpenTask.type));
+  }
   var trailCols='repeat('+trailSteps.length+', minmax(150px,1fr))';
   var trailMinWidth=Math.max(trailSteps.length*150,760);
   var trailPanel=ST.ovTrailOpen?'<div class="ov4-trail-panel"><div class="ov4-trail" style="grid-template-columns:'+trailCols+';min-width:'+trailMinWidth+'px">'+trailSteps.map(function(s){return '<div class="ov4-trail-step '+s.state+'"><b>'+esc(s.title)+'</b><div class="ov4-trail-meta"><i class="ov4-trail-dot"></i><small>'+esc(s.actor)+' · '+esc(s.time)+'</small></div>'+(s.proof?'<div class="ov4-trail-proof">'+esc(s.proof)+'</div>':'')+(s.detail?'<div class="ov4-trail-detail">'+esc(s.detail)+'</div>':'')+'</div>';}).join('')+'</div></div>':'';
@@ -3390,11 +3412,12 @@ function viewOperatingView(){
     '</section>'+
     '<section class="ov4-work">'+
       '<article class="ov4-panel"><header class="ov4-panel-head"><div><h2>Decision Workspace</h2></div><span class="ov4-request-id">'+esc(String(rq.id||'CHG-2026-0914-027').toUpperCase())+'</span></header>'+
+        (isResolvedReference?'<div class="ov4-resolved-banner"><b>Resolved request · reference view</b><span>Decision is closed. Active downstream work can continue without reopening judgment.</span></div>':'')+
         '<div class="ov4-casebar">'+
           '<span class="student ov4-casefield"><small>Student</small><b>'+esc(student.name)+'</b></span>'+
           '<span class="ov4-request-type ov4-casefield"><small>Request</small><b>'+esc(requestLabel)+'</b></span>'+
           '<span class="ov4-dates ov4-casefield"><small>Dates</small><b>'+esc(dates)+'</b></span>'+
-          '<span class="ov4-status ov4-casefield"><small>Status</small><b>'+esc(isAwaitingResponse?'Awaiting response':(isApprovedCurrent?'Approved':focusRow.readiness.label))+'</b></span>'+
+          '<span class="ov4-status ov4-casefield"><small>Status</small><b>'+esc(isAwaitingResponse?'Awaiting response':(isApprovedCurrent?'Approved':(isDeniedCurrent?'Denied':focusRow.readiness.label)))+'</b></span>'+
           '<span class="ov4-confidence ov4-casefield"><small>Score</small><b>'+((isPriyaDemo&&isApprovedCurrent)?100:focusRow.readiness.score)+'%</b></span>'+
         '</div>'+
         '<div class="ov4-decision-body">'+summary+evidence+decisionQueue+makeDecision+
@@ -4712,6 +4735,8 @@ function resetDemoState(showConfirmation){
   ST.queueFocus='rq12';ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.queueDecisions={};
   ST.ovDecisionChoice='clarify';ST.ovImpactOpen=false;ST.ovTrailOpen=false;ST.ovConditionFilter='All';
   ST.ovTaskStatus='Open';ST.ovPriyaTaskCreatedAt=0;ST.ovFollowups={};ST.ovResponseHistory={};ST.ovActionLocks={};ST.ovEventTimes={};ST.ovKeepResolvedFocus=false;ST.ovCommitInFlight=false;
+  /* Canonical demo reset: no decisions, no tasks, no filters, no transient response state. */
+  ST.queueDecisions={};ST.queueFocus='rq12';ST.ovDecisionChoice='clarify';ST.ovConditionFilter='All';
   render();
   if(typeof window.scrollTo==='function')window.scrollTo(0,0);
   if(showConfirmation)toast('Demo reset — canonical starting state restored.');
@@ -4735,7 +4760,9 @@ document.addEventListener('click',function(e){
     if(taskFocusId){
       ST.queueFocus=taskFocusId;
       ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;
-      ST.ovDecisionChoice='approve';ST.ovImpactOpen=false;ST.ovTrailOpen=false;ST.ovKeepResolvedFocus=false;
+      var taskDecision=ST.queueDecisions&&ST.queueDecisions[taskFocusId];
+      ST.ovKeepResolvedFocus=(taskDecision==='Approved'||taskDecision==='Denied');
+      ST.ovDecisionChoice='approve';ST.ovImpactOpen=false;ST.ovTrailOpen=true;
       render();
     }
   }
@@ -4745,6 +4772,7 @@ document.addEventListener('click',function(e){
     ST.ovTaskStatus=nextTaskStatus;
     if(nextTaskStatus==='Complete'){stampOvEvent('rq3:taskcomplete');stampOvEvent('rq3:loopclosed');}
     else stampOvEvent('rq3:taskstatus:'+nextTaskStatus);
+    if(ST.queueDecisions&&ST.queueDecisions['rq3']==='Approved'&&ST.queueFocus==='rq3')ST.ovKeepResolvedFocus=true;
     ST.ovTrailOpen=true;
     render();
     if(nextTaskStatus==='Complete')toast('Task completed — Arc closed the loop.');
@@ -4756,7 +4784,10 @@ document.addEventListener('click',function(e){
     if(resolutionFollowup&&resolutionFollowup.type==='resolution'){
       resolutionFollowup.status='Complete';
       stampOvEvent(resolutionId+':resolutioncomplete');
+      stampOvEvent(resolutionId+':taskclosed');
       delete ST.ovFollowups[resolutionId];
+      var resolutionDecision=ST.queueDecisions&&ST.queueDecisions[resolutionId];
+      ST.ovKeepResolvedFocus=(resolutionDecision==='Approved'||resolutionDecision==='Denied');
       ST.ovTrailOpen=true;
       render();
       toast('Follow-up completed — coordinator resolution recorded.');
@@ -5251,5 +5282,6 @@ window.addEventListener('hashchange',function(){
 })();
 </script>
 
+<!-- Checkpoint 14: Changes 67–71 — resolved reference state + linked task traceability -->
 </body></html>
 <script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_HtmuNRAFgACSejK4nZwcpVrDkLzN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_Cp3YwdBSW58B2z4jMHyYwq3SS7FM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_212ZZKQ76m76PK6skyQFHKYfEu4u" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_71RMNwqH1WDEHXTJG4jP5D5qmMCz" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_7rcy9uSJ9HqcQz1hUEB7zNPUqfRq" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_FV849egG16YvZYmwwLZUTsMb96fN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_5UyvHp3wekJqPQTDSeSK7emm69sx" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_89ZtfmKDTf5CUJYHqWnfQXypbh4x" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_21TJ6o7StFq1DBvXwRU2uCSyW1J8" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_E46fpy4z6qLRnbvQ9rgsL9pXuLxn" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_J1Zd3LJp5eNYkvJRRqXEbak9Z9Xd" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_BhxuV3e7RxEY5FVwarvnpnR3MCxN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_BqK1jGiwgBmK2DMZ12McTskitrQU" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_CnA149KpM2td6NEDSDocaTfoEYkf" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_64EW74bkhacQMZeweWcSfYVJXpea" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_C8N7sKFTZtBywFKCMeA63NMJdpaK" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_EquExTyjBzqhwct6UVikcM1v1LHe" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_5DTsFrZybLvJKwMZgeLUa29cpdBX" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_5D9xFXCTipiWxR235A4ruX683FxM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_8t1TLKM3Za2jKAUrBBDfncL6mZLx" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_E5b1RPKswNnA5jRCaPZr75icM886" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_Az48eNktkkoRXN2qMhreQbqJ5TFY" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
