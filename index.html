@@ -2945,7 +2945,8 @@ function viewOperatingView(){
     var currentChoice=committedKey||ST.ovDecisionChoice||defaultChoice;
     if(isHardBlocked&&currentChoice==='approve')currentChoice='clarify';
     var selected=currentChoice===key;
-    var disabled=isHardBlocked&&key==='approve';
+    var responseReceivedForHardBlock=isHardBlocked&&ST.ovResponseHistory&&ST.ovResponseHistory[focusRow.rq.id];
+    var disabled=(isHardBlocked&&key==='approve')||(responseReceivedForHardBlock&&key==='clarify');
     var renderedIcon=disabled?ic('lock',12,'currentColor'):(selected?ic('check',11,'#fff'):ic(iconName,12,'currentColor'));
     return '<button class="ov4-choice'+(selected?' selected':'')+'" data-act="ovdecisionselect" data-choice="'+key+'"'+(disabled?' disabled aria-disabled="true"':'')+'><span class="ov4-choice-radio">'+renderedIcon+'</span><span>'+label+'</span></button>';
   }
@@ -4633,14 +4634,20 @@ document.addEventListener('click',function(e){
       var responseTime=stampOvEvent(responseId+':response');
       stampOvEvent(responseId+':evidence');
       ST.ovResponseHistory[responseId]={type:rfollow.type,received:responseTime};
-      if(ST.ovActionLocks){delete ST.ovActionLocks[responseId+':clarify'];delete ST.ovActionLocks[responseId+':escalate'];}
+      if(ST.ovActionLocks){
+        /* A hard-block clarification response is evidence, not permission to repeat the same loop. */
+        if(responseId!=='rq12')delete ST.ovActionLocks[responseId+':clarify'];
+        delete ST.ovActionLocks[responseId+':escalate'];
+      }
       rfollow.status='Complete';
       delete ST.ovFollowups[responseId];
       ST.queueDecisions[responseId]=null;
-      rrq.status='Needs Review';rrq.closed=false;
+      rrq.status=(responseId==='rq12'?'Blocked':'Needs Review');rrq.closed=false;
       ST.queueFocus=responseId;
       ST.ovKeepResolvedFocus=false;
-      ST.ovDecisionChoice=(responseId==='rq12'?'clarify':'approve');
+      /* Emily's response does not resolve the hard calendar conflict. Move the next decision forward
+         to escalation rather than silently recreating the same clarification loop. */
+      ST.ovDecisionChoice=(responseId==='rq12'?'escalate':'approve');
       ST.ovImpactOpen=true;ST.ovTrailOpen=true;
       render();
       toast('Response captured — evidence refreshed and request returned for decision.');
