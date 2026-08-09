@@ -2822,9 +2822,9 @@ function operatingQueue(){
          ready, review, and blocked examples instead of clustering at 100. */
       var demoScores={rq2:85,rq3:70,rq4:65,rq12:35};
       if(Object.prototype.hasOwnProperty.call(demoScores,rq.id))readiness=readinessFromScore(demoScores[rq.id]);
-      /* VPOC trust rule: once Priya's decision is committed and the student is resolved,
-         the readiness state must reconcile immediately rather than retaining the pre-decision 70. */
-      if(rq.id==='rq3' && ST.queueDecisions && ST.queueDecisions[rq.id]==='Approved')readiness=readinessFromScore(100);
+      /* VPOC trust rule: once a canonical request is approved, the resolved request must
+         reconcile to 100 rather than carrying its pre-decision readiness score. */
+      if((rq.id==='rq2'||rq.id==='rq3'||rq.id==='rq4') && ST.queueDecisions && ST.queueDecisions[rq.id]==='Approved')readiness=readinessFromScore(100);
       return {
         rq:rq,
         student:ST.data.students.filter(function(s){return s.id===rq.studentId;})[0],
@@ -2941,12 +2941,16 @@ function viewOperatingView(){
     var committed=ST.queueDecisions&&focusRow&&focusRow.rq?ST.queueDecisions[focusRow.rq.id]:null;
     var committedKey=committed==='Approved'?'approve':(committed==='Denied'?'deny':(committed==='Clarification requested'?'clarify':(committed==='Escalated'?'escalate':null)));
     var isHardBlocked=focusRow&&focusRow.rq&&focusRow.rq.id==='rq12';
-    var defaultChoice=isHardBlocked?'clarify':'approve';
+    var responseHistoryForRecord=ST.ovResponseHistory&&ST.ovResponseHistory[focusRow.rq.id];
+    var defaultChoice=isHardBlocked?(responseHistoryForRecord?'escalate':'clarify'):'approve';
     var currentChoice=committedKey||ST.ovDecisionChoice||defaultChoice;
-    if(isHardBlocked&&currentChoice==='approve')currentChoice='clarify';
+    if(isHardBlocked&&currentChoice==='approve')currentChoice=responseHistoryForRecord?'escalate':'clarify';
+    if(responseHistoryForRecord&&responseHistoryForRecord.type==='clarify'&&currentChoice==='clarify')currentChoice=isHardBlocked?'escalate':'approve';
+    if(responseHistoryForRecord&&responseHistoryForRecord.type==='escalate'&&currentChoice==='escalate')currentChoice=isHardBlocked?'deny':'approve';
     var selected=currentChoice===key;
-    var responseReceivedForHardBlock=isHardBlocked&&ST.ovResponseHistory&&ST.ovResponseHistory[focusRow.rq.id];
-    var disabled=(isHardBlocked&&key==='approve')||(responseReceivedForHardBlock&&key==='clarify');
+    var disabled=(isHardBlocked&&key==='approve')||
+      (responseHistoryForRecord&&responseHistoryForRecord.type==='clarify'&&key==='clarify')||
+      (responseHistoryForRecord&&responseHistoryForRecord.type==='escalate'&&key==='escalate');
     var renderedIcon=disabled?ic('lock',12,'currentColor'):(selected?ic('check',11,'#fff'):ic(iconName,12,'currentColor'));
     return '<button class="ov4-choice'+(selected?' selected':'')+'" data-act="ovdecisionselect" data-choice="'+key+'"'+(disabled?' disabled aria-disabled="true"':'')+'><span class="ov4-choice-radio">'+renderedIcon+'</span><span>'+label+'</span></button>';
   }
@@ -3033,12 +3037,11 @@ function viewOperatingView(){
   var followupCurrent=ST.ovFollowups&&ST.ovFollowups[rq.id];
   var responseHistoryCurrent=ST.ovResponseHistory&&ST.ovResponseHistory[rq.id];
   if(isPriyaDemo){
-    capacityValue='Confirmed';
-    ruleValue='Passed';
-    if(isApprovedCurrent){
-      overlapValue='None';
-      calendarValue='No conflict';
-    }
+    capacityValue='Within capacity';
+    allowanceValue='Within policy';
+    calendarValue='No conflict';
+    overlapValue='None';
+    ruleValue=isApprovedCurrent?'Passed':'Human review required';
   }
   if(isDanielReviewDemo){
     capacityValue='Not affected';
@@ -3068,7 +3071,7 @@ function viewOperatingView(){
   if(overlapValue==='Yes')reviewReasons.push('absence overlap');
   var overallText;
   if(isPriyaDemo){
-    overallText='No hard conflicts found. Preceptor coverage is confirmed for the requested dates.';
+    overallText=isApprovedCurrent?'All evaluated checks are clear. The approved request is fully reconciled.':'No hard conflicts detected. Policy checks pass. Human judgment is required before approval.';
   }else if(isDanielReviewDemo){
     overallText='No hard conflicts found. The request is within policy, but the remaining meeting-day allowance is low and requires coordinator review.';
   }else if(isMarcusReadyDemo){
@@ -3105,19 +3108,22 @@ function viewOperatingView(){
   var recommendationLabel=isAwaitingResponse?'Awaiting response':(isApprovedCurrent?'Approved':(isPriyaDemo?'Approve':(isEmilyBlockedDemo?'Blocked':(isMarcusReadyDemo?'Ready':(isDanielReviewDemo?'Needs Review':focusRow.readiness.label)))));
   var recommendationText=isAwaitingResponse?(committedDecisionCurrent==='Escalated'?'Site Coordinator response is required before Arc can return this request to decision-ready status.':'Requested clarification must be received before Arc can return this request to decision-ready status.'):
     (responseHistoryCurrent&&isEmilyBlockedDemo?'Response received and evidence refreshed. The required clinical-assignment conflict remains unresolved, so approval is still unavailable.':
-    (isApprovedCurrent?'Priya’s assignment change has been committed. Her student readiness is fully reconciled; any downstream operational work is tracked separately.':
+    (isApprovedCurrent?(isPriyaDemo?'Priya’s assignment change has been committed. Her student readiness is fully reconciled; downstream publishing work is tracked separately.':(isDanielReviewDemo?'Daniel’s meeting-day request has been approved. Human review is complete and the request is fully resolved.':(isMarcusReadyDemo?'Marcus’s ready request has been approved and fully resolved.':'The approved request is fully resolved.'))):
     (isPriyaDemo?'Capacity, calendar, and rotation requirements are satisfied. Approve the assignment change and notify the student and site.':
     (isEmilyBlockedDemo?'Do not approve until the required clinical-assignment conflict is resolved. Request clarification, escalate, or deny as appropriate.':
     (isDanielReviewDemo?'Review the remaining meeting-day allowance. Approve if the remaining allowance is acceptable; no hard conflict is present.':
     (isMarcusReadyDemo?'All evaluated checks are clear. Approve the request.':(recommendation+'. '+reason)))))));
-  var recommendationConfidence=(isPriyaDemo&&isApprovedCurrent)?100:focusRow.readiness.score;
+  var recommendationConfidence=isApprovedCurrent?100:focusRow.readiness.score;
   var confidenceBand=recommendationConfidence<50?'low':(recommendationConfidence<80?'review':'high');
   var decisionQueue='<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">3</span>Recommendation</div><div class="ov4-section-content"><div class="ov4-recommendation"><div><span class="ov4-recommendation-label">Arc recommendation</span><strong class="ov4-recommendation-value">'+esc(recommendationLabel)+'</strong><p>'+esc(recommendationText)+'</p></div><span class="ov4-confidence-pill '+confidenceBand+'">'+recommendationConfidence+'% confidence</span></div></div></section>';
 
-  var effectiveChoice=isEmilyBlockedDemo&&choice==='approve'?'clarify':choice;
+  var effectiveChoice=choice;
+  if(isEmilyBlockedDemo&&choice==='approve')effectiveChoice=responseHistoryCurrent?'escalate':'clarify';
+  if(isEmilyBlockedDemo&&responseHistoryCurrent&&choice==='clarify')effectiveChoice='escalate';
   var effectiveChoiceLabel=effectiveChoice==='approve'?'Approve':(effectiveChoice==='deny'?'Deny':(effectiveChoice==='clarify'?'Request clarification':'Escalate'));
+  var approvedDecisionCopy=isPriyaDemo?'Priya’s assignment change is committed. Readiness is 100, and the downstream publishing task is now owned separately.':(isDanielReviewDemo?'Daniel’s meeting-day request is approved. Human review is complete, readiness is 100, and no follow-up task is required.':(isMarcusReadyDemo?'Marcus’s ready request is approved. Readiness is 100 and the request is closed with no follow-up required.':'The request is approved and fully reconciled.'));
   var makeDecision=isApprovedCurrent?
-    '<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Decision committed</div><div class="ov4-section-content"><div class="queue-success" style="--decision:#16A34A"><h3>Request approved</h3><p>Priya’s assignment change is committed. The schedule was updated, readiness was recalculated, and notifications are ready.</p></div></div></section>':
+    '<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Decision committed</div><div class="ov4-section-content"><div class="queue-success" style="--decision:#16A34A"><h3>Request approved</h3><p>'+esc(approvedDecisionCopy)+'</p></div></div></section>':
     (isAwaitingResponse?
     '<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Awaiting response</div><div class="ov4-section-content"><div class="queue-success" style="--decision:#C9871F"><h3>Decision temporarily held</h3><p>'+esc(committedDecisionCurrent==='Escalated'?'Site Coordinator owns the response. Arc will hold approval until the response is captured and evidence is refreshed.':'The requested information is outstanding. Arc will hold approval until the response is captured and evidence is refreshed.')+'</p></div></div></section>':
     '<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Make decision</div><div class="ov4-section-content">'+
@@ -3174,6 +3180,20 @@ function viewOperatingView(){
         '<div class="ov4-impact-item"><small>Assignment</small><b>Jul 6–10 → Jul 13–17</b></div>'+ 
         '<div class="ov4-impact-item"><small>Next action</small><b>Publish revised schedule</b></div>'+ 
         '<div class="ov4-impact-item"><small>Task created</small><b>Yes · Program Coordinator · Due today</b></div>'+ 
+      '</div></div>';
+    }else if(isDanielReviewDemo && isApprovedCurrent){
+      impactPanel='<div class="ov4-impact-panel"><div class="ov4-impact-grid">'+
+        '<div class="ov4-impact-item"><small>Readiness</small><b>65% → 100%</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Status</small><b>Needs Review → Approved</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Human review</small><b>Completed</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Follow-up created</small><b>No · Request closed</b></div>'+ 
+      '</div></div>';
+    }else if(isMarcusReadyDemo && isApprovedCurrent){
+      impactPanel='<div class="ov4-impact-panel"><div class="ov4-impact-grid">'+
+        '<div class="ov4-impact-item"><small>Readiness</small><b>85% → 100%</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Status</small><b>Ready → Approved</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Decision</small><b>Clean approval</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Follow-up created</small><b>No · Request closed</b></div>'+ 
       '</div></div>';
     }else if(committedDecisionCurrent==='Clarification requested'){
       impactPanel='<div class="ov4-impact-panel"><div class="ov4-impact-grid">'+
@@ -3237,6 +3257,18 @@ function viewOperatingView(){
       }else{
         addTrail('active','Next action created','Arc',ovEventTime('rq3:followup','6:15 AM'),'Publish revised schedule','Owner: Program Coordinator · Due today · Status: '+esc(ST.ovTaskStatus||'Open'));
       }
+    }else if(isDanielReviewDemo){
+      addTrail('complete','Request assembled','Arc',capturedTime,'Request normalized','Request, dates, student, and source connected.');
+      addTrail('complete','Decision recorded','Program Coordinator',ovEventTime(rq.id+':decision','Now'),'Needs Review → Approved','Human review of the remaining meeting-day allowance is complete.');
+      addTrail('complete','Record updated','System',ovEventTime(rq.id+':record','Now'),'Meeting day approved','Program record updated for '+dates+'.');
+      addTrail('complete','Readiness recalculated','Arc',ovEventTime(rq.id+':readiness','Now'),'65% → 100%','Evidence re-evaluated after the coordinator decision.');
+      addTrail('complete','Request closed','System',ovEventTime(rq.id+':followup','Now'),'No open obligations','No downstream task is required.');
+    }else if(isMarcusReadyDemo){
+      addTrail('complete','Request assembled','Arc',capturedTime,'Request normalized','Request, dates, student, and source connected.');
+      addTrail('complete','Decision recorded','Program Coordinator',ovEventTime(rq.id+':decision','Now'),'Ready → Approved','Clean approval saved to the request.');
+      addTrail('complete','Record updated','System',ovEventTime(rq.id+':record','Now'),'DNP day approved','Program calendar updated for '+dates+'.');
+      addTrail('complete','Readiness recalculated','Arc',ovEventTime(rq.id+':readiness','Now'),'85% → 100%','All evaluated checks remain clear after approval.');
+      addTrail('complete','Request closed','System',ovEventTime(rq.id+':followup','Now'),'No open obligations','No downstream task is required.');
     }else{
       addTrail('complete','Request assembled','Arc',capturedTime,'Request normalized','Request, dates, student, and source connected.');
       addTrail('complete','Decision recorded','Program Coordinator',ovEventTime(rq.id+':decision','Now'),'Decision → Approved','Approval and operator judgment saved to the request.');
@@ -4635,9 +4667,8 @@ document.addEventListener('click',function(e){
       stampOvEvent(responseId+':evidence');
       ST.ovResponseHistory[responseId]={type:rfollow.type,received:responseTime};
       if(ST.ovActionLocks){
-        /* A hard-block clarification response is evidence, not permission to repeat the same loop. */
-        if(responseId!=='rq12')delete ST.ovActionLocks[responseId+':clarify'];
-        delete ST.ovActionLocks[responseId+':escalate'];
+        /* A captured response advances the workflow; do not immediately recreate the same
+           clarification/escalation loop in the VPOC. The prior action remains recorded. */
       }
       rfollow.status='Complete';
       delete ST.ovFollowups[responseId];
