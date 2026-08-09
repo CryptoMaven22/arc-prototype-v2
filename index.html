@@ -2873,7 +2873,7 @@ function viewOperatingView(){
        Ready/100 records from flooding the queue while still allowing Marcus's
        Ready-but-undecided request to demonstrate a clean approval case. */
     if(!vpocQueueIds[r.rq.id])return false;
-    return committed!=='Approved';
+    return committed!=='Approved' && committed!=='Denied';
   });
   var activeCondition=ST.ovConditionFilter||'All';
   /* Checkpoint 04 repair v2: summary cards are literal, overlapping lenses into
@@ -2881,10 +2881,9 @@ function viewOperatingView(){
      Late and Conflicting are subsets, not mutually exclusive buckets. */
   function isLate(r){return ageDays(r.age)>14;}
   function hasVisibleConflict(r){
-    if(r.rq&&r.rq.id==='rq12')return true; // canonical Emily hard-block example
-    return (r.checks||[]).some(function(c){
-      return c.severity==='High' || /conflict|hard block/i.test(String(c.type||'')+' '+String(c.summary||'')+' '+String(c.detail||''));
-    });
+    /* VPOC canonical lens: Emily is the single visible hard-conflict exemplar.
+       Other review-required records should not inflate the Conflicting count. */
+    return !!(r.rq&&r.rq.id==='rq12');
   }
   function matchesLens(r,lens){
     if(lens==='Pending'||lens==='All')return true;
@@ -2893,9 +2892,25 @@ function viewOperatingView(){
     return true;
   }
   var queue=allQueue.filter(function(r){return matchesLens(r,activeCondition);});
-  var focusRow=queue.filter(function(r){return r.rq.id===ST.queueFocus;})[0]||queue[0]||allQueue[0];
+  var conditionCountsEarly={
+    Pending:allQueue.length,
+    Late:allQueue.filter(isLate).length,
+    Conflicting:allQueue.filter(hasVisibleConflict).length
+  };
+  var focusRow=queue.filter(function(r){return r.rq.id===ST.queueFocus;})[0]||queue[0]||null;
   if(!focusRow){
-    return '<div class="ov4-page"><section class="ov4-command"><div class="ov4-command-intro"><h1>Operating View</h1><p>See the system. Work the exception. Close the loop.</p></div></section><section class="ov4-panel" style="padding:30px;text-align:center">No active requests.</section></div>';
+    var emptySignals=[
+      {label:'Pending',value:conditionCountsEarly.Pending,icon:'inbox',color:'#2B7A72',bg:'#EAF4F2',detail:'Open requests awaiting judgment'},
+      {label:'Late',value:conditionCountsEarly.Late,icon:'clock',color:'#C9871F',bg:'#FBF3E5',detail:'Open 15+ days'},
+      {label:'Conflicting',value:conditionCountsEarly.Conflicting,icon:'alert',color:'#A95555',bg:'#F8ECEC',detail:'Requests with a visible conflict'}
+    ];
+    var emptySignalHtml=emptySignals.map(function(s){
+      var active=activeCondition===s.label;
+      return '<button class="ov4-signal'+(active?' active':'')+'" data-act="ovconditionfilter" data-condition="'+s.label+'" style="--sig:'+s.color+';--sig-bg:'+s.bg+'" aria-pressed="'+(active?'true':'false')+'"><span class="ov4-signal-icon">'+ic(s.icon,17,s.color)+'</span><div><div class="ov4-signal-label">'+s.label+'</div><div class="ov4-signal-value">'+s.value+'</div><div class="ov4-signal-detail">'+s.detail+'</div></div></button>';
+    }).join('');
+    var emptyTitle=allQueue.length?'No matching requests':'No requests require judgment';
+    var emptyCopy=allQueue.length?'No requests currently match the '+esc(activeCondition)+' filter. Choose another lens or show all attention.':'The Attention Queue is clear. Resolved work remains available in request history.';
+    return '<div class="ov4-page"><section class="ov4-command"><div class="ov4-command-intro"><h1>Operating View</h1><p>See the system. Work the exception. Close the loop.</p></div>'+emptySignalHtml+'</section><section class="ov4-work"><article class="ov4-panel"><div class="ov4-empty-state" style="padding:48px 30px;text-align:center"><h2 style="margin:0 0 8px">'+emptyTitle+'</h2><p style="margin:0;color:#64748B">'+emptyCopy+'</p>'+(activeCondition!=='All'?'<button class="tbtn" style="margin-top:16px" data-act="ovconditionfilter" data-condition="All">Show all attention</button>':'')+'</div></article><aside class="ov4-panel"><header class="ov4-panel-head ov4-queue-head"><div><h2>Attention Queue</h2><p>Student requests that still require judgment.</p></div></header><div class="ov4-queue-list"><div style="padding:28px;text-align:center;color:#64748B;font-size:12px">'+emptyTitle+'.</div></div><div class="ov4-followup"><div class="ov4-followup-head"><h3>My Tasks / Follow-up</h3><span>Owned work until closed</span></div><div class="ov4-task-empty">No follow-up tasks created in this session.</div></div></aside></section></div>';
   }
 
   function ageDays(x){var n=parseInt(x,10);return isNaN(n)?0:n;}
@@ -2922,11 +2937,7 @@ function viewOperatingView(){
     return '<button class="ov4-choice'+(selected?' selected':'')+'" data-act="ovdecisionselect" data-choice="'+key+'"'+(disabled?' disabled aria-disabled="true"':'')+'><span class="ov4-choice-radio">'+renderedIcon+'</span><span>'+label+'</span></button>';
   }
 
-  var conditionCounts={
-    Pending:allQueue.length,
-    Late:allQueue.filter(isLate).length,
-    Conflicting:allQueue.filter(hasVisibleConflict).length
-  };
+  var conditionCounts=conditionCountsEarly;
   var choice=ST.ovDecisionChoice||'approve';
   var choiceLabel=choice==='approve'?'Approve':(choice==='deny'?'Deny':(choice==='clarify'?'Request clarification':'Escalate'));
   var rq=focusRow.rq;
@@ -4532,6 +4543,29 @@ function runArcCapture(){
 }
 
 
+
+function clearArcToast(){
+  var t=document.getElementById('toast');
+  if(t)t.innerHTML='';
+  if(toastTimer){clearTimeout(toastTimer);toastTimer=null;}
+}
+function resetDemoState(showConfirmation){
+  clearArcToast();
+  ST.data=seed();
+  ST.view='overview';
+  ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.siteFocus=null;
+  ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;
+  ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;
+  ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.demoFlow=null;
+  ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';
+  ST.queueFocus='rq12';ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.queueDecisions={};
+  ST.ovDecisionChoice='clarify';ST.ovImpactOpen=false;ST.ovTrailOpen=false;ST.ovConditionFilter='All';
+  ST.ovTaskStatus='Open';ST.ovFollowups={};ST.ovResponseHistory={};
+  render();
+  if(typeof window.scrollTo==='function')window.scrollTo(0,0);
+  if(showConfirmation)toast('Demo reset — canonical starting state restored.');
+}
+
 document.addEventListener('click',function(e){
   var t=e.target.closest('[data-act]');
   if(!t)return;
@@ -4595,6 +4629,9 @@ document.addEventListener('click',function(e){
     else if(oc==='clarify'){od.status='Returned';od.closed=false;ol='Clarification requested';}
     else {od.status='Needs Review';od.closed=false;ol='Escalated';}
     ST.queueDecisions[od.id]=ol;
+    if(ol==='Approved'||ol==='Denied'){
+      ST.queueFocus=null;ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;
+    }
     if(!ST.ovFollowups)ST.ovFollowups={};
     if(!ST.ovResponseHistory)ST.ovResponseHistory={};
     delete ST.ovResponseHistory[od.id];
@@ -4613,7 +4650,7 @@ document.addEventListener('click',function(e){
   else if(act==='queueback'){ST.queueStage=1;ST.queueChoice=null;render();}
   else if(act==='queuesubmit'){
     var qd=requestById(ST.queueAction), qc=ST.queueChoice, qn=document.getElementById('queueDecisionNote');
-    if(qd){qd.notes=(qn&&qn.value.trim())||qd.notes;if(qc==='approve'){qd.status='Approved';qd.closed=true;qd.published=true;qd.notificationsSent=3;var qa=assignmentById(qd.assignmentId);if(qa){qa.start=qd.start;qa.end=qd.end;qa.published=true;qa.preceptorConfirmed=true;}}else if(qc==='return'){qd.status='Returned';qd.closed=false;qd.notificationsSent=1;}else{qd.status='Denied';qd.closed=true;qd.notificationsSent=1;}ST.queueDecisions[qd.id]=qd.status;}
+    if(qd){qd.notes=(qn&&qn.value.trim())||qd.notes;if(qc==='approve'){qd.status='Approved';qd.closed=true;qd.published=true;qd.notificationsSent=3;var qa=assignmentById(qd.assignmentId);if(qa){qa.start=qd.start;qa.end=qd.end;qa.published=true;qa.preceptorConfirmed=true;}}else if(qc==='return'){qd.status='Returned';qd.closed=false;qd.notificationsSent=1;}else{qd.status='Denied';qd.closed=true;qd.notificationsSent=1;}ST.queueDecisions[qd.id]=qd.status;if(qd.status==='Approved'||qd.status==='Denied')ST.queueFocus=null;}
     ST.queueStage=3;toast('Decision submitted and operational record updated.');render();
   }
   else if(act==='open'){ST.openStudentId=null;ST.openId=t.getAttribute('data-id');renderOverlay();}
@@ -4795,7 +4832,7 @@ document.addEventListener('click',function(e){
     toast(s==='Approved'?'Request approved \u2014 re-checking the schedule.':'Request marked '+s.toLowerCase()+'.');
     render();
   }
-  else if(act==='reset'){ST.data=seed();ST.view='overview';ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.siteFocus=null;ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.demoFlow=null;ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';ST.queueDecisions={};ST.ovDecisionChoice='approve';ST.ovImpactOpen=false;ST.ovTrailOpen=false;ST.ovTaskStatus='Open';ST.ovFollowups={};ST.ovResponseHistory={};toast('Demo reset to starting data.');render();}
+  else if(act==='reset'){resetDemoState(true);}
 });
 document.addEventListener('change',function(e){
   var t=e.target.closest('[data-act="reassign"]');
@@ -4831,33 +4868,14 @@ document.addEventListener('keydown',function(e){
 
 // Always open Arc on the Operating View page (view key: 'overview') while resetting transient demo overlays.
 function startArc(){
-  ST.view='overview';
-  ST.role='leader';
-  ST.siteFocus=null;
-  ST.openId=null;
-  ST.openStudentId=null;
-  ST.requestFocus=null;
-  ST.kpi=null;
-  ST.kpiDeep=null;
-  ST.aiInsight=null;
-  ST.readinessInfo=null;
-  ST.coverageView=null;
-  ST.coverageSub=false;
-  ST.coverageGapOnly=false;
-  ST.calendarCell=null;
-  ST.demoCard=null;
-  ST.demoStage=1;
-  ST.about=false;
-  ST.ovImpactOpen=false;
-  ST.ovTrailOpen=false;
-  render();
+  resetDemoState(false);
 }
 if(document.readyState==='loading'){
   document.addEventListener('DOMContentLoaded',startArc,{once:true});
 }else{
   startArc();
 }
-window.addEventListener('pageshow',function(event){if(event.persisted)render();});
+window.addEventListener('pageshow',function(event){if(event.persisted)resetDemoState(false);});
 window.addEventListener('hashchange',function(){
   var requested=(location.hash||'').replace(/^#/,'');
   if(VIEWS[requested] && ST.view!==requested){ST.view=requested;render();}
