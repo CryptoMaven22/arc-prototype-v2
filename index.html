@@ -2358,6 +2358,16 @@
   }
 </style>
 
+
+<style>
+/* Checkpoint 06 — archetype clarity */
+.ov4-choice.is-primary-ready{border-color:#9FD9B7;background:#F0FBF4;box-shadow:inset 0 0 0 1px #CDEED9}
+.ov4-choice.is-primary-ready .ov4-choice-title{font-weight:800}
+.ov4-rule-review{color:#B45309 !important;font-weight:700}
+.ov4-rule-block{color:#B91C1C !important;font-weight:700}
+.ov4-rule-pass{color:#166534 !important;font-weight:700}
+</style>
+
 </head>
 <body>
 <!-- Arc operational workspace. Capture now sits directly beneath Overview in the primary workflow. -->
@@ -4964,6 +4974,34 @@ window.addEventListener('hashchange',function(){
   });
 
   observer.observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+
+
+<script>
+(function(){
+  function txt(el){return (el&&el.textContent||'').trim()}
+  function enhance(){
+    const bodyText=document.body.innerText||'';
+    // Daniel: amber human-review cue anywhere the phrase appears
+    document.querySelectorAll('*').forEach(el=>{
+      const t=txt(el);
+      if(t==='2 days remaining · Human review required' || t==='Human review required') el.classList.add('ov4-rule-review');
+      if(t==='Conflict detected' || t==='Hard block' || t==='Blocked'){
+        if(el.closest('.ov4-section')) el.classList.add('ov4-rule-block');
+      }
+    });
+    // Ready record: make Approve clearly primary when current workspace is Marcus / Ready
+    const casebar = document.querySelector('.ov4-casebar');
+    const readyContext = bodyText.includes('Marcus Hill') && bodyText.includes('85') && bodyText.includes('Ready');
+    if(readyContext){
+      document.querySelectorAll('.ov4-choice').forEach(ch=>{
+        if(/Approve/i.test(txt(ch))) ch.classList.add('is-primary-ready');
+      });
+    }
+  }
+  const mo=new MutationObserver(()=>requestAnimationFrame(enhance));
+  window.addEventListener('DOMContentLoaded',()=>{enhance();mo.observe(document.body,{subtree:true,childList:true,characterData:true});});
 })();
 </script>
 
