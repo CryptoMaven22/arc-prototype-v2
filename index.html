@@ -4749,11 +4749,11 @@ function resetDemoState(showConfirmation){
   ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;
   ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.demoFlow=null;
   ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';
-  ST.queueFocus='rq12';ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.queueDecisions={};
+  ST.queueFocus='rq4';ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.queueDecisions={};
   ST.ovDecisionChoice='clarify';ST.ovImpactOpen=false;ST.ovTrailOpen=false;ST.ovConditionFilter='All';
   ST.ovTaskStatus='Open';ST.ovPriyaTaskCreatedAt=0;ST.ovFollowups={};ST.ovResponseHistory={};ST.ovResolutionHistory={};ST.ovActionLocks={};ST.ovEventTimes={};ST.ovKeepResolvedFocus=false;ST.ovCommitInFlight=false;
   /* Canonical demo reset: no decisions, no tasks, no filters, no transient response state. */
-  ST.queueDecisions={};ST.queueFocus='rq12';ST.ovDecisionChoice='clarify';ST.ovConditionFilter='All';
+  ST.queueDecisions={};ST.queueFocus='rq4';ST.ovDecisionChoice='approve';ST.ovConditionFilter='All';
   render();
   if(typeof window.scrollTo==='function')window.scrollTo(0,0);
   if(showConfirmation)toast('Demo reset — canonical starting state restored.');
