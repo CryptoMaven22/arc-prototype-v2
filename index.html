@@ -2907,13 +2907,14 @@ function operatingQueue(){
          ready, review, and blocked examples instead of clustering at 100. */
       var demoScores={rq2:85,rq3:70,rq4:65,rq12:35};
       if(Object.prototype.hasOwnProperty.call(demoScores,rq.id))readiness=readinessFromScore(demoScores[rq.id]);
-      /* Once Emily's coordinator-resolution task is confirmed, the hard conflict is cleared.
+      /* Once Emily's Site Coordinator response confirms resolution, the hard conflict is cleared.
          The request remains in Attention because a final human decision is still required,
          but its readiness advances from Blocked to Ready. */
-      if(rq.id==='rq12'&&ST.ovResolutionHistory&&ST.ovResolutionHistory[rq.id])readiness=readinessFromScore(85);
+      var emilyResolutionReady=(rq.id==='rq12'&&ST.ovResolutionHistory&&ST.ovResolutionHistory[rq.id]);
+      if(emilyResolutionReady)readiness=readinessFromScore(85);
       /* VPOC trust rule: once a canonical request is approved, the resolved request must
          reconcile to 100 rather than carrying its pre-decision readiness score. */
-      if((rq.id==='rq2'||rq.id==='rq3'||rq.id==='rq4') && ST.queueDecisions && ST.queueDecisions[rq.id]==='Approved')readiness=readinessFromScore(100);
+      if((rq.id==='rq2'||rq.id==='rq3'||rq.id==='rq4'||rq.id==='rq12') && ST.queueDecisions && ST.queueDecisions[rq.id]==='Approved')readiness=readinessFromScore(100);
       return {
         rq:rq,
         student:ST.data.students.filter(function(s){return s.id===rq.studentId;})[0],
@@ -2921,7 +2922,7 @@ function operatingQueue(){
         title:requestTitleLabel(rq,checks),
         impact:d?d.severity:'Low',
         readiness:readiness,
-        nextAction:nextActionLabel(checks,rq),
+        nextAction:emilyResolutionReady?'Approve meeting day':nextActionLabel(checks,rq),
         checks:checks,
         dominant:d,
         age:ageLabel(requestTimestamp(rq))
@@ -2983,8 +2984,9 @@ function viewOperatingView(){
   function isLate(r){return ageDays(r.age)>14;}
   function hasVisibleConflict(r){
     /* VPOC canonical lens: Emily is the single visible hard-conflict exemplar.
-       Other review-required records should not inflate the Conflicting count. */
-    return !!(r.rq&&r.rq.id==='rq12');
+       Once the Site Coordinator response clears that conflict, the Conflicting lens
+       must reconcile immediately even though Emily still awaits the final decision. */
+    return !!(r.rq&&r.rq.id==='rq12'&&!(ST.ovResolutionHistory&&ST.ovResolutionHistory[r.rq.id]));
   }
   function matchesLens(r,lens){
     if(lens==='Pending'||lens==='All')return true;
@@ -3284,9 +3286,9 @@ function viewOperatingView(){
   var effectiveChoice=choice;
   if(isEmilyBlockedDemo&&!isEmilyResolutionComplete&&choice==='approve')effectiveChoice=responseHistoryCurrent?'escalate':'clarify';
   if(isEmilyBlockedDemo&&!isEmilyResolutionComplete&&responseHistoryCurrent&&choice==='clarify')effectiveChoice='escalate';
-  /* Keep the commit CTA reconciled with the visible selected decision after an escalation response.
-     choiceButton() already advances Emily away from a completed escalation; the CTA must do the same. */
-  if(responseHistoryCurrent&&responseHistoryCurrent.type==='escalate'&&effectiveChoice==='escalate')effectiveChoice=isEmilyBlockedDemo?'deny':'approve';
+  /* A completed escalation response advances Emily to decision-ready. The response handler
+     sets the canonical next choice to Approve after the conflict is cleared. */
+  if(responseHistoryCurrent&&responseHistoryCurrent.type==='escalate'&&effectiveChoice==='escalate')effectiveChoice='approve';
   if(isEmilyResolutionComplete)effectiveChoice=choice||'approve';
   var effectiveChoiceLabel=effectiveChoice==='approve'?'Approve':(effectiveChoice==='deny'?'Deny':(effectiveChoice==='clarify'?'Request clarification':'Escalate'));
   var approvedDecisionCopy=isPriyaDemo?'Priya’s assignment change is committed. Readiness is 100, and the downstream publishing task is now owned separately.':(isDanielReviewDemo?'Daniel’s meeting-day request is approved. Human review is complete, readiness is 100, and no follow-up task is required.':(isMarcusReadyDemo?'Marcus’s ready request is approved. Readiness is 100 and the request is closed with no follow-up required.':'The request is approved and fully reconciled.'));
@@ -3364,10 +3366,11 @@ function viewOperatingView(){
         '<div class="ov4-impact-item"><small>Follow-up created</small><b>No · Request closed</b></div>'+ 
       '</div></div>';
     }else if(responseHistoryCurrent&&!committedDecisionCurrent){
+      var responseStatusText=isEmilyBlockedDemo?(isEmilyResolutionComplete?'Ready · conflict resolved':'Blocked · no material change'):'Needs Review · decision resumed';
       impactPanel='<div class="ov4-impact-panel"><div class="ov4-impact-grid">'+
         '<div class="ov4-impact-item"><small>Response</small><b>Recorded</b></div>'+ 
         '<div class="ov4-impact-item"><small>Evidence</small><b>Refreshed</b></div>'+ 
-        '<div class="ov4-impact-item"><small>Status recalculated</small><b>'+esc(isEmilyBlockedDemo?'Blocked · no material change':'Needs Review · decision resumed')+'</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Status recalculated</small><b>'+esc(responseStatusText)+'</b></div>'+ 
         '<div class="ov4-impact-item"><small>Next action</small><b>'+esc(responseNextAction)+'</b></div>'+ 
       '</div></div>';
     }else if(committedDecisionCurrent==='Clarification requested'){
@@ -3423,8 +3426,13 @@ function viewOperatingView(){
       }
       addTrail('complete','Response received',responseHistoryCurrent.type==='escalate'?'Site Coordinator':'Student',ovEventTime(rq.id+':response',responseHistoryCurrent.received||'Now'),'Response captured','New information saved to the request history.');
       addTrail('complete','Evidence refreshed','Arc',ovEventTime(rq.id+':evidence','Now'),'Evidence re-evaluated','Source freshness updated from the response.');
-      addTrail('complete','Status recalculated','Arc',ovEventTime(rq.id+':status','Now'),isEmilyBlockedDemo?'Blocked · no material change':'Needs Review · decision resumed',isEmilyBlockedDemo?'The hard clinical-assignment conflict remains.':'The response was incorporated and the request is decision-ready again.');
-      addTrail('active','Next action','Program Coordinator','Current',isEmilyBlockedDemo?'Escalate or deny':'Resume decision review',isEmilyBlockedDemo?'Approval remains unavailable until the hard conflict is resolved.':'Review the refreshed evidence and make the next decision.');
+      if(isEmilyBlockedDemo&&isEmilyResolutionComplete){
+        addTrail('complete','Status recalculated','Arc',ovEventTime(rq.id+':status','Now'),'Ready · conflict resolved','The Site Coordinator response cleared the required clinical-assignment conflict.');
+        addTrail('active','Final decision','Program Coordinator','Current','Approve or deny','Review the refreshed evidence and complete the final program decision.');
+      }else{
+        addTrail('complete','Status recalculated','Arc',ovEventTime(rq.id+':status','Now'),isEmilyBlockedDemo?'Blocked · no material change':'Needs Review · decision resumed',isEmilyBlockedDemo?'The hard clinical-assignment conflict remains.':'The response was incorporated and the request is decision-ready again.');
+        addTrail('active','Next action','Program Coordinator','Current',isEmilyBlockedDemo?'Escalate or deny':'Resume decision review',isEmilyBlockedDemo?'Approval remains unavailable until the hard conflict is resolved.':'Review the refreshed evidence and make the next decision.');
+      }
     }else{
       addTrail('active','Decision pending','Program Coordinator','Current',focusRow.readiness.label,'Human review is required before any operational update.');
     }
@@ -4905,29 +4913,32 @@ document.addEventListener('click',function(e){
       rfollow.status='Complete';
       delete ST.ovFollowups[responseId];
       ST.queueDecisions[responseId]=null;
-      rrq.status=(responseId==='rq12'?'Blocked':'Needs Review');rrq.closed=false;
-      /* If Emily's escalation response does not clear the hard conflict, the response task is done
-         but the workflow is not. Create the next owned work item rather than leaving Follow-up empty. */
-      if(responseId==='rq12'&&rfollow.type==='escalate'){
-        ST.ovFollowups[responseId]={
-          type:'resolution',
-          task:'Resolve clinical-assignment conflict',
-          owner:'Program Coordinator',
-          requested:'Now',
-          linked:'Emily Parker · Meeting day',
-          status:'Open',
-          createdAt:Date.now()
-        };
-        stampOvEvent(responseId+':resolutiontask');
+
+      /* Emily's canonical VPOC state machine:
+         clarification response -> hard conflict still present -> escalation recommended;
+         Site Coordinator response -> conflict resolved -> evidence refreshed -> final decision ready.
+         The coordinator response itself is the resolution event, so there is no extra synthetic
+         "Resolve conflict" task between response capture and the final program decision. */
+      var emilyEscalationResolved=(responseId==='rq12'&&rfollow.type==='escalate');
+      if(emilyEscalationResolved){
+        if(!ST.ovResolutionHistory)ST.ovResolutionHistory={};
+        ST.ovResolutionHistory[responseId]={confirmed:true,at:Date.now(),source:'Site Coordinator response'};
+        stampOvEvent(responseId+':resolutioncomplete');
+        stampOvEvent(responseId+':taskclosed');
+        rrq.status='Needs Review';rrq.closed=false;
+        ST.ovDecisionChoice='approve';
+      }else{
+        rrq.status=(responseId==='rq12'?'Blocked':'Needs Review');rrq.closed=false;
+        /* Emily's clarification response does not resolve the hard conflict. Advance the next
+           decision to escalation rather than recreating the clarification loop. */
+        ST.ovDecisionChoice=(responseId==='rq12'?'escalate':'approve');
       }
+
       ST.queueFocus=responseId;
       ST.ovKeepResolvedFocus=false;
-      /* Emily's response does not resolve the hard calendar conflict. Move the next decision forward
-         to escalation rather than silently recreating the same clarification loop. */
-      ST.ovDecisionChoice=(responseId==='rq12'?'escalate':'approve');
       ST.ovImpactOpen=true;ST.ovTrailOpen=true;
       render();
-      toast(responseId==='rq12'?'Response recorded — no material change; hard conflict remains.':'Response recorded — evidence refreshed and request returned for decision.');
+      toast(emilyEscalationResolved?'Coordinator response recorded — conflict cleared; final decision ready.':(responseId==='rq12'?'Response recorded — no material change; escalate to Site Coordinator.':'Response recorded — evidence refreshed and request returned for decision.'));
     }
   }
   else if(act==='queuefocus'){
@@ -5380,4 +5391,4 @@ window.addEventListener('hashchange',function(){
 
 <!-- Checkpoint 14: Changes 67–71 — resolved reference state + linked task traceability -->
 </body></html>
-<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_HtmuNRAFgACSejK4nZwcpVrDkLzN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_Cp3YwdBSW58B2z4jMHyYwq3SS7FM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_212ZZKQ76m76PK6skyQFHKYfEu4u" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_71RMNwqH1WDEHXTJG4jP5D5qmMCz" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_7rcy9uSJ9HqcQz1hUEB7zNPUqfRq" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_FV849egG16YvZYmwwLZUTsMb96fN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_5UyvHp3wekJqPQTDSeSK7emm69sx" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_89ZtfmKDTf5CUJYHqWnfQXypbh4x" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_21TJ6o7StFq1DBvXwRU2uCSyW1J8" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_E46fpy4z6qLRnbvQ9rgsL9pXuLxn" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_J1Zd3LJp5eNYkvJRRqXEbak9Z9Xd" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_BhxuV3e7RxEY5FVwarvnpnR3MCxN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_BqK1jGiwgBmK2DMZ12McTskitrQU" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_CnA149KpM2td6NEDSDocaTfoEYkf" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_64EW74bkhacQMZeweWcSfYVJXpea" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_C8N7sKFTZtBywFKCMeA63NMJdpaK" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_EquExTyjBzqhwct6UVikcM1v1LHe" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_5DTsFrZybLvJKwMZgeLUa29cpdBX" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_5D9xFXCTipiWxR235A4ruX683FxM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_8t1TLKM3Za2jKAUrBBDfncL6mZLx" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_E5b1RPKswNnA5jRCaPZr75icM886" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_Az48eNktkkoRXN2qMhreQbqJ5TFY" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_2dFH3MJPvFftevfHu2KBqSqUu31H" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_E8uSf7yyN1KtGfhQtxtcyBWH5rK8" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_G4WG8ncgd1qGSdbJ7fHMUxANYi45" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_6ZD9vx5CzHCPbioVoeHGbRswKs6z" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
+<script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_HtmuNRAFgACSejK4nZwcpVrDkLzN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_Cp3YwdBSW58B2z4jMHyYwq3SS7FM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_212ZZKQ76m76PK6skyQFHKYfEu4u" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_71RMNwqH1WDEHXTJG4jP5D5qmMCz" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_7rcy9uSJ9HqcQz1hUEB7zNPUqfRq" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_FV849egG16YvZYmwwLZUTsMb96fN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_5UyvHp3wekJqPQTDSeSK7emm69sx" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_89ZtfmKDTf5CUJYHqWnfQXypbh4x" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_21TJ6o7StFq1DBvXwRU2uCSyW1J8" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_E46fpy4z6qLRnbvQ9rgsL9pXuLxn" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_J1Zd3LJp5eNYkvJRRqXEbak9Z9Xd" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_BhxuV3e7RxEY5FVwarvnpnR3MCxN" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_BqK1jGiwgBmK2DMZ12McTskitrQU" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_CnA149KpM2td6NEDSDocaTfoEYkf" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_64EW74bkhacQMZeweWcSfYVJXpea" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_C8N7sKFTZtBywFKCMeA63NMJdpaK" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_EquExTyjBzqhwct6UVikcM1v1LHe" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_5DTsFrZybLvJKwMZgeLUa29cpdBX" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_5D9xFXCTipiWxR235A4ruX683FxM" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_8t1TLKM3Za2jKAUrBBDfncL6mZLx" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_E5b1RPKswNnA5jRCaPZr75icM886" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_Az48eNktkkoRXN2qMhreQbqJ5TFY" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_2dFH3MJPvFftevfHu2KBqSqUu31H" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_E8uSf7yyN1KtGfhQtxtcyBWH5rK8" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_G4WG8ncgd1qGSdbJ7fHMUxANYi45" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_6ZD9vx5CzHCPbioVoeHGbRswKs6z" src="https://vercel.live/_next-live/feedback/feedback.js"></script><script async data-explicit-opt-in="true" data-cookie-opt-in="true" data-deployment-id="dpl_AqQwQLasdHJys31JQoCHBvHWNKnG" src="https://vercel.live/_next-live/feedback/feedback.js"></script>
