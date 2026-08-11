@@ -1200,9 +1200,13 @@
   .steel-thread-card{border:2px solid #0F766E!important;box-shadow:0 0 0 4px rgba(15,118,110,.06),0 12px 30px rgba(15,118,110,.10)!important}
 
   /* VPOC usability batch — request ledger selection + task action clarity */
-  .request-row{cursor:pointer;transition:background .15s ease,border-color .15s ease;}
+  .request-row{cursor:pointer;transition:background .15s ease,border-color .15s ease,box-shadow .15s ease;}
   .request-row:hover{background:#F8FBFA;}
   .request-row:focus-within{background:#F8FBFA;}
+  .request-row.is-selected{background:#F3FAF8;box-shadow:inset 3px 0 0 var(--teal);}
+  .request-row.is-resolved{background:#FCFDFC;}
+  .request-row.is-resolved .grow{opacity:.84;}
+  .request-row.is-actionable .mini.go{font-weight:750;color:#204F82;}
   .request-hero{border:2px solid var(--teal);background:linear-gradient(135deg,#FFFFFF 0%,#F0FDFA 100%);border-radius:16px;padding:18px;box-shadow:0 10px 28px rgba(14,110,99,.09)}
   .request-hero-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
   .request-hero h2{font-size:20px;margin:4px 0 3px}
@@ -1696,8 +1700,8 @@
   .ov4-summary-item{padding:0 10px;border-right:1px solid #E4E9ED}
   .ov4-summary-item:first-child{padding-left:0}
   .ov4-summary-item:last-child{border-right:0}
-  .ov4-summary-item small{display:block;color:#7A8999;font-size:9.5px}
-  .ov4-summary-item b{display:block;color:#27394B;font-size:11px;margin-top:2px}
+  .ov4-summary-item small{display:block;color:#7A8999;font-size:10px}
+  .ov4-summary-item b{display:block;color:#27394B;font-size:12px;margin-top:2px}
 
   .ov4-evidence-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .ov4-evidence{
@@ -1733,8 +1737,8 @@
     display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;
     border:1px solid #DCE5E9;border-radius:7px;background:#F5F8FA;padding:8px 10px;
   }
-  .ov4-recommendation strong{font-size:11px;color:#25364A}
-  .ov4-recommendation p{font-size:10.5px;color:#596C80;margin:2px 0 0}
+  .ov4-recommendation strong{font-size:12px;color:#25364A}
+  .ov4-recommendation p{font-size:11.5px;color:#596C80;margin:3px 0 0;line-height:1.4}
   .ov4-confidence-pill{
     border:1px solid #C7DED8;background:#EEF8F5;color:#236D61;border-radius:6px;padding:5px 8px;font-size:10px;font-weight:800;white-space:nowrap;
   }
@@ -2456,10 +2460,10 @@ function avatar(name,size){size=size||32;return '<span class="avatar" style="wid
 
 function seed(){return {
   students:[
-    {id:'s1',name:'Emily Parker',cohort:'Cohort C',level:'Senior',region:'North',active:true},
-    {id:'s2',name:'Marcus Hill',cohort:'Cohort C',level:'Senior',region:'North',active:true},
-    {id:'s3',name:'Sarah Collins',cohort:'Cohort A',level:'Senior',region:'Central',active:true},
-    {id:'s4',name:'Daniel Brooks',cohort:'Class of 2027',level:'Junior',region:'North',active:true},
+    {id:'s1',name:'Emily Parker',cohort:'Class of 2027',level:'Senior',region:'North',active:true},
+    {id:'s2',name:'Marcus Hill',cohort:'Class of 2027',level:'Senior',region:'North',active:true},
+    {id:'s3',name:'Sarah Collins',cohort:'Class of 2027',level:'Senior',region:'Central',active:true},
+    {id:'s4',name:'Daniel Brooks',cohort:'Class of 2028',level:'Junior',region:'North',active:true},
     {id:'s5',name:'Priya Shah',cohort:'Class of 2027',level:'Senior',region:'West',active:true}
   ],
   sites:[
@@ -2474,7 +2478,7 @@ function seed(){return {
   assignments:[
     {id:'a1',aid:'ASN-001',studentId:'s1',siteId:'site1',start:'2026-07-01',end:'2026-07-07',rotation:'General',notes:'Demo assignment; expected time-off conflict on Jul 3.'},
     {id:'a2',aid:'ASN-002',studentId:'s2',siteId:'site2',start:'2026-07-01',end:'2026-07-07',rotation:'OB',notes:'Senior specialty placement; DNP day overlaps the week.'},
-    {id:'a3',aid:'ASN-003',studentId:'s3',siteId:'site3',start:'2026-07-01',end:'2026-07-07',rotation:'Peds',notes:'Pediatric rotation; Cohort A class day overlaps.'},
+    {id:'a3',aid:'ASN-003',studentId:'s3',siteId:'site3',start:'2026-07-01',end:'2026-07-07',rotation:'Peds',notes:'Pediatric rotation; Class of 2027 class day overlaps.'},
     {id:'a4',aid:'ASN-004',studentId:'s4',siteId:'site2',start:'2026-07-08',end:'2026-07-14',rotation:'OB',notes:'Intentional level mismatch \u2014 junior at a senior-only site.'},
     {id:'a5',aid:'ASN-005',studentId:'s5',siteId:'site2',start:'2026-07-06',end:'2026-07-10',rotation:'OB',preceptorConfirmed:true,notes:'Priya requested moving this Highland Park OB rotation to Jul 13–17; preceptor coverage is confirmed for the requested dates.'}
   ],
@@ -2493,8 +2497,8 @@ function seed(){return {
     {id:'rq12',rid:'REQ-012',studentId:'s1',type:'MTG',status:'Needs Review',start:'2026-08-04',end:'2026-08-04',source:'Student portal',submittedAt:'2026-08-01T16:40:00',originalText:'I have a professional meeting on August 4 that I need approved.',notes:'Professional meeting day requested.'}
   ],
   blocks:[
-    {id:'cb1',bid:'CAL-001',type:'Class Day',cohort:'Cohort A',start:'2026-07-02',end:'2026-07-02',clinicalAllowed:false,notes:'Cohort A didactic day \u2014 no clinical.'},
-    {id:'cb2',bid:'CAL-002',type:'Conference',cohort:'All cohorts',start:'2026-07-24',end:'2026-07-25',clinicalAllowed:false,notes:'Program-wide conference.'},
+    {id:'cb1',bid:'CAL-001',type:'Class Day',cohort:'Class of 2027',start:'2026-07-02',end:'2026-07-02',clinicalAllowed:false,notes:'Class of 2027 didactic day \u2014 no clinical.'},
+    {id:'cb2',bid:'CAL-002',type:'Conference',cohort:'All classes',start:'2026-07-24',end:'2026-07-25',clinicalAllowed:false,notes:'Program-wide conference.'},
     {id:'cb3',bid:'CAL-003',type:'Exam',cohort:'Class of 2027',start:'2026-07-30',end:'2026-07-30',clinicalAllowed:false,notes:'Class of 2027 comprehensive exam.'}
   ]
 };}
@@ -2529,7 +2533,7 @@ function generateChecks(state){
         push(a,'Time-Off Conflict',sev,'Approved '+r.type+' on '+when+' overlaps the clinical week ('+fmtRange(a.start,a.end)+').','Confirm coverage for those days, or shift the assignment.','req-'+r.id);
       }
     });
-    state.blocks.filter(function(b){return !b.clinicalAllowed&&(b.cohort===st.cohort||b.cohort==='All cohorts');}).forEach(function(b){
+    state.blocks.filter(function(b){return !b.clinicalAllowed&&(b.cohort===st.cohort||b.cohort==='All classes');}).forEach(function(b){
       if(overlaps(a.start,a.end,b.start,b.end)){
         var when=b.start===b.end?fmtShort(b.start):fmtRange(b.start,b.end);
         push(a,'School Calendar Conflict','High',b.type+' on '+when+' ('+b.cohort+') overlaps \u2014 student is in class, not clinical.','Remove the clinical day on '+when+'.','blk-'+b.id);
@@ -3645,24 +3649,26 @@ function viewRequests(){
     var heroName=heroStudent?heroStudent.name:'Student';
     hero='<section class="request-hero"><div class="request-hero-head"><div><span class="steel-thread-pill">Request progress</span><h2>'+esc(heroName)+' — '+esc(heroType)+'</h2><p>Track this request from submission through review, decision, schedule reconciliation, and publication.</p></div><span class="badge-st" style="color:'+tone.text+';background:'+tone.bg+'">'+requestStatusText(rqHero)+'</span></div>'+
       lifecycleHtml(rqHero)+
-      '<div class="request-context-grid"><div class="request-context"><div class="k">Request ID</div><div class="v mono">'+esc(rqHero.rid||rqHero.id)+'</div></div><div class="request-context"><div class="k">Requested dates</div><div class="v">'+(rqHero.start===rqHero.end?fmtFull(rqHero.start):fmtRange(rqHero.start,rqHero.end))+'</div></div><div class="request-context"><div class="k">Source</div><div class="v">'+esc(rqHero.source||'Program request')+'</div></div><div class="request-context"><div class="k">Next action</div><div class="v">'+(rqHero.status==='Approved'||rqHero.status==='Denied'?'Closed':'Review request')+'</div></div></div>'+
-      '<div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="gate-cta on" data-act="requestopen" data-id="'+rqHero.id+'">'+(rqHero.status==='Approved'||rqHero.status==='Denied'?'View request':'Review request')+' '+ic('arrowr',14,'#fff')+'</button></div></section>';
+      '<div class="request-context-grid"><div class="request-context"><div class="k">Request ID</div><div class="v mono">'+esc(rqHero.rid||rqHero.id)+'</div></div><div class="request-context"><div class="k">Requested dates</div><div class="v">'+(rqHero.start===rqHero.end?fmtFull(rqHero.start):fmtRange(rqHero.start,rqHero.end))+'</div></div><div class="request-context"><div class="k">Source</div><div class="v">'+esc(rqHero.source||'Program request')+'</div></div><div class="request-context"><div class="k">Next action</div><div class="v">'+(rqHero.status==='Approved'||rqHero.status==='Denied'?'No action · historical record':'Review in Operating View')+'</div></div></div>'+
+      '<div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="gate-cta on" data-act="requestopen" data-id="'+rqHero.id+'">'+(rqHero.status==='Approved'||rqHero.status==='Denied'?'View request history':'Review in Operating View')+' '+ic('arrowr',14,'#fff')+'</button></div></section>';
   }
   var html=ordered.map(function(rq){
     var st=ST.data.students.filter(function(s){return s.id===rq.studentId;})[0];
     var typeLabel=TYPE_LABEL[rq.type]||rq.type;
     var isMove=rq.type==='MOVE';
     var c=requestTone(rq.status);
-    return '<div class="request-row'+(rq.id==='rq3'?' is-steel':'')+'" data-act="requestfocus" data-id="'+rq.id+'">'+avatar(st.name,32)+
+    var isResolved=rq.status==='Approved'||rq.status==='Denied';
+    var isSelected=ST.requestLedgerFocus===rq.id;
+    return '<div class="request-row'+(rq.id==='rq3'?' is-steel':'')+(isResolved?' is-resolved':' is-actionable')+(isSelected?' is-selected':'')+'" data-act="requestfocus" data-id="'+rq.id+'">'+avatar(st.name,32)+
       '<div class="grow"><div style="font-size:14px;font-weight:600">'+esc(st.name)+' <span class="mono" style="font-size:11px;color:var(--muted2);font-weight:400">'+esc(rq.rid)+'</span></div>'+
       '<div style="font-size:12.5px;color:var(--muted)">'+esc(typeLabel)+' <span style="color:#cbd5d2">·</span> <span class="mono">'+(rq.start===rq.end?fmtFull(rq.start):fmtRange(rq.start,rq.end))+'</span></div>'+
       '<div style="font-size:12px;color:var(--muted2);margin-top:3px">'+esc(rq.notes||'')+'</div></div>'+
       (isMove?'<span class="source-chip">'+ic('layers',11)+' Student schedule change</span>':'<span class="pill">'+esc(rq.source||'Program request')+'</span>')+
       '<span class="badge-st sm" style="color:'+c.text+';background:'+c.bg+'">'+requestStatusText(rq)+'</span>'+
-      '<button class="mini go" data-act="requestopen" data-id="'+rq.id+'">'+(rq.status==='Approved'?'View':'Review request')+' '+ic('chevr',13)+'</button>'+
+      '<button class="mini go" data-act="requestopen" data-id="'+rq.id+'">'+(isResolved?'View history':'Review in Operating View')+' '+ic('chevr',13)+'</button>'+
       '</div>';
   }).join('');
-  return '<div class="stack"><div><h1>Change Requests</h1><p class="sub">Submitted changes are structured, checked against the schedule, and routed to a human decision.</p></div>'+hero+'<div class="rowlist">'+html+'</div><p class="note">A schedule-changing request is never approved from the list. Open the decision workspace to inspect impact, record judgment, and close the loop.</p></div>';
+  return '<div class="stack"><div><h1>Change Requests</h1><p class="sub">Submitted changes are structured, checked against the schedule, and routed to a human decision.</p></div>'+hero+'<div class="rowlist">'+html+'</div><p class="note">This is the request ledger. Select any row to inspect its progress above. Requests that still need judgment are reviewed in Operating View; resolved requests remain here as history.</p></div>';
 }
 
 function viewCalendar(){
@@ -3807,7 +3813,7 @@ function tlBars(list, by, opts){
           var ds=Math.max(tlIdx(a.start),tlIdx(q.start)),de=Math.min(tlIdx(a.end),tlIdx(q.end));
           for(var d=ds;d<=de;d++){if(!map[d]||map[d].sev!=='High')map[d]={sev:sev,label:'Approved '+TYPE_LABEL[q.type].toLowerCase()+' overlaps this assignment'};}}
       });
-      ST.data.blocks.filter(function(b){return !b.clinicalAllowed&&(b.cohort===a.student.cohort||b.cohort==='All cohorts');}).forEach(function(b){
+      ST.data.blocks.filter(function(b){return !b.clinicalAllowed&&(b.cohort===a.student.cohort||b.cohort==='All classes');}).forEach(function(b){
         if(overlaps(a.start,a.end,b.start,b.end)){var ds=Math.max(tlIdx(a.start),tlIdx(b.start)),de=Math.min(tlIdx(a.end),tlIdx(b.end));
           for(var d=ds;d<=de;d++){map[d]={sev:'High',label:b.type+' conflict for '+b.cohort};}}
       });
@@ -4158,7 +4164,7 @@ function renderOverlay(){
     var st=ST.data.students.filter(function(s){return s.id===ST.openStudentId;})[0];
     if(st){
       var mine=rows().filter(function(x){return x.studentId===st.id;});
-      var kvs=[['Cohort',st.cohort],['Level',st.level],['Region',st.region],['Assignments',String(mine.length)]]
+      var kvs=[['Class',st.cohort],['Level',st.level],['Region',st.region],['Assignments',String(mine.length)]]
         .map(function(k){return '<div><div class="lbl-mini">'+k[0]+'</div><div style="font-size:13.5px;font-weight:500;margin-top:2px">'+esc(k[1])+'</div></div>';}).join('');
       var bank=bankFor(st.id);
       var bankHtml='<div><div class="lbl-mini" style="margin-bottom:8px">Time-off bank</div><div class="chips">'+
@@ -4183,7 +4189,7 @@ function renderOverlay(){
   } else if(ST.openId){
     var x=rows().filter(function(r){return r.id===ST.openId;})[0];
     if(x){
-      var kvs=[['Clinical site',x.site.name+' \u00b7 '+x.site.miles+' mi'],['Rotation',x.rotation],['Dates',fmtRange(x.start,x.end)],['Level / cohort',x.student.level+' \u00b7 '+x.student.cohort]]
+      var kvs=[['Clinical site',x.site.name+' \u00b7 '+x.site.miles+' mi'],['Rotation',x.rotation],['Dates',fmtRange(x.start,x.end)],['Level / class',x.student.level+' \u00b7 '+x.student.cohort]]
         .map(function(k){return '<div><div class="lbl-mini">'+k[0]+'</div><div style="font-size:13.5px;font-weight:500;margin-top:2px">'+esc(k[1])+'</div></div>';}).join('');
       var bank=bankFor(x.studentId);
       var bankHtml='<div><div class="lbl-mini" style="margin-bottom:8px">Time-off bank</div><div class="chips">'+
@@ -4223,7 +4229,7 @@ function renderOverlay(){
         ['Recommended sequence','Resolve Daniel first, confirm gap coverage second, then publish the cleared roster.']
       ],confidence:'High confidence in the level-mismatch recommendation; moderate confidence in the modeled coverage forecast.'},
       next:{title:'Suggested next action',tone:'#7C3AED',summary:'Reassign Daniel Brooks before publishing because his current placement conflicts with the site’s student-level rule.',items:[
-        ['Student','Daniel Brooks · Junior · Class of 2027'],
+        ['Student','Daniel Brooks · Junior · Class of 2028'],
         ['Current placement','Highland Park Hospital · OB · Jul 8–14'],
         ['Reason','Highland Park Hospital is configured as Senior-only in the demo site rules.'],
         ['Recommended action','Move Daniel to a junior-eligible site with matching rotation capacity, then re-run readiness checks.'],
