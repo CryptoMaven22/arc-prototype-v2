@@ -2409,6 +2409,33 @@
   .ov4-task-linked-note{display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:3px 7px;border-radius:999px;background:#F1F5F9;color:#52677C;font-size:9px;font-weight:700}
 </style>
 
+
+<style>
+  /* Arc VPOC final polish — task progression, readability, honest Program History state */
+  .ov4-task-actions{gap:0;flex-wrap:nowrap;align-items:stretch;width:max-content;max-width:100%}
+  .ov4-task-actions button{min-height:32px;border-radius:0;margin:0;position:relative}
+  .ov4-task-actions button+button{margin-left:-1px}
+  .ov4-task-actions button:first-child{border-radius:8px 0 0 8px}
+  .ov4-task-actions button:last-child{border-radius:0 8px 8px 0}
+  .ov4-task-actions .ov4-primary-complete{min-width:86px;padding:6px 12px}
+  .ov4-task-actions button.active{position:relative;z-index:1}
+  @media(max-width:720px){.ov4-task-actions{width:100%}.ov4-task-actions button{flex:1;min-width:0}.ov4-task-actions .ov4-primary-complete{min-width:0}}
+
+  .ov4-summary-item small{font-size:10.5px;line-height:1.2}
+  .ov4-summary-item b{font-size:12.5px;line-height:1.3}
+  .ov4-evidence .ov4-evidence-label{font-size:11.5px;line-height:1.3}
+  .ov4-evidence .ov4-evidence-result{font-size:11.5px;line-height:1.3}
+  .ov4-recommendation p{font-size:12px;line-height:1.45}
+
+  .history-placeholder{padding:20px;max-width:760px;border-style:dashed;background:#FCFEFD;box-shadow:none}
+  .history-placeholder-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+  .history-placeholder-head h2{font-size:17px;margin:8px 0 0;color:#25374A}
+  .history-placeholder-badge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 9px;background:#F1F5F9;color:#52677C;font-size:10.5px;font-weight:800;letter-spacing:.02em}
+  .history-placeholder>p{margin:12px 0 0;color:#64748B;font-size:13px;line-height:1.5;max-width:680px}
+  .history-placeholder-note{margin-top:16px;padding:12px 14px;border-left:3px solid #0E6E63;background:#F0F7F5;border-radius:0 9px 9px 0;display:flex;flex-direction:column;gap:3px}
+  .history-placeholder-note b{font-size:11px;color:#0B4F47;text-transform:uppercase;letter-spacing:.05em}
+  .history-placeholder-note span{font-size:12.5px;color:#475569;line-height:1.45}
+</style>
 </head>
 <body>
 <!-- Arc operational workspace. Capture now sits directly beneath Overview in the primary workflow. -->
@@ -4573,7 +4600,7 @@ function viewCapture(){
 }
 
 function viewProgramHistory(){
-  return '<div class="stack"><div><h1>Program History</h1><p class="sub">Student program history will be added in a later iteration.</p></div></div>';
+  return '<div class="stack"><div><h1>Program History</h1><p class="sub">Longitudinal student context for reference and decision support.</p></div><section class="history-placeholder card"><div class="history-placeholder-head"><div><span class="history-placeholder-badge">Content pending validation</span><h2>Student history is intentionally not populated yet</h2></div></div><p>We are holding this space until validation confirms which prior requests, decisions, correspondence, and schedule changes are actually useful to review over time.</p><div class="history-placeholder-note"><b>Purpose</b><span>Help a reviewer understand what has happened with a student before that could matter to the current situation — without creating another place to work.</span></div></section></div>';
 }
 
 var VIEWS={overview:viewOperatingView,capture:viewCapture,dashboard:viewDashboard,assignments:viewAssignments,timeline:viewTimeline,calendar2:viewCalendar2,checks:viewChecks,requests:viewRequests,calendar:viewCalendar,sites:viewSites,students:viewStudents,'program-history':viewProgramHistory};
