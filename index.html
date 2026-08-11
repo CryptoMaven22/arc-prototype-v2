@@ -2456,6 +2456,14 @@
     box-shadow:0 7px 16px rgba(14,110,99,.20);
   }
 </style>
+
+<style>
+  /* Task clarity: status is passive; completion is the only action. */
+  .ov4-task-state-line{display:flex;align-items:center;gap:7px;margin-top:9px;font-size:10px;color:#6A7B8E}
+  .ov4-task-state-label{font-weight:700;color:#7A8999}
+  .ov4-task-state-value{display:inline-flex;align-items:center;border:1px solid #DCE3E9;background:#F8FAFC;color:#52677C;border-radius:999px;padding:3px 8px;font-weight:800}
+  .ov4-task-actions .ov4-primary-complete{min-width:128px;padding:9px 16px;font-size:10.5px}
+</style>
 </head>
 <body>
 <!-- Arc operational workspace. Capture now sits directly beneath Overview in the primary workflow. -->
@@ -3160,7 +3168,7 @@ function viewOperatingView(){
     }else if(isResponse){
       actions='<div class="ov4-task-actions"><button class="ov4-primary-response" data-act="ovrecordresponse" data-id="'+esc(task.id)+'">Record response</button></div>';
     }else if(isPriya){
-      actions='<div class="ov4-task-actions"><button data-act="ovtaskstatus" data-status="Open"'+(ST.ovTaskStatus==='Open'?' class="active"':'')+'>Open</button><button data-act="ovtaskstatus" data-status="In progress"'+(ST.ovTaskStatus==='In progress'?' class="active"':'')+'>In progress</button><button class="ov4-primary-complete" data-act="ovtaskstatus" data-status="Complete">Complete</button></div>';
+      actions='<div class="ov4-task-actions"><button class="ov4-primary-complete" data-act="ovtaskstatus" data-status="Complete">Complete task</button></div>';
     }
     var timingLabel=isResponse?'Requested':'Created';
     return '<div class="ov4-task" data-act="ovtaskfocus" data-id="'+esc(task.id)+'" title="Open linked request"><div class="ov4-task-top"><div><b>'+esc(task.task)+'</b><small>Linked request: '+esc(task.linked)+'</small><span class="ov4-task-linked-note">Open linked request →</span></div><div class="ov4-task-top-right"><span class="ov4-task-type">'+esc(taskTypeLabel(task.type))+'</span><span class="ov4-task-status '+statusClass+'">'+esc(task.status)+'</span></div></div><div class="meta"><span>Owner: '+esc(task.owner)+'</span><span>'+timingLabel+': '+esc(task.requested)+'</span><span>Status: '+esc(task.status)+'</span></div>'+actions+'</div>';
