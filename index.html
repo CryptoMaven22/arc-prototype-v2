@@ -3555,18 +3555,19 @@ function viewOperatingView(){
     addTrail('complete','Request assembled','Arc',capturedTime,'Request normalized','Request, dates, student, and source connected.');
     addTrail('complete','Decision recorded','Program Coordinator',ovEventTime(rq.id+':decision','Now'),'Decision → Clarification requested','Request returned for additional information.');
     addTrail('complete','Clarification sent','System',ovEventTime(rq.id+':followup','Now'),'Owner: Student','Specific information request delivered.');
-    addTrail('warning','Awaiting response','Student','Pending','Approval held','Arc will re-check the request when new information arrives.');
+    addTrail('warning','Awaiting student clarification','Student','Current','Approval held','Clarification request sent. Arc will re-check the request when the student responds.');
   }else{
     addTrail('complete','Request assembled','Arc',capturedTime,'Request normalized','Request, dates, student, and source connected.');
     addTrail('complete','Decision recorded','Program Coordinator',ovEventTime(rq.id+':decision','Now'),'Decision → Escalated','Operator context saved to the request.');
     addTrail('complete','Escalation routed','System',ovEventTime(rq.id+':followup','Now'),'Owner: Site Coordinator','Request, evidence, and operator context delivered.');
-    addTrail('warning','Awaiting response','Site Coordinator','Pending','Approval held','Arc will reassess when the response is captured.');
+    addTrail('warning','Awaiting Site Coordinator response','Site Coordinator','Current','Approval held','Escalation sent. Arc will reassess when the coordinator response is captured.');
   }
   /* Task-to-request traceability: if this request still owns downstream work, show it in the
      request history as well as in My Tasks / Follow-up. */
   var linkedOpenTask=activeFollowups.filter(function(tf){return tf.id===rq.id;})[0];
   var alreadyShowsPriyaTask=(committed==='Approved'&&isPriyaDemo);
-  if(linkedOpenTask&&!alreadyShowsPriyaTask){
+  var waitingResponseAlreadyShown=trailSteps.some(function(s){return s.state==='warning'&&(s.title==='Awaiting student clarification'||s.title==='Awaiting Site Coordinator response'||s.title==='Awaiting response');});
+  if(linkedOpenTask&&!alreadyShowsPriyaTask&&!waitingResponseAlreadyShown){
     addTrail('active','Open follow-up','Arc','Current',linkedOpenTask.task,'Owner: '+linkedOpenTask.owner+' · Status: '+linkedOpenTask.status+' · Type: '+taskTypeLabel(linkedOpenTask.type));
   }
   var trailComplete=trailSteps.filter(function(s){return s.state==='complete';});
