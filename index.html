@@ -3379,7 +3379,7 @@ function viewOperatingView(){
       choiceButton('deny','Deny','x')+
       choiceButton('clarify','Request clarification','info')+
       choiceButton('escalate','Escalate to Site Coordinator','arrowr')+
-      '</div>'+(isEmilyBlockedDemo?'<div class="ov4-blocker-note"><b>Approval unavailable</b><span>Resolve the required clinical-assignment conflict or choose another action.</span></div>':'')+'<button class="ov4-commit" data-act="ovmakedecision" data-choice="'+effectiveChoice+'">'+ic(effectiveChoice==='deny'?'x':(effectiveChoice==='escalate'?'arrowr':'info'),18,'#fff')+'<span>'+(effectiveChoice==='approve'?'Approve Request':'Make Decision: '+effectiveChoiceLabel)+'</span></button></div></div></section>');
+      '</div>'+((isEmilyBlockedDemo&&!isEmilyResolutionComplete)?'<div class="ov4-blocker-note"><b>Approval unavailable</b><span>Resolve the required clinical-assignment conflict or choose another action.</span></div>':'')+'<button class="ov4-commit" data-act="ovmakedecision" data-choice="'+effectiveChoice+'">'+ic(effectiveChoice==='deny'?'x':(effectiveChoice==='escalate'?'arrowr':'info'),18,'#fff')+'<span>'+(effectiveChoice==='approve'?'Approve Request':'Make Decision: '+effectiveChoiceLabel)+'</span></button></div></div></section>');
 
   var linkedAssignments=requestAssignments(rq);
   var linkedAssignment=linkedAssignments[0]||null;
