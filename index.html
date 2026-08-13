@@ -2762,7 +2762,7 @@ function seed(){return {
   ],
   requests:[
     {id:'rq1',rid:'REQ-001',studentId:'s1',type:'ATO',status:'Approved',start:'2026-07-15',end:'2026-07-15',notes:'Allowable time off.'},
-    {id:'rq2',rid:'REQ-002',studentId:'s2',type:'DNP',status:'Approved',start:'2026-07-06',end:'2026-07-06',notes:'DNP project day.'},
+    {id:'rq2',rid:'REQ-002',studentId:'s2',type:'DNP',status:'Requested',start:'2026-07-06',end:'2026-07-06',notes:'DNP project day.'},
     {id:'rq3',rid:'REQ-003',studentId:'s5',assignmentId:'a5',type:'MOVE',status:'Needs Review',start:'2026-07-13',end:'2026-07-17',reason:'Personal scheduling conflict',source:'Student portal',submittedAt:'2026-07-28T09:14:00',originalText:'I need to move my Highland Park OB rotation from July 6–10 to July 13–17. My preceptor may be different, and I am not sure whether the site has capacity.',notes:'Move Highland Park OB rotation from Jul 6–10 to Jul 13–17; preceptor confirmation pending.'},
     {id:'rq4',rid:'REQ-004',studentId:'s4',assignmentId:'a6',type:'MOVE',status:'Requested',start:'2026-07-27',end:'2026-07-31',reason:'Professional commitment',source:'Google Form',submittedAt:'2026-08-01T09:20:00',originalText:'I need to move my Evanston General rotation from July 13–17 to July 27–31 because of a professional commitment.',notes:'Move Evanston General rotation from Jul 13–17 to Jul 27–31.'},
     {id:'rq5',rid:'REQ-005',studentId:'s1',type:'ATO',status:'Approved',start:'2026-06-08',end:'2026-06-12',notes:'Spring vacation week.'},
@@ -2830,7 +2830,7 @@ var STATUS={
   'Not Checked':{text:'#475569',bg:'#EAEEED',dot:'#94A3B8'}
 };
 var SEV={High:{text:'#B91C1C',bg:'#FEE2E2'},Medium:{text:'#92400E',bg:'#FEF3C7'},Low:{text:'#475569',bg:'#EAEEED'}};
-var RQS={'Approved':{text:'#15803D',bg:'#DCFCE7'},'Requested':{text:'#475569',bg:'#EAEEED'},'Returned':{text:'#92400E',bg:'#FEF3C7'},'Denied':{text:'#B91C1C',bg:'#FEE2E2'},'Needs Review':{text:'#92400E',bg:'#FEF3C7'}};
+var RQS={'Approved':{text:'#15803D',bg:'#DCFCE7'},'Requested':{text:'#475569',bg:'#EAEEED'},'Returned':{text:'#92400E',bg:'#FEF3C7'},'Denied':{text:'#B91C1C',bg:'#FEE2E2'},'Needs Review':{text:'#92400E',bg:'#FEF3C7'},'Blocked':{text:'#B91C1C',bg:'#FEE2E2'}};
 var SPEC={
   'General':{code:'GEN',text:'#475569',bg:'#EEF1F0'},
   'OB':{code:'OB',text:'#9d174d',bg:'#fce7f0'},
@@ -3500,11 +3500,11 @@ function viewOperatingView(){
     evidenceItem('Source freshness',responseHistoryCurrent?'Updated from response':'Current')+
   '</div><div class="ov4-evidence-overall"><b>Overall:</b> '+esc(overallText)+'</div></div></section>';
 
-  var recommendationLabel=isAwaitingResponse?'Awaiting response':(isApprovedCurrent?'Approved':(isDeniedCurrent?'Denied':(isPriyaDemo?'Approve':(isEmilyBlockedDemo?(isEmilyResolutionComplete?'Ready':'Blocked'):(isMarcusReadyDemo?'Ready':(isDanielReviewDemo?'Approve move':focusRow.readiness.label))))));
+  var recommendationLabel=isAwaitingResponse?'Awaiting response':(isApprovedCurrent?'Approved':(isDeniedCurrent?'Denied':(isPriyaDemo?'Review & approve':(isEmilyBlockedDemo?(isEmilyResolutionComplete?'Ready':'Blocked'):(isMarcusReadyDemo?'Ready':(isDanielReviewDemo?'Approve move':focusRow.readiness.label))))));
   var recommendationText=isAwaitingResponse?(committedDecisionCurrent==='Escalated'?'Site Coordinator response is required before Arc can return this request to decision-ready status.':'Requested clarification must be received before Arc can return this request to decision-ready status.'):
     (responseHistoryCurrent&&isEmilyBlockedDemo?(isEmilyResolutionComplete?'Coordinator resolution is confirmed and the hard conflict is cleared. Review the refreshed evidence and make the final decision.':'Response received and evidence refreshed. The required clinical-assignment conflict remains unresolved, so approval is still unavailable.'):
     (isApprovedCurrent?(isPriyaDemo?'Priya’s assignment change has been committed. Her student readiness is fully reconciled; downstream publishing work is tracked separately.':(isDanielReviewDemo?'Daniel’s move assignment request has been approved. The Evanston General rotation is reconciled to Jul 27–31 and the request is fully resolved.':(isMarcusReadyDemo?'Marcus’s ready request has been approved and fully resolved.':'The approved request is fully resolved.'))):
-    (isPriyaDemo?'Capacity, calendar, and rotation requirements are satisfied. Approve the assignment change and notify the student and site.':
+    (isPriyaDemo?'Arc found no blocking calendar or rotation issue, but site-capacity policy still requires human judgment. Review the capacity exception, then approve or escalate as appropriate.':
     (isEmilyBlockedDemo?(isEmilyResolutionComplete?'The required conflict has been resolved. Approve the request if the refreshed evidence is acceptable.':'Do not approve until the required clinical-assignment conflict is resolved. Request clarification, escalate, or deny as appropriate.'):
     (isDanielReviewDemo?'The requested week is clear. Evanston Hospital and the General rotation are preserved, and Arc found no blocking program rule. Approve the move.':
     (isMarcusReadyDemo?'All evaluated checks are clear. Approve the request.':(recommendation+'. '+reason)))))));
@@ -3959,7 +3959,7 @@ function viewRequests(){
   var resolutionReady=(rq.id==='rq12'&&ST.crEmilyResolved)||(ST.ovResolutionHistory&&ST.ovResolutionHistory[rq.id]);
   var isEmilyCanonical=(rq.id==='rq12'||rq.rid==='REQ-012'||st.name==='Emily Parker');
   var hardBlocked=(isEmilyCanonical&&!resolutionReady);
-  var choice=ST.ovDecisionChoice||(hardBlocked?'escalate':'approve');
+  var choice=ST.ovDecisionChoice||(hardBlocked?'escalate':(rq.id==='rq3'?'escalate':(rq.id==='rq2'?'clarify':'approve')));
   if(hardBlocked&&choice==='approve')choice='escalate';
 
   function assignmentForRequest(r){var as=requestAssignments(r);return as&&as.length?as[0]:null;}
@@ -4628,20 +4628,23 @@ function renderOverlay(){
               '<p class="act" style="margin:6px 0 0">'+ic('arrowr',13,'var(--teal)')+' '+esc(ch.action)+'</p>'+
               '<button class="mini" data-act="review" data-key="'+esc(ch.key)+'" style="margin-top:10px;color:var(--teal-deep);font-weight:500">'+ic('check',13)+' Mark reviewed</button></div>';
           }).join('');
-      var opts=ST.data.sites.map(function(s){return '<option value="'+s.id+'"'+(s.id===x.siteId?' selected':'')+'>'+esc(s.name)+' \u2014 '+s.levels.join('/')+' \u00b7 '+s.specialties.join(', ')+'</option>';}).join('');
       var reqs=ST.data.requests.filter(function(rq){return rq.studentId===x.studentId;});
       var reqHtml = reqs.length===0 ? '' : '<div><div class="lbl-mini" style="margin-bottom:8px">This student\u2019s requests</div><div style="display:flex;flex-direction:column;gap:6px">'+
-        reqs.map(function(rq){return '<div style="display:flex;align-items:center;gap:8px;font-size:12.5px"><span class="mono" style="font-size:11px;color:var(--muted2)">'+rq.rid+'</span><span>'+esc(rq.type)+'</span><span class="mono" style="color:var(--muted2)">'+(rq.start===rq.end?fmtShort(rq.start):fmtRange(rq.start,rq.end))+'</span><span class="badge-st sm" style="margin-left:auto;color:'+RQS[rq.status].text+';background:'+RQS[rq.status].bg+'">'+rq.status+'</span></div>';}).join('')+'</div></div>';
+        reqs.map(function(rq){var shownStatus=(rq.id==='rq12'&&!(ST.ovResolutionHistory&&ST.ovResolutionHistory.rq12))?'Blocked':rq.status;var tone=requestTone(shownStatus);return '<div style="display:flex;align-items:center;gap:8px;font-size:12.5px"><span class="mono" style="font-size:11px;color:var(--muted2)">'+rq.rid+'</span><span>'+esc(rq.type)+'</span><span class="mono" style="color:var(--muted2)">'+(rq.start===rq.end?fmtShort(rq.start):fmtRange(rq.start,rq.end))+'</span><span class="badge-st sm" style="margin-left:auto;color:'+tone.text+';background:'+tone.bg+'">'+shownStatus+'</span></div>';}).join('')+'</div></div>';
 
+      var canonicalDrawer=operatingQueue().filter(function(q){return q.student&&q.student.id===x.studentId;})[0]||null;
+      var drawerStatus=canonicalDrawer?canonicalDrawer.readiness.label:x.status;
+      var drawerScore=canonicalDrawer?canonicalDrawer.readiness.score:null;
+      var drawerBadge=badgeSt(drawerStatus);
+      if(drawerScore!==null){drawerBadge=drawerBadge.replace('</span>',' · '+drawerScore+'</span>');}
       html='<div class="scrim" data-act="closedrawer"></div><aside class="drawer">'+
-        '<div class="dhead">'+avatar(x.student.name,40)+'<div style="flex:1;min-width:0"><div style="font-weight:700;font-size:15px">'+esc(x.student.name)+'</div><div class="mono" style="font-size:11px;color:var(--muted2)">'+x.aid+'</div></div>'+badgeSt(x.status)+'<button data-act="closedrawer" style="color:var(--muted2);padding:4px">'+ic('x',18)+'</button></div>'+
+        '<div class="dhead">'+avatar(x.student.name,40)+'<div style="flex:1;min-width:0"><div style="font-weight:700;font-size:15px">'+esc(x.student.name)+'</div><div class="mono" style="font-size:11px;color:var(--muted2)">'+x.aid+'</div></div>'+drawerBadge+'<button data-act="closedrawer" style="color:var(--muted2);padding:4px">'+ic('x',18)+'</button></div>'+
         '<div class="dbody">'+
           '<div class="grid2">'+kvs+'</div>'+
           '<div><div class="lbl-mini" style="margin-bottom:8px">Readiness checks</div><div style="display:flex;flex-direction:column;gap:10px">'+checks+'</div></div>'+
-          '<div><div class="lbl-mini" style="margin-bottom:8px">Reassign clinical site</div><select class="reassign" data-act="reassign" data-id="'+x.id+'">'+opts+'</select><p class="note" style="margin-top:6px">Changing the site re-runs the readiness checks instantly.</p></div>'+
+          '<div class="note" style="border:1px solid var(--hair);border-radius:10px;padding:10px 12px;background:#F8FAFC"><b>Reference view</b> · Assignment changes are made through the primary workflow, not from the timeline.</div>'+
           bankHtml+
           reqHtml+
-          (x.notes?'<div class="note" style="border-top:1px solid var(--hair);padding-top:12px">'+esc(x.notes)+'</div>':'')+
         '</div></aside>';
     }
   } else if(ST.aiInsight!==null){
@@ -5013,7 +5016,8 @@ function historyEventsFor(st){
   ST.data.requests.filter(function(r){return r.studentId===st.id;}).forEach(function(r){
     var eventDate=(r.submittedAt||r.start||'2026-01-01').slice(0,10);
     var rlabel=TYPE_LABEL[r.type]||r.type;
-    events.push({date:eventDate,kind:'Requests',tone:'#2563EB',title:rlabel+' request',detail:r.notes||'Request recorded.',status:requestStatusText(r)});
+    var historyRequestStatus=(r.id==='rq12'&&!(ST.ovResolutionHistory&&ST.ovResolutionHistory.rq12)&&!(ST.queueDecisions&&ST.queueDecisions.rq12))?'Blocked':requestStatusText(r);
+    events.push({date:eventDate,kind:'Requests',tone:'#2563EB',title:rlabel+' request',detail:r.notes||'Request recorded.',status:historyRequestStatus});
     if(r.status==='Approved'||r.status==='Denied'||r.status==='Returned'){
       var decisionDate=(r.approvedAt||r.deniedAt||r.returnedAt||r.start||eventDate).slice(0,10);
       var dTone=r.status==='Approved'?'#15803D':(r.status==='Denied'?'#B91C1C':'#B45309');
@@ -5087,7 +5091,7 @@ function viewProgramHistory(){
     return '<button class="history-tab'+(type===k?' on':'')+'" data-act="historytype" data-type="'+k+'">'+k+' · '+n+'</button>';
   }).join('');
   var rdClass=readiness.score>=80?'good':(readiness.score>=50?'warn':'bad');
-  var currentAssignment=latest?(latest.site.name+' · '+latest.rotation+' · '+(latest.start===latest.end?fmtShort(latest.start):fmtRange(latest.start,latest.end))):'No active assignment';
+  var currentAssignment=(selected.id==='s1'&&activeHistoryRequest&&activeHistoryRequest.rq.id==='rq12')?'Evans Hospital · General · Aug 3–7':(latest?(latest.site.name+' · '+latest.rotation+' · '+(latest.start===latest.end?fmtShort(latest.start):fmtRange(latest.start,latest.end))):'No active assignment');
   var eventHtml=visibleEvents.length?visibleEvents.map(function(ev){
     return '<div class="history-event" style="--event:'+ev.tone+'"><div class="history-event-date">'+esc(fmtShort(ev.date))+'</div><div class="history-event-rail"><span class="history-event-dot"></span></div><div class="history-event-card"><div class="history-event-top"><span class="history-event-kind">'+esc(ev.kind)+'</span><span class="history-event-status">'+esc(ev.status||'')+'</span></div><h3>'+esc(ev.title)+'</h3><p>'+esc(ev.detail||'')+'</p></div></div>';
   }).join(''):'<div class="history-empty">No '+esc(type.toLowerCase())+' events are recorded for this student.</div>';
@@ -5557,7 +5561,7 @@ document.addEventListener('click',function(e){
   else if(act==='closedrawer'){ST.openId=null;renderOverlay();}
   else if(act==='closestudent'){ST.openStudentId=null;renderOverlay();}
   else if(act==='about'){ST.about=true;renderOverlay();}
-  else if(act==='crfocus'){ST.requestLedgerFocus=t.getAttribute('data-id');ST.queueFocus=ST.requestLedgerFocus;ST.ovDecisionChoice='approve';ST.ovImpactOpen=false;ST.ovTrailOpen=false;render();}
+  else if(act==='crfocus'){ST.requestLedgerFocus=t.getAttribute('data-id');ST.queueFocus=ST.requestLedgerFocus;ST.ovDecisionChoice=(ST.requestLedgerFocus==='rq3'?'escalate':(ST.requestLedgerFocus==='rq2'?'clarify':'approve'));ST.ovImpactOpen=false;ST.ovTrailOpen=false;render();}
   else if(act==='requestfocus'){ST.requestLedgerFocus=t.getAttribute('data-id');render();}
   else if(act==='requestopen'){var ro=requestById(t.getAttribute('data-id'));if(ro&&ro.type==='MOVE'){ST.demoCard='review';ST.demoStage=1;renderOverlay();}else{ST.requestFocus=ro?ro.id:null;renderOverlay();}}
   else if(act==='closerequest'){ST.requestFocus=null;renderOverlay();}
