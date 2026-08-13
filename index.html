@@ -3435,10 +3435,10 @@ function viewOperatingView(){
   }
   if(isDanielReviewDemo){
     capacityValue='Not affected';
-    allowanceValue='2 days remaining · Human review required';
+    allowanceValue='Not applicable';
     calendarValue='No conflict';
     overlapValue='None';
-    ruleValue='Review required';
+    ruleValue='Passed';
   }
   if(isMarcusReadyDemo){
     capacityValue='Within capacity';
@@ -3468,7 +3468,7 @@ function viewOperatingView(){
   if(isPriyaDemo){
     overallText=isApprovedCurrent?'All evaluated checks are clear. The approved request is fully reconciled.':'No hard conflicts detected. Policy checks pass. Human judgment is required before approval.';
   }else if(isDanielReviewDemo){
-    overallText='No hard conflicts found. The request is within policy, but the remaining meeting-day allowance is low and requires coordinator review.';
+    overallText='No hard conflicts found. The requested week is clear, and the Evanston Hospital General rotation is preserved with only the assignment dates changing.';
   }else if(isMarcusReadyDemo){
     overallText='All evaluated checks support readiness. No conflicts or policy exceptions detected.';
   }else if(isEmilyBlockedDemo){
@@ -3500,13 +3500,13 @@ function viewOperatingView(){
     evidenceItem('Source freshness',responseHistoryCurrent?'Updated from response':'Current')+
   '</div><div class="ov4-evidence-overall"><b>Overall:</b> '+esc(overallText)+'</div></div></section>';
 
-  var recommendationLabel=isAwaitingResponse?'Awaiting response':(isApprovedCurrent?'Approved':(isDeniedCurrent?'Denied':(isPriyaDemo?'Approve':(isEmilyBlockedDemo?(isEmilyResolutionComplete?'Ready':'Blocked'):(isMarcusReadyDemo?'Ready':(isDanielReviewDemo?'Needs Review':focusRow.readiness.label))))));
+  var recommendationLabel=isAwaitingResponse?'Awaiting response':(isApprovedCurrent?'Approved':(isDeniedCurrent?'Denied':(isPriyaDemo?'Approve':(isEmilyBlockedDemo?(isEmilyResolutionComplete?'Ready':'Blocked'):(isMarcusReadyDemo?'Ready':(isDanielReviewDemo?'Approve move':focusRow.readiness.label))))));
   var recommendationText=isAwaitingResponse?(committedDecisionCurrent==='Escalated'?'Site Coordinator response is required before Arc can return this request to decision-ready status.':'Requested clarification must be received before Arc can return this request to decision-ready status.'):
     (responseHistoryCurrent&&isEmilyBlockedDemo?(isEmilyResolutionComplete?'Coordinator resolution is confirmed and the hard conflict is cleared. Review the refreshed evidence and make the final decision.':'Response received and evidence refreshed. The required clinical-assignment conflict remains unresolved, so approval is still unavailable.'):
-    (isApprovedCurrent?(isPriyaDemo?'Priya’s assignment change has been committed. Her student readiness is fully reconciled; downstream publishing work is tracked separately.':(isDanielReviewDemo?'Daniel’s meeting-day request has been approved. Human review is complete and the request is fully resolved.':(isMarcusReadyDemo?'Marcus’s ready request has been approved and fully resolved.':'The approved request is fully resolved.'))):
+    (isApprovedCurrent?(isPriyaDemo?'Priya’s assignment change has been committed. Her student readiness is fully reconciled; downstream publishing work is tracked separately.':(isDanielReviewDemo?'Daniel’s move assignment request has been approved. The Evanston General rotation is reconciled to Jul 27–31 and the request is fully resolved.':(isMarcusReadyDemo?'Marcus’s ready request has been approved and fully resolved.':'The approved request is fully resolved.'))):
     (isPriyaDemo?'Capacity, calendar, and rotation requirements are satisfied. Approve the assignment change and notify the student and site.':
     (isEmilyBlockedDemo?(isEmilyResolutionComplete?'The required conflict has been resolved. Approve the request if the refreshed evidence is acceptable.':'Do not approve until the required clinical-assignment conflict is resolved. Request clarification, escalate, or deny as appropriate.'):
-    (isDanielReviewDemo?'Review the remaining meeting-day allowance. Approve if the remaining allowance is acceptable; no hard conflict is present.':
+    (isDanielReviewDemo?'The requested week is clear. Evanston Hospital and the General rotation are preserved, and Arc found no blocking program rule. Approve the move.':
     (isMarcusReadyDemo?'All evaluated checks are clear. Approve the request.':(recommendation+'. '+reason)))))));
   var recommendationConfidence=isApprovedCurrent?100:focusRow.readiness.score;
   var confidenceBand=recommendationConfidence<50?'low':(recommendationConfidence<80?'review':'high');
@@ -3520,7 +3520,7 @@ function viewOperatingView(){
   if(responseHistoryCurrent&&responseHistoryCurrent.type==='escalate'&&effectiveChoice==='escalate')effectiveChoice='approve';
   if(isEmilyResolutionComplete)effectiveChoice=choice||'approve';
   var effectiveChoiceLabel=effectiveChoice==='approve'?'Approve':(effectiveChoice==='deny'?'Deny':(effectiveChoice==='clarify'?'Request clarification':'Escalate'));
-  var approvedDecisionCopy=isPriyaDemo?'Priya’s assignment change is committed. Readiness is 100, and the downstream publishing task is now owned separately.':(isDanielReviewDemo?'Daniel’s meeting-day request is approved. Human review is complete, readiness is 100, and no follow-up task is required.':(isMarcusReadyDemo?'Marcus’s ready request is approved. Readiness is 100 and the request is closed with no follow-up required.':'The request is approved and fully reconciled.'));
+  var approvedDecisionCopy=isPriyaDemo?'Priya’s assignment change is committed. Readiness is 100, and the downstream publishing task is now owned separately.':(isDanielReviewDemo?'Daniel’s move assignment request is approved. Readiness is 100, the assignment dates are reconciled, and no follow-up task is required.':(isMarcusReadyDemo?'Marcus’s ready request is approved. Readiness is 100 and the request is closed with no follow-up required.':'The request is approved and fully reconciled.'));
   var makeDecision=(isApprovedCurrent||isDeniedCurrent)?
     '<section class="ov4-section"><div class="ov4-section-head"><span class="ov4-step">4</span>Decision committed</div><div class="ov4-section-content"><div class="queue-success" style="--decision:'+(isDeniedCurrent?'#A95555':'#16A34A')+'"><h3>'+(isDeniedCurrent?'Request denied':'Request approved')+'</h3><p>'+esc(isDeniedCurrent?'The decision is closed. This request is shown for reference only; no judgment action is active.':approvedDecisionCopy)+'</p></div></div></section>':
     (isAwaitingResponse?
@@ -3582,9 +3582,9 @@ function viewOperatingView(){
       '</div></div>';
     }else if(isDanielReviewDemo && isApprovedCurrent){
       impactPanel='<div class="ov4-impact-panel"><div class="ov4-impact-grid">'+
-        '<div class="ov4-impact-item"><small>Readiness</small><b>65% → 100%</b></div>'+ 
-        '<div class="ov4-impact-item"><small>Status</small><b>Needs Review → Approved</b></div>'+ 
-        '<div class="ov4-impact-item"><small>Human review</small><b>Completed</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Readiness</small><b>92% → 100%</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Assignment</small><b>Jul 13–17 → Jul 27–31</b></div>'+ 
+        '<div class="ov4-impact-item"><small>Status</small><b>Ready → Approved</b></div>'+ 
         '<div class="ov4-impact-item"><small>Follow-up created</small><b>No · Request closed</b></div>'+ 
       '</div></div>';
     }else if(isMarcusReadyDemo && isApprovedCurrent){
@@ -3681,9 +3681,9 @@ function viewOperatingView(){
       }
     }else if(isDanielReviewDemo){
       addTrail('complete','Request assembled','Arc',capturedTime,'Request normalized','Request, dates, student, and source connected.');
-      addTrail('complete','Decision recorded','Program Coordinator',ovEventTime(rq.id+':decision','Now'),'Needs Review → Approved','Human review of the remaining meeting-day allowance is complete.');
-      addTrail('complete','Record updated','System',ovEventTime(rq.id+':record','Now'),'Meeting day approved','Program record updated for '+dates+'.');
-      addTrail('complete','Readiness recalculated','Arc',ovEventTime(rq.id+':readiness','Now'),'65% → 100%','Evidence re-evaluated after the coordinator decision.');
+      addTrail('complete','Decision recorded','Program Coordinator',ovEventTime(rq.id+':decision','Now'),'Ready → Approved','Operator approval saved to Daniel’s move assignment request.');
+      addTrail('complete','Record updated','System',ovEventTime(rq.id+':record','Now'),'Jul 13–17 → Jul 27–31','Evanston Hospital · General assignment dates updated.');
+      addTrail('complete','Readiness recalculated','Arc',ovEventTime(rq.id+':readiness','Now'),'92% → 100%','Evidence re-evaluated after the approved move.');
       addTrail('complete','Request closed','System',ovEventTime(rq.id+':followup','Now'),'No open obligations','No downstream task is required.');
     }else if(isMarcusReadyDemo){
       addTrail('complete','Request assembled','Arc',capturedTime,'Request normalized','Request, dates, student, and source connected.');
