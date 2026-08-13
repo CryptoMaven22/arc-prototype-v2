@@ -5022,14 +5022,31 @@ function historyEventsFor(st){
       if(r.id==='rq4'&&r.status==='Approved'){
         decisionDetail='Evanston General moved from Jul 13–17 to Jul 27–31. Human approval recorded and the assignment schedule reconciled.';
       }
-      events.push({date:decisionDate,kind:'Decisions',tone:dTone,title:decisionTitle,detail:decisionDetail,status:r.rid});
+      events.push({date:decisionDate,kind:'Decisions',tone:dTone,title:decisionTitle,detail:decisionDetail,status:r.rid,sequence:(r.id==='rq12'?30:0)});
+    }
+    /* Emily's canonical audit trail must survive terminal approval. ovResponseHistory is intentionally
+       cleared when a request closes, so Program History derives the retained escalation/response
+       evidence from the durable resolution record instead of the transient follow-up object. */
+    var emilyResolution=(r.id==='rq12'&&ST.ovResolutionHistory&&ST.ovResolutionHistory[r.id])?ST.ovResolutionHistory[r.id]:null;
+    if(emilyResolution){
+      var resolvedAt=new Date(emilyResolution.at||Date.now());
+      var resolutionDate=resolvedAt.getFullYear()+'-'+String(resolvedAt.getMonth()+1).padStart(2,'0')+'-'+String(resolvedAt.getDate()).padStart(2,'0');
+      events.push({date:resolutionDate,kind:'Follow-up',tone:'#B45309',title:'Escalated to Site Coordinator',detail:'Arc held final approval and routed the unresolved clinical-time requirement to the Site Coordinator for confirmation.',status:'Escalated',sequence:10});
+      events.push({date:resolutionDate,kind:'Follow-up',tone:'#7C3AED',title:'Coordinator response · conflict resolved',detail:'Site Coordinator confirmed the required clinical-time obligation remains covered. Arc refreshed the evidence and returned the request for final human decision.',status:'Recorded',sequence:20});
     }
     var rh=ST.ovResponseHistory&&ST.ovResponseHistory[r.id];
-    if(rh){events.push({date:'2026-08-11',kind:'Follow-up',tone:'#7C3AED',title:(rh.type==='escalate'?'Site Coordinator response':'Student clarification')+' received',detail:'Response captured, evidence refreshed, and the request returned to the active decision flow.',status:'Recorded'});}
+    if(rh&&r.id!=='rq12'){events.push({date:'2026-08-11',kind:'Follow-up',tone:'#7C3AED',title:(rh.type==='escalate'?'Site Coordinator response':'Student clarification')+' received',detail:'Response captured, evidence refreshed, and the request returned to the active decision flow.',status:'Recorded'});}
     var fu=ST.ovFollowups&&ST.ovFollowups[r.id];
     if(fu){events.push({date:'2026-08-11',kind:'Follow-up',tone:'#7C3AED',title:fu.task,detail:'Owner: '+fu.owner+' · linked to '+fu.linked,status:fu.status});}
   });
-  return events.sort(function(a,b){if(a.date===b.date)return a.kind.localeCompare(b.kind);return a.date<b.date?1:-1;});
+  return events.sort(function(a,b){
+    if(a.date===b.date){
+      var seqDiff=(b.sequence||0)-(a.sequence||0);
+      if(seqDiff)return seqDiff;
+      return a.kind.localeCompare(b.kind);
+    }
+    return a.date<b.date?1:-1;
+  });
 }
 /* VPOC reconciliation witness: Program History must mirror the active OV/CR request state before decision and the reconciled assignment state after decision. */
 function viewProgramHistory(){
@@ -5058,7 +5075,9 @@ function viewProgramHistory(){
     return committed!=='Approved'&&committed!=='Denied';
   }).sort(function(a,b){return requestTimestamp(a.rq)<requestTimestamp(b.rq)?1:-1;})[0]||null;
   var canonicalDanielApproved=!!(selected&&selected.id==='s4'&&ST.queueDecisions&&ST.queueDecisions.rq4==='Approved');
-  var readiness=canonicalDanielApproved?readinessFromScore(100):(activeHistoryRequest?activeHistoryRequest.readiness:(latest?readinessFromChecks(latest.open):readinessFromScore(100)));
+  var canonicalEmilyApproved=!!(selected&&selected.id==='s1'&&ST.queueDecisions&&ST.queueDecisions.rq12==='Approved');
+  var canonicalResolvedApproved=canonicalDanielApproved||canonicalEmilyApproved;
+  var readiness=canonicalResolvedApproved?readinessFromScore(100):(activeHistoryRequest?activeHistoryRequest.readiness:(latest?readinessFromChecks(latest.open):readinessFromScore(100)));
   var pending=ST.data.requests.filter(function(r){return r.studentId===selected.id&&(r.status==='Requested'||r.status==='Needs Review'||r.status==='Returned'||r.status==='Blocked');}).length;
   var events=historyEventsFor(selected);
   var type=ST.historyType||'All';
