@@ -1614,7 +1614,7 @@
   button.ov4-signal{width:100%;text-align:left;cursor:pointer;transition:border-color .15s ease,box-shadow .15s ease,transform .15s ease,background .15s ease}
   button.ov4-signal:hover{transform:translateY(-1px);border-color:#B8C7D5;box-shadow:0 6px 16px rgba(24,42,61,.07)}
   button.ov4-signal.active{border:2px solid var(--sig);padding:11px 10px;background:var(--sig-bg);box-shadow:0 0 0 3px color-mix(in srgb,var(--sig) 12%,transparent)}
-  .ov4-signal-detail{font-size:9.5px;line-height:1.25;color:#6A7B8E;margin-top:5px}
+  .ov4-signal-detail{font-size:9.5px;line-height:1.25;color:#6A7B8E;margin-top:5px;min-height:24px}
   .ov4-queue-filter-note{padding:7px 12px;border-bottom:1px solid #E3E8ED;background:#F8FAFC;color:#52677C;font-size:10.5px;font-weight:650;display:flex;justify-content:space-between;gap:10px}
   .ov4-queue-filter-note button{color:#315F98;font-size:10.5px;font-weight:750}
   .ov4-score-card{
@@ -5105,10 +5105,10 @@ function nav(){
   var workflow=[
     ['overview','Operating View','spark',null],
     ['requests','Change Requests','inbox',null],
-    ['timeline','Assignment Timeline','calendar',null],
     ['program-history','Program History','calendar',null]
   ];
   var reference=[
+    ['timeline','Assignment Timeline','calendar',null],
     ['sites','Clinical Sites','building',null],
     ['students','Students','users',null]
   ];
