@@ -2852,7 +2852,7 @@ function bankFor(studentId){
 function badgeSt(s,sm){var c=STATUS[s]||STATUS['Not Checked'];return '<span class="badge-st'+(sm?' sm':'')+'" style="color:'+c.text+';background:'+c.bg+'"><span class="dot" style="background:'+c.dot+'"></span>'+s+'</span>';}
 function sevBadge(s){var c=SEV[s]||SEV.Low;return '<span class="sev" style="color:'+c.text+';background:'+c.bg+'">'+s+'</span>';}
 
-var ST={data:seed(),view:'dashboard',openId:null,openStudentId:null,requestFocus:null,siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4',queueFocus:null,queueAction:null,queueStage:0,queueChoice:null,queueDecisions:{},ovDecisionChoice:'approve',ovImpactOpen:false,ovTrailOpen:false,ovConditionFilter:'All',ovTaskStatus:'Open',ovFollowups:{},ovResponseHistory:{},ovActionLocks:{},ovEventTimes:{},ovCommitInFlight:false,historyStudentId:'s1',historyCohort:'All',historyType:'All'};
+var ST={data:seed(),view:'overview',openId:null,openStudentId:null,requestFocus:null,requestLedgerFocus:'rq4',siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4',queueFocus:'rq4',queueAction:null,queueStage:0,queueChoice:null,queueDecisions:{},ovDecisionChoice:'approve',ovImpactOpen:false,ovTrailOpen:false,ovConditionFilter:'All',ovTaskStatus:'Open',ovFollowups:{},ovResponseHistory:{},ovActionLocks:{},ovEventTimes:{},ovCommitInFlight:false,historyStudentId:'s4',historyCohort:'All',historyType:'All'};
 var lastFocusedElement=null;
 
 function demoFlow(){
@@ -4035,14 +4035,30 @@ function viewRequests(){
   }).join('');
   var ledgerPanel='<section class="cr-ledger"><div class="cr-ledger-head"><h3>Request queue</h3><p>Switch records without leaving the decision workspace.</p></div><div class="cr-ledger-list">'+list+'</div><div class="cr-ledger-foot"><span><b>'+queue.length+' requests</b> in this working set</span><span>Scroll to browse</span></div></section>';
 
-  var operatorPanel=(committed==='Approved'||committed==='Denied')?
-    '<section class="cr-decision-panel"><div class="cr-decision-head"><div class="cr-decision-kicker">Operator response</div><h3>Decision recorded</h3></div><div class="cr-response-wrap"><div class="queue-success" style="--decision:'+(committed==='Denied'?'#A95555':'#16A34A')+'"><h3>'+esc(committed==='Denied'?'Request declined':'Request approved')+'</h3><p>Human decision is preserved. Arc has carried the request into its resolved state.</p></div></div></section>':
-    '<section class="cr-decision-panel"><div class="cr-decision-head"><div class="cr-decision-kicker">Operator response</div><h3>Choose the response</h3></div>'+ 
+  var activeFollowup=ST.ovFollowups&&ST.ovFollowups[rq.id];
+  var operatorPanel;
+  if(committed==='Approved'||committed==='Denied'){
+    operatorPanel='<section class="cr-decision-panel"><div class="cr-decision-head"><div class="cr-decision-kicker">Operator response</div><h3>Decision recorded</h3></div><div class="cr-response-wrap"><div class="queue-success" style="--decision:'+(committed==='Denied'?'#A95555':'#16A34A')+'"><h3>'+esc(committed==='Denied'?'Request declined':'Request approved')+'</h3><p>Human decision is preserved. Arc has carried the request into its resolved state.</p></div></div></section>';
+  }else if((committed==='Escalated'||committed==='Clarification requested')&&activeFollowup){
+    var isEscalation=committed==='Escalated';
+    var waitingOwner=isEscalation?'Site Coordinator':'Student';
+    var waitingTitle=isEscalation?'Escalated to Site Coordinator':'Information requested';
+    var waitingCopy=isEscalation?'The escalation is recorded and routed. Arc keeps the request open and holds approval until the Site Coordinator response is captured.':'The information request is recorded. Arc keeps the request open and holds the decision until the student response is captured.';
+    var waitingNext=isEscalation?'Await coordinator response':'Await student response';
+    var waitingButton=isEscalation?'Record coordinator response':'Record student response';
+    operatorPanel='<section class="cr-decision-panel"><div class="cr-decision-head"><div class="cr-decision-kicker">Operator response</div><h3>'+esc(waitingTitle)+'</h3></div>'+
+      '<div class="cr-decision-rec"><div><small>Current state</small><b>Awaiting response</b></div><span class="cr-confidence">Owner · '+esc(waitingOwner)+'</span></div>'+
+      '<div class="cr-response-wrap"><div class="queue-success" style="--decision:#C9871F"><h3>'+esc(waitingTitle)+'</h3><p>'+esc(waitingCopy)+'</p></div>'+
+      '<div class="cr-carry-mini"><small>Next action</small><b>'+esc(waitingNext)+'</b><p>When the response arrives, record it here. Arc will refresh the evidence and return the request to the appropriate decision state.</p></div>'+
+      '<button class="cr-commit" data-act="ovrecordresponse" data-id="'+esc(rq.id)+'">'+esc(waitingButton)+' '+ic('arrowr',15,'#fff')+'</button></div></section>';
+  }else{
+    operatorPanel='<section class="cr-decision-panel"><div class="cr-decision-head"><div class="cr-decision-kicker">Operator response</div><h3>Choose the response</h3></div>'+ 
       '<div class="cr-decision-rec"><div><small>Arc recommends</small><b>'+esc(recommendLabel)+'</b></div><span class="cr-confidence">Readiness '+row.readiness.score+'/100</span></div>'+ 
       '<div class="cr-response-wrap"><div class="cr-response-groups">'+
         '<div class="cr-response-group"><div class="cr-response-label">Decision paths · resolve the request</div><div class="cr-response-buttons"><button class="cr-choice approve'+selectedClass('approve')+'" data-act="ovdecisionselect" data-choice="approve"'+disabledAttr('approve')+'>'+ic('check',14)+'<span><b>Approve</b><small>Resolve and carry forward</small></span></button><button class="cr-choice deny'+selectedClass('deny')+'" data-act="ovdecisionselect" data-choice="deny">'+ic('close',14)+'<span><b>Decline</b><small>Resolve and preserve rationale</small></span></button></div></div>'+ 
         '<div class="cr-response-group"><div class="cr-response-label">Resolution paths · keep the request open</div><div class="cr-response-buttons"><button class="cr-choice clarify'+selectedClass('clarify')+'" data-act="ovdecisionselect" data-choice="clarify">'+ic('info',14)+'<span><b>Request information</b><small>Await evidence before deciding</small></span></button><button class="cr-choice escalate'+selectedClass('escalate')+'" data-act="ovdecisionselect" data-choice="escalate">'+ic('arrowr',14)+'<span><b>Escalate</b><small>Route the unresolved question</small></span></button></div></div>'+ 
       '</div><button class="cr-commit" data-act="ovmakedecision" data-choice="'+choice+'">'+esc(commitLabel)+' '+ic('arrowr',15,'#fff')+'</button><div class="cr-carry-mini"><small>Arc carries next</small><b>'+esc(responseTitle)+'</b><p>'+esc(carryCopy)+'</p></div></div></section>';
+  }
 
   return '<div class="cr-page">'+
     '<div class="cr-page-head"><div><div class="eyebrow">Decision Workspace</div><h1>Change Request</h1><p>Move from the signal to a grounded human response — with the evidence, consequence, and next move visible in one place.</p></div><div class="cr-principle"><b>Human decides.</b><span>Arc carries.</span></div></div>'+ 
@@ -4976,9 +4992,14 @@ function historyEventsFor(st){
     var rlabel=TYPE_LABEL[r.type]||r.type;
     events.push({date:eventDate,kind:'Requests',tone:'#2563EB',title:rlabel+' request',detail:r.notes||'Request recorded.',status:requestStatusText(r)});
     if(r.status==='Approved'||r.status==='Denied'||r.status==='Returned'){
-      var decisionDate=(r.approvedAt||r.returnedAt||r.start||eventDate).slice(0,10);
+      var decisionDate=(r.approvedAt||r.deniedAt||r.returnedAt||r.start||eventDate).slice(0,10);
       var dTone=r.status==='Approved'?'#15803D':(r.status==='Denied'?'#B91C1C':'#B45309');
-      events.push({date:decisionDate,kind:'Decisions',tone:dTone,title:'Request outcome · '+r.status,detail:(r.status==='Approved'?'Decision retained with the request record.':(r.notes||'Decision retained with the request record.')),status:r.rid});
+      var decisionTitle=rlabel+' · '+r.status;
+      var decisionDetail=(r.status==='Approved'?'Decision retained with the request record.':(r.notes||'Decision retained with the request record.'));
+      if(r.id==='rq4'&&r.status==='Approved'){
+        decisionDetail='Evanston General moved from Jul 13–17 to Jul 27–31. Human approval recorded and the assignment schedule reconciled.';
+      }
+      events.push({date:decisionDate,kind:'Decisions',tone:dTone,title:decisionTitle,detail:decisionDetail,status:r.rid});
     }
     var rh=ST.ovResponseHistory&&ST.ovResponseHistory[r.id];
     if(rh){events.push({date:'2026-08-11',kind:'Follow-up',tone:'#7C3AED',title:(rh.type==='escalate'?'Site Coordinator response':'Student clarification')+' received',detail:'Response captured, evidence refreshed, and the request returned to the active decision flow.',status:'Recorded'});}
@@ -4987,6 +5008,7 @@ function historyEventsFor(st){
   });
   return events.sort(function(a,b){if(a.date===b.date)return a.kind.localeCompare(b.kind);return a.date<b.date?1:-1;});
 }
+/* VPOC reconciliation witness: Program History must mirror the active OV/CR request state before decision and the reconciled assignment state after decision. */
 function viewProgramHistory(){
   var activeYears=historyActiveClasses();
   var activeLabels=activeYears.map(function(y){return 'Class of '+y;});
@@ -5006,8 +5028,14 @@ function viewProgramHistory(){
 
   var mine=rows().filter(function(x){return x.studentId===selected.id;});
   var latest=mine.slice().sort(function(a,b){return a.end<b.end?1:-1;})[0];
-  var readiness=mine.length?mine.map(function(x){return readinessFromChecks(x.open);}).sort(function(a,b){return a.score-b.score;})[0]:readinessFromScore(100);
-  var pending=ST.data.requests.filter(function(r){return r.studentId===selected.id&&(r.status==='Requested'||r.status==='Needs Review'||r.status==='Returned');}).length;
+  var vpocHistoryIds={rq12:true,rq4:true,rq3:true,rq2:true};
+  var activeHistoryRequest=operatingQueue().filter(function(x){
+    if(!x.student||x.student.id!==selected.id||!vpocHistoryIds[x.rq.id])return false;
+    var committed=ST.queueDecisions&&ST.queueDecisions[x.rq.id];
+    return committed!=='Approved'&&committed!=='Denied';
+  }).sort(function(a,b){return requestTimestamp(a.rq)<requestTimestamp(b.rq)?1:-1;})[0]||null;
+  var readiness=activeHistoryRequest?activeHistoryRequest.readiness:(latest?readinessFromChecks(latest.open):readinessFromScore(100));
+  var pending=ST.data.requests.filter(function(r){return r.studentId===selected.id&&(r.status==='Requested'||r.status==='Needs Review'||r.status==='Returned'||r.status==='Blocked');}).length;
   var events=historyEventsFor(selected);
   var type=ST.historyType||'All';
   var visibleEvents=events.filter(function(ev){return type==='All'||ev.kind===type;});
@@ -5016,7 +5044,7 @@ function viewProgramHistory(){
     return '<button class="history-tab'+(type===k?' on':'')+'" data-act="historytype" data-type="'+k+'">'+k+' · '+n+'</button>';
   }).join('');
   var rdClass=readiness.score>=80?'good':(readiness.score>=50?'warn':'bad');
-  var currentAssignment=latest?(latest.site.name+' · '+latest.rotation):'No active assignment';
+  var currentAssignment=latest?(latest.site.name+' · '+latest.rotation+' · '+(latest.start===latest.end?fmtShort(latest.start):fmtRange(latest.start,latest.end))):'No active assignment';
   var eventHtml=visibleEvents.length?visibleEvents.map(function(ev){
     return '<div class="history-event" style="--event:'+ev.tone+'"><div class="history-event-date">'+esc(fmtShort(ev.date))+'</div><div class="history-event-rail"><span class="history-event-dot"></span></div><div class="history-event-card"><div class="history-event-top"><span class="history-event-kind">'+esc(ev.kind)+'</span><span class="history-event-status">'+esc(ev.status||'')+'</span></div><h3>'+esc(ev.title)+'</h3><p>'+esc(ev.detail||'')+'</p></div></div>';
   }).join(''):'<div class="history-empty">No '+esc(type.toLowerCase())+' events are recorded for this student.</div>';
@@ -5028,7 +5056,7 @@ function viewProgramHistory(){
     '<div class="history-detail-body"><div class="history-filter-row"><div class="history-type-tabs">'+typeTabs+'</div><span class="hint">Reference only · no work is performed here</span></div><div class="history-events">'+eventHtml+'</div></div></section></div></div>';
 }
 
-var VIEWS={overview:viewOperatingView,capture:viewCapture,dashboard:viewDashboard,assignments:viewAssignments,timeline:viewTimeline,calendar2:viewCalendar2,checks:viewChecks,requests:viewRequests,calendar:viewCalendar,sites:viewSites,students:viewStudents,'program-history':viewProgramHistory};
+var VIEWS={overview:viewOperatingView,capture:viewCapture,dashboard:viewOperatingView,assignments:viewRequests,timeline:viewTimeline,calendar2:viewTimeline,checks:viewRequests,requests:viewRequests,calendar:viewTimeline,sites:viewSites,students:viewStudents,'program-history':viewProgramHistory};
 function nav(){
   var c=counts(), pr=pendingReq().length;
   var workflow=[
@@ -5207,7 +5235,7 @@ function resetDemoState(showConfirmation){
   clearArcToast();
   ST.data=seed();
   ST.view='overview';
-  ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.siteFocus=null;
+  ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.requestLedgerFocus='rq4';ST.siteFocus=null;
   ST.reviewed=[];ST.filter='All';ST.about=false;ST.kpi=null;ST.kpiDeep=null;
   ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;
   ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.demoFlow=null;
@@ -5215,7 +5243,7 @@ function resetDemoState(showConfirmation){
   ST.queueFocus='rq4';ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.queueDecisions={};
   ST.ovDecisionChoice='clarify';ST.ovImpactOpen=false;ST.ovTrailOpen=false;ST.ovConditionFilter='All';
   ST.ovTaskStatus='Open';ST.ovPriyaTaskCreatedAt=0;ST.ovFollowups={};ST.ovResponseHistory={};ST.ovResolutionHistory={};ST.ovActionLocks={};ST.ovEventTimes={};ST.ovKeepResolvedFocus=false;ST.ovCommitInFlight=false;
-  ST.historyStudentId='s1';ST.historyCohort='All';ST.historyType='All';
+  ST.historyStudentId='s4';ST.historyCohort='All';ST.historyType='All';
   /* Canonical demo reset: no decisions, no tasks, no filters, no transient response state. */
   ST.queueDecisions={};ST.queueFocus='rq4';ST.ovDecisionChoice='approve';ST.ovConditionFilter='All';
   render();
@@ -5242,7 +5270,7 @@ document.addEventListener('click',function(e){
   else if(act==='historycohort'){ST.historyCohort=t.getAttribute('data-cohort')||'All';ST.historyStudentId=null;render();}
   else if(act==='historytype'){ST.historyType=t.getAttribute('data-type')||'All';render();}
   else if(act==='captureplay'){runArcCapture();}
-  else if(act==='home'){ST.role='leader';ST.view='overview';ST.siteFocus=null;ST.openId=null;ST.openStudentId=null;ST.requestFocus=null;ST.kpi=null;ST.kpiDeep=null;ST.aiInsight=null;ST.readinessInfo=null;ST.coverageView=null;ST.coverageSub=false;ST.coverageGapOnly=false;ST.calendarCell=null;ST.demoCard=null;ST.demoStage=1;ST.about=false;ST.queueFocus=null;ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.ovConditionFilter='All';ST.ovTaskStatus='Open';ST.ovPriyaTaskCreatedAt=0;ST.ovFollowups={};ST.ovResponseHistory={};ST.ovActionLocks={};ST.ovEventTimes={};ST.ovCommitInFlight=false;render();}
+  else if(act==='home'){resetDemoState(false);return;}
   else if(act==='ovconditionfilter'){
     var nextCondition=t.getAttribute('data-condition')||'All';
     ST.ovConditionFilter=(ST.ovConditionFilter===nextCondition&&nextCondition!=='All')?'All':nextCondition;
@@ -5368,13 +5396,16 @@ document.addEventListener('click',function(e){
     stampOvEvent(od.id+':decision');
     stampOvEvent(od.id+':record');
     stampOvEvent(od.id+':readiness');
+    var decisionNow=new Date();
+    var decisionLocalDate=decisionNow.getFullYear()+'-'+String(decisionNow.getMonth()+1).padStart(2,'0')+'-'+String(decisionNow.getDate()).padStart(2,'0');
     if(oc==='approve'){
-      od.status='Approved';od.closed=true;od.published=true;od.notificationsSent=3;ol='Approved';
       var oa=assignmentById(od.assignmentId);
+      if(oa&&!od.priorAssignment){od.priorAssignment={start:oa.start,end:oa.end,siteId:oa.siteId,rotation:oa.rotation};}
+      od.status='Approved';od.closed=true;od.published=true;od.notificationsSent=3;od.approvedAt=decisionLocalDate;ol='Approved';
       if(oa){oa.start=od.start;oa.end=od.end;oa.published=true;oa.preceptorConfirmed=true;oa.notes='Approved assignment change; schedule updated and notifications prepared.';}
     }
-    else if(oc==='deny'){od.status='Denied';od.closed=true;ol='Denied';}
-    else if(oc==='clarify'){od.status='Returned';od.closed=false;ol='Clarification requested';}
+    else if(oc==='deny'){od.status='Denied';od.closed=true;od.deniedAt=decisionLocalDate;ol='Denied';}
+    else if(oc==='clarify'){od.status='Returned';od.closed=false;od.returnedAt=decisionLocalDate;ol='Clarification requested';}
     else {od.status='Needs Review';od.closed=false;ol='Escalated';}
     ST.queueDecisions[od.id]=ol;
     if(ol==='Approved'||ol==='Denied'){
