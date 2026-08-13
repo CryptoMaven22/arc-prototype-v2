@@ -2852,7 +2852,7 @@ function bankFor(studentId){
 function badgeSt(s,sm){var c=STATUS[s]||STATUS['Not Checked'];return '<span class="badge-st'+(sm?' sm':'')+'" style="color:'+c.text+';background:'+c.bg+'"><span class="dot" style="background:'+c.dot+'"></span>'+s+'</span>';}
 function sevBadge(s){var c=SEV[s]||SEV.Low;return '<span class="sev" style="color:'+c.text+';background:'+c.bg+'">'+s+'</span>';}
 
-var ST={data:seed(),view:'overview',openId:null,openStudentId:null,requestFocus:null,requestLedgerFocus:'rq4',siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4',queueFocus:'rq4',queueAction:null,queueStage:0,queueChoice:null,queueDecisions:{},ovDecisionChoice:'approve',ovImpactOpen:false,ovTrailOpen:false,ovConditionFilter:'All',ovTaskStatus:'Open',ovFollowups:{},ovResponseHistory:{},ovActionLocks:{},ovEventTimes:{},ovCommitInFlight:false,historyStudentId:'s4',historyCohort:'All',historyType:'All'};
+var ST={data:seed(),view:'overview',openId:null,openStudentId:null,requestFocus:null,requestLedgerFocus:'rq4',siteFocus:null,reviewed:[],filter:'All',about:false,kpi:null,kpiDeep:null,aiInsight:null,readinessInfo:null,coverageView:null,coverageSub:false,coverageGapOnly:false,calendarCell:null,demoCard:null,demoStage:1,tlBy:'student',siteFilter:'all',role:'leader',asStudent:'s5',asHospital:'site4',queueFocus:'rq4',queueAction:null,queueStage:0,queueChoice:null,queueDecisions:{},ovDecisionChoice:'approve',ovImpactOpen:false,ovTrailOpen:false,ovConditionFilter:'All',ovTaskStatus:'Open',ovFollowups:{},ovResponseHistory:{},ovActionLocks:{},ovEventTimes:{},ovCommitInFlight:false,crEmilyResolved:false,historyStudentId:'s4',historyCohort:'All',historyType:'All'};
 var lastFocusedElement=null;
 
 function demoFlow(){
@@ -3133,7 +3133,7 @@ function operatingQueue(){
       /* Once Emily's Site Coordinator response confirms resolution, the hard conflict is cleared.
          The request remains in Attention because a final human decision is still required,
          but its readiness advances from Blocked to Ready. */
-      var emilyResolutionReady=(rq.id==='rq12'&&ST.ovResolutionHistory&&ST.ovResolutionHistory[rq.id]);
+      var emilyResolutionReady=(rq.id==='rq12'&&(ST.crEmilyResolved||(ST.ovResolutionHistory&&ST.ovResolutionHistory[rq.id])));
       if(emilyResolutionReady)readiness=readinessFromScore(85);
       /* VPOC trust rule: once a canonical request is approved, the resolved request must
          reconcile to 100 rather than carrying its pre-decision readiness score. */
@@ -3215,7 +3215,7 @@ function viewOperatingView(){
     /* VPOC canonical lens: Emily is the single visible hard-conflict exemplar.
        Once the Site Coordinator response clears that conflict, the Conflicting lens
        must reconcile immediately even though Emily still awaits the final decision. */
-    return !!(r.rq&&r.rq.id==='rq12'&&!(ST.ovResolutionHistory&&ST.ovResolutionHistory[r.rq.id]));
+    return !!(r.rq&&r.rq.id==='rq12'&&!ST.crEmilyResolved&&!(ST.ovResolutionHistory&&ST.ovResolutionHistory[r.rq.id]));
   }
   function matchesLens(r,lens){
     if(lens==='Pending'||lens==='All')return true;
@@ -3261,7 +3261,7 @@ function viewOperatingView(){
   function choiceButton(key,label,iconName){
     var committed=ST.queueDecisions&&focusRow&&focusRow.rq?ST.queueDecisions[focusRow.rq.id]:null;
     var committedKey=committed==='Approved'?'approve':(committed==='Denied'?'deny':(committed==='Clarification requested'?'clarify':(committed==='Escalated'?'escalate':null)));
-    var isHardBlocked=focusRow&&focusRow.rq&&focusRow.rq.id==='rq12'&&!(ST.ovResolutionHistory&&ST.ovResolutionHistory[focusRow.rq.id]);
+    var isHardBlocked=focusRow&&focusRow.rq&&focusRow.rq.id==='rq12'&&!ST.crEmilyResolved&&!(ST.ovResolutionHistory&&ST.ovResolutionHistory[focusRow.rq.id]);
     var responseHistoryForRecord=ST.ovResponseHistory&&ST.ovResponseHistory[focusRow.rq.id];
     var defaultChoice=isHardBlocked?(responseHistoryForRecord?'escalate':'clarify'):'approve';
     var currentChoice=committedKey||ST.ovDecisionChoice||defaultChoice;
@@ -3956,7 +3956,7 @@ function viewRequests(){
   var tone=row.readiness.tone, checks=row.checks||[], d=row.dominant;
   var committed=ST.queueDecisions&&ST.queueDecisions[rq.id];
   var responseHistory=ST.ovResponseHistory&&ST.ovResponseHistory[rq.id];
-  var resolutionReady=ST.ovResolutionHistory&&ST.ovResolutionHistory[rq.id];
+  var resolutionReady=(rq.id==='rq12'&&ST.crEmilyResolved)||(ST.ovResolutionHistory&&ST.ovResolutionHistory[rq.id]);
   var isEmilyCanonical=(rq.id==='rq12'||rq.rid==='REQ-012'||st.name==='Emily Parker');
   var hardBlocked=(isEmilyCanonical&&!resolutionReady);
   var choice=ST.ovDecisionChoice||(hardBlocked?'escalate':'approve');
@@ -3977,10 +3977,11 @@ function viewRequests(){
 
   var isDanielClean=(rq.id==='rq4');
   var isEmilyBlocked=(isEmilyCanonical&&!resolutionReady);
-  if(isEmilyBlocked){
+  var isEmilyResolved=(isEmilyCanonical&&!!resolutionReady);
+  if(isEmilyBlocked||isEmilyResolved){
     currentAssignmentLabel='Affected assignment';
     currentAssignmentDisplay='Evans Hospital · Aug 3–7';
-    currentAssignmentNote='Aug 4 is a required clinical day within this assignment';
+    currentAssignmentNote=isEmilyResolved?'Site Coordinator confirmed the required clinical-time obligation is covered':'Aug 4 is a required clinical day within this assignment';
     proposedLabel='Requested change';
     proposedAssignmentDisplay='Meeting day · Aug 4, 2026';
   }
@@ -3994,7 +3995,10 @@ function viewRequests(){
     finding='Approving Emily’s meeting day as submitted could leave a required clinical experience unmet.';
     why='Aug 4 falls inside her Evans Hospital clinical week, and Arc cannot confirm equivalent replacement time. The conflict should be resolved before approval.';
   }
-  if(resolutionReady)why='The prior conflict has been resolved with new evidence. The request is back in a decision-ready state.';
+  if(isEmilyResolved){
+    finding='The Site Coordinator response resolves the required clinical-time conflict that previously blocked Emily’s request.';
+    why='New coordinator evidence confirms the clinical-time requirement remains satisfied. Emily’s meeting-day request is back in a decision-ready state.';
+  }else if(resolutionReady)why='The prior conflict has been resolved with new evidence. The request is back in a decision-ready state.';
 
   var recommendLabel, recommendWhy;
   if(hardBlocked){
@@ -4007,7 +4011,8 @@ function viewRequests(){
     recommendLabel='Approve request';
     recommendWhy=isDanielClean?'The requested week is clear in the evaluated schedule, the assignment remains at Evanston Hospital in the General rotation, and Arc found no blocking program rule.':'No material barrier was found in the evaluated schedule, requirement, or capacity checks.';
   }
-  if(resolutionReady){recommendLabel='Approve request';recommendWhy='The blocking issue has been resolved and the refreshed evidence supports the requested change.';}
+  if(isEmilyResolved){recommendLabel='Approve request';recommendWhy='The Site Coordinator confirmed coverage for the required clinical time. The blocking issue is cleared and the refreshed evidence supports approving the meeting day.';}
+  else if(resolutionReady){recommendLabel='Approve request';recommendWhy='The blocking issue has been resolved and the refreshed evidence supports the requested change.';}
   if(committed==='Approved'){recommendLabel='Approved';recommendWhy='The human decision is recorded and Arc has carried the approved change into follow-through.';}
   if(committed==='Denied'){recommendLabel='Denied';recommendWhy='The human decision is recorded and the current schedule remains unchanged.';}
 
@@ -4026,8 +4031,13 @@ function viewRequests(){
     '<div class="cr-evidence review"><div class="cr-evidence-top"><span>'+ic('info',15,'#A56B17')+'</span><b>No equivalent replacement is confirmed</b><span class="cr-sev">Missing</span></div><p>Arc cannot verify that the missed clinical time has been reassigned or recovered elsewhere.</p></div>',
     '<div class="cr-evidence risk"><div class="cr-evidence-top"><span>'+ic('alert',15,'#B4534B')+'</span><b>Requirement remains unresolved</b><span class="cr-sev">Unresolved</span></div><p>Approving the meeting day as submitted could leave Emily short of the required clinical experience.</p></div>'
   ].join(''):'';
-  var evidenceHtml=danielEvidence||emilyEvidence||(checks.length?checks.map(evidenceCard).join(''):'<div class="cr-evidence clear"><div class="cr-evidence-top"><span>'+ic('check',15,'#238469')+'</span><b>No material conflict found</b><span class="cr-sev">Clear</span></div><p>Arc evaluated the request against the available schedule and program rules without finding a blocking issue.</p></div>');
-  var evidenceClass=(isDanielClean||isEmilyBlocked)?'':(checks.length===1||checks.length===0?' single':'');
+  var emilyResolvedEvidence=isEmilyResolved?[
+    '<div class="cr-evidence clear"><div class="cr-evidence-top"><span>'+ic('check',15,'#238469')+'</span><b>Coordinator response received</b><span class="cr-sev">Clear</span></div><p>The Site Coordinator confirmed that Emily’s required clinical-time obligation remains covered.</p></div>',
+    '<div class="cr-evidence clear"><div class="cr-evidence-top"><span>'+ic('check',15,'#238469')+'</span><b>Required clinical experience preserved</b><span class="cr-sev">Clear</span></div><p>The new evidence confirms the Aug 4 meeting day will not leave the required clinical experience unmet.</p></div>',
+    '<div class="cr-evidence clear"><div class="cr-evidence-top"><span>'+ic('check',15,'#238469')+'</span><b>Blocking conflict resolved</b><span class="cr-sev">Clear</span></div><p>Arc refreshed the record with the coordinator response and returned the request for final human approval.</p></div>'
+  ].join(''):'';
+  var evidenceHtml=danielEvidence||emilyEvidence||emilyResolvedEvidence||(checks.length?checks.map(evidenceCard).join(''):'<div class="cr-evidence clear"><div class="cr-evidence-top"><span>'+ic('check',15,'#238469')+'</span><b>No material conflict found</b><span class="cr-sev">Clear</span></div><p>Arc evaluated the request against the available schedule and program rules without finding a blocking issue.</p></div>');
+  var evidenceClass=(isDanielClean||isEmilyBlocked||isEmilyResolved)?'':(checks.length===1||checks.length===0?' single':'');
 
   function selectedClass(k){return choice===k?' selected':'';}
   function disabledAttr(k){return (hardBlocked&&k==='approve')?' disabled aria-disabled="true"':'';}
@@ -4056,11 +4066,14 @@ function viewRequests(){
     var waitingCopy=isEscalation?'The escalation is recorded and routed. Arc keeps the request open and holds approval until the Site Coordinator response is captured.':'The information request is recorded. Arc keeps the request open and holds the decision until the student response is captured.';
     var waitingNext=isEscalation?'Await coordinator response':'Await student response';
     var waitingButton=isEscalation?'Record coordinator response':'Record student response';
+    /* CR owns a dedicated canonical Emily coordinator-response transition so the visible
+       request workspace cannot remain stranded in Escalated / 35 after the response is captured. */
+    var waitingAction=(isEscalation&&rq.id==='rq12')?'crrecordcoordinatorresponse':'ovrecordresponse';
     operatorPanel='<section class="cr-decision-panel"><div class="cr-decision-head"><div class="cr-decision-kicker">Operator response</div><h3>'+esc(waitingTitle)+'</h3></div>'+
       '<div class="cr-decision-rec"><div><small>Current state</small><b>Awaiting response</b></div><span class="cr-confidence">Owner · '+esc(waitingOwner)+'</span></div>'+
       '<div class="cr-response-wrap"><div class="queue-success" style="--decision:#C9871F"><h3>'+esc(waitingTitle)+'</h3><p>'+esc(waitingCopy)+'</p></div>'+
       '<div class="cr-carry-mini"><small>Next action</small><b>'+esc(waitingNext)+'</b><p>When the response arrives, record it here. Arc will refresh the evidence and return the request to the appropriate decision state.</p></div>'+
-      '<button class="cr-commit" data-act="ovrecordresponse" data-id="'+esc(rq.id)+'">'+esc(waitingButton)+' '+ic('arrowr',15,'#fff')+'</button></div></section>';
+      (isEscalation&&rq.id==='rq12'?'<button class="cr-commit" type="button" onclick="event.stopPropagation();return resolveEmilyCoordinatorResponse();">'+esc(waitingButton)+' '+ic('arrowr',15,'#fff')+'</button>':'<button class="cr-commit" data-act="'+waitingAction+'" data-id="'+esc(rq.id)+'">'+esc(waitingButton)+' '+ic('arrowr',15,'#fff')+'</button>')+'</div></section>';
   }else{
     operatorPanel='<section class="cr-decision-panel"><div class="cr-decision-head"><div class="cr-decision-kicker">Operator response</div><h3>Choose the response</h3></div>'+ 
       '<div class="cr-decision-rec"><div><small>Arc recommends</small><b>'+esc(recommendLabel)+'</b></div><span class="cr-confidence">Readiness '+row.readiness.score+'/100</span></div>'+ 
@@ -5253,7 +5266,7 @@ function resetDemoState(showConfirmation){
   ST.tlBy='student';ST.siteFilter='all';ST.role='leader';ST.asStudent='s5';ST.asHospital='site4';
   ST.queueFocus='rq4';ST.queueAction=null;ST.queueStage=0;ST.queueChoice=null;ST.queueDecisions={};
   ST.ovDecisionChoice='clarify';ST.ovImpactOpen=false;ST.ovTrailOpen=false;ST.ovConditionFilter='All';
-  ST.ovTaskStatus='Open';ST.ovPriyaTaskCreatedAt=0;ST.ovFollowups={};ST.ovResponseHistory={};ST.ovResolutionHistory={};ST.ovActionLocks={};ST.ovEventTimes={};ST.ovKeepResolvedFocus=false;ST.ovCommitInFlight=false;
+  ST.ovTaskStatus='Open';ST.ovPriyaTaskCreatedAt=0;ST.ovFollowups={};ST.ovResponseHistory={};ST.ovResolutionHistory={};ST.ovActionLocks={};ST.ovEventTimes={};ST.ovKeepResolvedFocus=false;ST.ovCommitInFlight=false;ST.crEmilyResolved=false;
   ST.historyStudentId='s4';ST.historyCohort='All';ST.historyType='All';
   /* Canonical demo reset: no decisions, no tasks, no filters, no transient response state. */
   ST.queueDecisions={};ST.queueFocus='rq4';ST.ovDecisionChoice='approve';ST.ovConditionFilter='All';
@@ -5271,6 +5284,36 @@ document.addEventListener('input',function(e){
     row.style.display=(!q||hay.indexOf(q)>=0)?'flex':'none';
   });
 });
+
+function resolveEmilyCoordinatorResponse(){
+  var responseId='rq12';
+  var rrq=requestById(responseId);
+  if(!rrq)return false;
+  if(!ST.ovResponseHistory)ST.ovResponseHistory={};
+  if(!ST.ovResolutionHistory)ST.ovResolutionHistory={};
+  var responseTime=stampOvEvent(responseId+':response');
+  stampOvEvent(responseId+':evidence');
+  stampOvEvent(responseId+':status');
+  stampOvEvent(responseId+':resolutioncomplete');
+  stampOvEvent(responseId+':taskclosed');
+  ST.ovResponseHistory[responseId]={type:'escalate',received:responseTime};
+  ST.ovResolutionHistory[responseId]={confirmed:true,at:Date.now(),source:'Site Coordinator response'};
+  ST.crEmilyResolved=true;
+  if(ST.ovFollowups&&ST.ovFollowups[responseId])ST.ovFollowups[responseId].status='Complete';
+  if(ST.ovFollowups)delete ST.ovFollowups[responseId];
+  if(!ST.queueDecisions)ST.queueDecisions={};
+  ST.queueDecisions[responseId]=null;
+  rrq.status='Needs Review';rrq.closed=false;
+  ST.queueFocus=responseId;
+  ST.requestLedgerFocus=responseId;
+  ST.ovDecisionChoice='approve';
+  ST.ovKeepResolvedFocus=false;
+  ST.ovCommitInFlight=false;
+  ST.ovImpactOpen=true;ST.ovTrailOpen=true;
+  render();
+  toast('Coordinator response recorded — conflict cleared; Emily is Ready 85 for final decision.');
+  return false;
+}
 
 document.addEventListener('click',function(e){
   var t=e.target.closest('[data-act]');
@@ -5333,6 +5376,36 @@ document.addEventListener('click',function(e){
       ST.ovTrailOpen=true;
       render();
       toast('Resolution confirmed — conflict cleared; final decision required.');
+    }
+  }
+  else if(act==='crrecordcoordinatorresponse'){
+    /* Canonical CR transition for Emily: coordinator response resolves the hard conflict
+       and returns the same request immediately to a visible decision-ready state. */
+    var responseId=t.getAttribute('data-id')||ST.queueFocus;
+    var rrq=requestById(responseId);
+    var rfollow=ST.ovFollowups&&ST.ovFollowups[responseId];
+    if(rrq&&responseId==='rq12'){
+      if(!ST.ovResponseHistory)ST.ovResponseHistory={};
+      if(!ST.ovResolutionHistory)ST.ovResolutionHistory={};
+      var responseTime=stampOvEvent(responseId+':response');
+      stampOvEvent(responseId+':evidence');
+      stampOvEvent(responseId+':status');
+      ST.ovResponseHistory[responseId]={type:'escalate',received:responseTime};
+      if(rfollow)rfollow.status='Complete';
+      if(ST.ovFollowups)delete ST.ovFollowups[responseId];
+      ST.ovResolutionHistory[responseId]={confirmed:true,at:Date.now(),source:'Site Coordinator response'};
+      stampOvEvent(responseId+':resolutioncomplete');
+      stampOvEvent(responseId+':taskclosed');
+      ST.queueDecisions[responseId]=null;
+      rrq.status='Needs Review';rrq.closed=false;
+      ST.queueFocus=responseId;
+      ST.requestLedgerFocus=responseId;
+      ST.ovDecisionChoice='approve';
+      ST.ovKeepResolvedFocus=false;
+      ST.ovCommitInFlight=false;
+      ST.ovImpactOpen=true;ST.ovTrailOpen=true;
+      render();
+      toast('Coordinator response recorded — conflict cleared; Emily is ready for final decision.');
     }
   }
   else if(act==='ovrecordresponse'){
