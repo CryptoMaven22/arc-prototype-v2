@@ -3157,6 +3157,20 @@ function operatingQueue(){
      not by dropping lower-impact records from the operator's view. */
   return all;
 }
+
+/* VPOC shared active workset: Operating View prioritizes these requests,
+   Change Requests works these same requests, and Program History retains resolved work. */
+var VPOC_ACTIVE_REQUEST_IDS={rq12:true,rq3:true,rq2:true,rq4:true};
+function isResolvedVpocDecision(id){
+  var committed=ST.queueDecisions&&ST.queueDecisions[id];
+  return committed==='Approved'||committed==='Denied';
+}
+function vpocActiveQueue(){
+  return operatingQueue().filter(function(r){
+    return !!VPOC_ACTIVE_REQUEST_IDS[r.rq.id]&&!isResolvedVpocDecision(r.rq.id);
+  });
+}
+
 function requestDetailPanel(row){
   var rq=row.rq,d=row.dominant,readiness=row.readiness;
   var raw=rq.originalText||rq.notes||'No submitted text captured for this request.';
@@ -3189,17 +3203,9 @@ function requestDetailPanel(row){
 }
 
 function viewOperatingView(){
-  var vpocQueueIds={rq12:true,rq4:true,rq3:true,rq2:true};
-  function isResolvedDecision(id){
-    var committed=ST.queueDecisions&&ST.queueDecisions[id];
-    return committed==='Approved'||committed==='Denied';
-  }
-  var allQueue=operatingQueue().filter(function(r){
-    /* Attention Queue = unresolved judgment only. Resolved decision work stays
-       available through request history and My Tasks / Follow-up, never here. */
-    if(!vpocQueueIds[r.rq.id])return false;
-    return !isResolvedDecision(r.rq.id);
-  });
+  /* Attention Queue = the shared unresolved VPOC workset.
+     Resolved decisions leave both OV and CR and remain available in Program History. */
+  var allQueue=vpocActiveQueue();
   var activeCondition=ST.ovConditionFilter||'All';
   /* Checkpoint 04 repair v2: summary cards are literal, overlapping lenses into
      the same judgment queue. Pending means every open request awaiting judgment;
@@ -3938,10 +3944,13 @@ function viewChecks(){
 
 
 function viewRequests(){
-  var queue=operatingQueue();
+  /* Change Requests works the exact same active records shown in Operating View. */
+  var queue=vpocActiveQueue();
   var focusId=ST.requestLedgerFocus||ST.queueFocus||(queue[0]&&queue[0].rq.id);
   var row=queue.filter(function(x){return x.rq.id===focusId;})[0]||queue[0]||null;
-  if(!row)return '<div class="stack"><div><h1>Change Requests</h1><p class="sub">No requests are currently available.</p></div></div>';
+  if(!row)return '<div class="stack"><div><h1>Change Requests</h1><p class="sub">No active requests currently require judgment. Resolved work remains available in Program History.</p></div></div>';
+  /* If the prior focus was just resolved, advance CR to the next active request. */
+  if(focusId!==row.rq.id)ST.requestLedgerFocus=row.rq.id;
 
   var rq=row.rq, st=row.student||{name:'Unknown student',cohort:'—',level:'—'};
   var tone=row.readiness.tone, checks=row.checks||[], d=row.dominant;
@@ -4028,12 +4037,13 @@ function viewRequests(){
     (choice==='clarify'?'Arc keeps the request open, sends the information request, captures the reply, and resurfaces the record.':'Arc keeps the request open, routes the issue to the coordinator, captures the response, and returns it when decision-ready.'));
   var commitLabel=choice==='approve'?'Approve request':(choice==='deny'?'Decline request':(choice==='clarify'?'Request information':'Escalate to coordinator'));
 
-  var sideQueue=[row].concat(queue.filter(function(x){return x.rq.id!==rq.id;}));
+  /* Keep the same readiness-priority order as Operating View; selection is shown by highlight only. */
+  var sideQueue=queue;
   var list=sideQueue.map(function(x){
     var active=x.rq.id===rq.id, qTone=x.readiness.tone;
-    return '<button class="cr-ledger-row'+(active?' active':'')+'" data-act="crfocus" data-id="'+x.rq.id+'"><span class="cr-ledger-avatar">'+esc(initials(x.student?x.student.name:'?'))+'</span><span class="cr-ledger-main"><b>'+esc(x.student?x.student.name:'Unknown')+'</b><small>'+esc(TYPE_LABEL[x.rq.type]||x.rq.type)+' · '+esc(x.siteRotation||'No assignment change')+'</small></span><span class="cr-ledger-meta"><span class="cr-ledger-score" style="color:'+qTone.text+';background:'+qTone.bg+'">'+x.readiness.score+'</span><span class="cr-ledger-state">'+esc(active?'Current':x.readiness.label)+'</span></span><span class="cr-ledger-chevron">›</span></button>';
+    return '<button class="cr-ledger-row'+(active?' active':'')+'" data-act="crfocus" data-id="'+x.rq.id+'"><span class="cr-ledger-avatar">'+esc(initials(x.student?x.student.name:'?'))+'</span><span class="cr-ledger-main"><b>'+esc(x.student?x.student.name:'Unknown')+'</b><small>'+esc(TYPE_LABEL[x.rq.type]||x.rq.type)+' · '+esc(x.siteRotation||'No assignment change')+'</small></span><span class="cr-ledger-meta"><span class="cr-ledger-score" style="color:'+qTone.text+';background:'+qTone.bg+'">'+x.readiness.score+'</span><span class="cr-ledger-state">'+esc(x.readiness.label)+'</span></span><span class="cr-ledger-chevron">›</span></button>';
   }).join('');
-  var ledgerPanel='<section class="cr-ledger"><div class="cr-ledger-head"><h3>Request queue</h3><p>Switch records without leaving the decision workspace.</p></div><div class="cr-ledger-list">'+list+'</div><div class="cr-ledger-foot"><span><b>'+queue.length+' requests</b> in this working set</span><span>Scroll to browse</span></div></section>';
+  var ledgerPanel='<section class="cr-ledger"><div class="cr-ledger-head"><h3>Request queue</h3><p>The same active requests prioritized in Operating View.</p></div><div class="cr-ledger-list">'+list+'</div><div class="cr-ledger-foot"><span><b>'+queue.length+' active request'+(queue.length===1?'':'s')+'</b></span><span>Resolved work → Program History</span></div></section>';
 
   var activeFollowup=ST.ovFollowups&&ST.ovFollowups[rq.id];
   var operatorPanel;
