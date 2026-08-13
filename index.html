@@ -2581,6 +2581,7 @@
 .cr-shift-card.proposed{border-color:#BFD9D2;background:#F5FAF8;box-shadow:inset 0 0 0 1px rgba(23,110,99,.03)}
 .cr-shift-card small{display:block;font-size:8.5px;text-transform:uppercase;letter-spacing:.07em;color:#82909D;font-weight:900;margin-bottom:4px}
 .cr-shift-card b{font-size:12.5px;color:#263D50;line-height:1.35}
+.cr-shift-note{display:block;margin-top:4px;font-size:10px;line-height:1.35;color:#6E7F8E;font-weight:600}
 .cr-shift-arrow{display:grid;place-items:center;color:#2A786E}
 
 .cr-evidence-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
@@ -3947,9 +3948,10 @@ function viewRequests(){
   var committed=ST.queueDecisions&&ST.queueDecisions[rq.id];
   var responseHistory=ST.ovResponseHistory&&ST.ovResponseHistory[rq.id];
   var resolutionReady=ST.ovResolutionHistory&&ST.ovResolutionHistory[rq.id];
-  var hardBlocked=(rq.id==='rq12'&&!resolutionReady);
-  var choice=ST.ovDecisionChoice||((hardBlocked)?(responseHistory?'escalate':'clarify'):'approve');
-  if(hardBlocked&&choice==='approve')choice=responseHistory?'escalate':'clarify';
+  var isEmilyCanonical=(rq.id==='rq12'||rq.rid==='REQ-012'||st.name==='Emily Parker');
+  var hardBlocked=(isEmilyCanonical&&!resolutionReady);
+  var choice=ST.ovDecisionChoice||(hardBlocked?'escalate':'approve');
+  if(hardBlocked&&choice==='approve')choice='escalate';
 
   function assignmentForRequest(r){var as=requestAssignments(r);return as&&as.length?as[0]:null;}
   var asg=assignmentForRequest(rq);
@@ -3958,20 +3960,37 @@ function viewRequests(){
   var requestedDates=(rq.start===rq.end?fmtFull(rq.start):fmtRange(rq.start,rq.end));
   var currentDates=asg?(asg.start===asg.end?fmtFull(asg.start):fmtRange(asg.start,asg.end)):'Not applicable';
   var raw=rq.originalText||rq.notes||'No additional student note was captured.';
+  var currentAssignmentLabel='Current assignment';
+  var currentAssignmentDisplay=site?site.name+' · '+currentDates:currentDates;
+  var currentAssignmentNote='';
+  var proposedLabel='Proposed assignment';
+  var proposedAssignmentDisplay=(site?site.name+' · ':'')+requestedDates;
 
   var isDanielClean=(rq.id==='rq4');
+  var isEmilyBlocked=(isEmilyCanonical&&!resolutionReady);
+  if(isEmilyBlocked){
+    currentAssignmentLabel='Affected assignment';
+    currentAssignmentDisplay='Evans Hospital · Aug 3–7';
+    currentAssignmentNote='Aug 4 is a required clinical day within this assignment';
+    proposedLabel='Requested change';
+    proposedAssignmentDisplay='Meeting day · Aug 4, 2026';
+  }
   var finding=d?d.summary:'Arc found no material schedule, eligibility, allowance, or capacity barrier in the evaluated record.';
   var why=d?(d.severity==='High'?'The conflict could make the proposed change operationally unsafe or leave a program requirement unresolved.':'The request affects the operating plan and should be resolved before the schedule is finalized.'):'The request can move forward without creating a material downstream conflict in the evidence Arc evaluated.';
   if(isDanielClean){
     finding='The proposed move preserves Daniel’s Evanston General rotation and does not create an overlap in the schedule Arc evaluated.';
     why='Only the assignment dates change. The site and rotation stay the same, and the requested week can move forward without displacing another assignment or creating a blocking program conflict.';
   }
+  if(isEmilyBlocked){
+    finding='Approving Emily’s meeting day as submitted could leave a required clinical experience unmet.';
+    why='Aug 4 falls inside her Evans Hospital clinical week, and Arc cannot confirm equivalent replacement time. The conflict should be resolved before approval.';
+  }
   if(resolutionReady)why='The prior conflict has been resolved with new evidence. The request is back in a decision-ready state.';
 
   var recommendLabel, recommendWhy;
   if(hardBlocked){
-    recommendLabel=responseHistory?'Escalate to Site Coordinator':'Request clarification';
-    recommendWhy=responseHistory?'The first response did not resolve the hard conflict. Arc recommends moving the open question to the person who can resolve it.':'Arc does not have enough resolved evidence to support approval. Get the missing information before deciding.';
+    recommendLabel='Escalate before approval';
+    recommendWhy='The request affects required clinical time and no replacement is confirmed. Route the unresolved requirement to the Site Coordinator before making a final decision.';
   }else if(checks.length){
     recommendLabel=row.nextAction||'Review before approval';
     recommendWhy='Arc found an issue that deserves human judgment before the request is closed.';
@@ -3993,8 +4012,13 @@ function viewRequests(){
     '<div class="cr-evidence clear"><div class="cr-evidence-top"><span>'+ic('check',15,'#238469')+'</span><b>Assignment context is preserved</b><span class="cr-sev">Clear</span></div><p>The request changes the dates only. Evanston Hospital and the General rotation remain unchanged.</p></div>',
     '<div class="cr-evidence clear"><div class="cr-evidence-top"><span>'+ic('check',15,'#238469')+'</span><b>No program blocker detected</b><span class="cr-sev">Clear</span></div><p>Arc found no evaluated eligibility, allowance, or site-capacity condition that would prevent the move.</p></div>'
   ].join(''):'';
-  var evidenceHtml=danielEvidence||(checks.length?checks.map(evidenceCard).join(''):'<div class="cr-evidence clear"><div class="cr-evidence-top"><span>'+ic('check',15,'#238469')+'</span><b>No material conflict found</b><span class="cr-sev">Clear</span></div><p>Arc evaluated the request against the available schedule and program rules without finding a blocking issue.</p></div>');
-  var evidenceClass=isDanielClean?'':(checks.length===1||checks.length===0?' single':'');
+  var emilyEvidence=isEmilyBlocked?[
+    '<div class="cr-evidence risk"><div class="cr-evidence-top"><span>'+ic('alert',15,'#B4534B')+'</span><b>Required clinical day is affected</b><span class="cr-sev">Conflict</span></div><p>Aug 4 falls inside Emily’s Evans Hospital clinical week and currently satisfies required clinical time.</p></div>',
+    '<div class="cr-evidence review"><div class="cr-evidence-top"><span>'+ic('info',15,'#A56B17')+'</span><b>No equivalent replacement is confirmed</b><span class="cr-sev">Missing</span></div><p>Arc cannot verify that the missed clinical time has been reassigned or recovered elsewhere.</p></div>',
+    '<div class="cr-evidence risk"><div class="cr-evidence-top"><span>'+ic('alert',15,'#B4534B')+'</span><b>Requirement remains unresolved</b><span class="cr-sev">Unresolved</span></div><p>Approving the meeting day as submitted could leave Emily short of the required clinical experience.</p></div>'
+  ].join(''):'';
+  var evidenceHtml=danielEvidence||emilyEvidence||(checks.length?checks.map(evidenceCard).join(''):'<div class="cr-evidence clear"><div class="cr-evidence-top"><span>'+ic('check',15,'#238469')+'</span><b>No material conflict found</b><span class="cr-sev">Clear</span></div><p>Arc evaluated the request against the available schedule and program rules without finding a blocking issue.</p></div>');
+  var evidenceClass=(isDanielClean||isEmilyBlocked)?'':(checks.length===1||checks.length===0?' single':'');
 
   function selectedClass(k){return choice===k?' selected':'';}
   function disabledAttr(k){return (hardBlocked&&k==='approve')?' disabled aria-disabled="true"':'';}
@@ -4024,7 +4048,7 @@ function viewRequests(){
     '<div class="cr-page-head"><div><div class="eyebrow">Decision Workspace</div><h1>Change Request</h1><p>Move from the signal to a grounded human response — with the evidence, consequence, and next move visible in one place.</p></div><div class="cr-principle"><b>Human decides.</b><span>Arc carries.</span></div></div>'+ 
     '<div class="cr-layout"><main class="cr-main">'+
       '<section class="cr-case-hero"><div class="cr-case-top"><div><div class="cr-case-kicker">'+esc(rq.rid||rq.id)+' · '+esc(st.cohort||'Clinical program')+' · '+esc(st.level||'')+'</div><h2>'+esc(st.name)+' — '+esc(requestLabel)+'</h2><p>'+esc(raw)+'</p></div><div class="cr-case-meta"><span class="cr-status-pill" style="color:'+tone.text+';background:'+tone.bg+'">'+esc(committed||row.readiness.label)+'</span><span class="cr-ready-pill">Readiness '+row.readiness.score+'/100</span></div></div></section>'+ 
-      '<section class="cr-section"><div class="cr-section-head"><div><div class="cr-section-id">Request</div><h3>What is being requested?</h3><p>Separate the student’s ask from Arc’s interpretation of the change.</p></div></div><div class="cr-request-summary"><div class="cr-field"><small>Request</small><b>'+esc(requestLabel)+'</b></div><div class="cr-field"><small>Source</small><b>'+esc(rq.source||'Program request')+'</b></div><div class="cr-field raw"><small>Student / program note</small><b>'+esc(raw)+'</b></div></div><div class="cr-shift"><div class="cr-shift-card"><small>Current assignment</small><b>'+esc(site?site.name+' · '+currentDates:currentDates)+'</b></div><div class="cr-shift-arrow">'+ic('arrowr',18,'#2A786E')+'</div><div class="cr-shift-card proposed"><small>Proposed assignment</small><b>'+esc((site?site.name+' · ':'')+requestedDates)+'</b></div></div></section>'+ 
+      '<section class="cr-section"><div class="cr-section-head"><div><div class="cr-section-id">Request</div><h3>What is being requested?</h3><p>Separate the student’s ask from Arc’s interpretation of the change.</p></div></div><div class="cr-request-summary"><div class="cr-field"><small>Request</small><b>'+esc(requestLabel)+'</b></div><div class="cr-field"><small>Source</small><b>'+esc(rq.source||'Program request')+'</b></div><div class="cr-field raw"><small>Student / program note</small><b>'+esc(raw)+'</b></div></div><div class="cr-shift"><div class="cr-shift-card"><small>'+esc(currentAssignmentLabel)+'</small><b>'+esc(currentAssignmentDisplay)+'</b>'+(currentAssignmentNote?'<span class="cr-shift-note">'+esc(currentAssignmentNote)+'</span>':'')+'</div><div class="cr-shift-arrow">'+ic('arrowr',18,'#2A786E')+'</div><div class="cr-shift-card proposed"><small>'+esc(proposedLabel)+'</small><b>'+esc(proposedAssignmentDisplay)+'</b></div></div></section>'+ 
       '<section class="cr-section"><div class="cr-section-head"><div><div class="cr-section-id">Evidence</div><h3>What did Arc find?</h3><p>The facts Arc uncovered while checking the proposed state.</p></div></div><div class="cr-evidence-grid'+evidenceClass+'">'+evidenceHtml+'</div></section>'+ 
       '<section class="cr-section"><div class="cr-section-head"><div><div class="cr-section-id">Judgment support</div><h3>Why does it matter — and what does Arc recommend?</h3><p>Evidence becomes operational meaning without taking the decision away from the operator.</p></div></div><div class="cr-judgment"><div class="cr-meaning-box"><span class="cr-judgment-label">Operational consequence</span><b>'+esc(finding)+'</b><p>'+esc(why)+'</p></div><div class="cr-recommend-box"><small>Arc recommendation</small><h3>'+esc(recommendLabel)+'</h3><p>'+esc(recommendWhy)+'</p></div></div></section>'+ 
       operatorPanel+
