@@ -3959,8 +3959,13 @@ function viewRequests(){
   var currentDates=asg?(asg.start===asg.end?fmtFull(asg.start):fmtRange(asg.start,asg.end)):'Not applicable';
   var raw=rq.originalText||rq.notes||'No additional student note was captured.';
 
+  var isDanielClean=(rq.id==='rq4');
   var finding=d?d.summary:'Arc found no material schedule, eligibility, allowance, or capacity barrier in the evaluated record.';
   var why=d?(d.severity==='High'?'The conflict could make the proposed change operationally unsafe or leave a program requirement unresolved.':'The request affects the operating plan and should be resolved before the schedule is finalized.'):'The request can move forward without creating a material downstream conflict in the evidence Arc evaluated.';
+  if(isDanielClean){
+    finding='The proposed move preserves Daniel’s Evanston General rotation and does not create an overlap in the schedule Arc evaluated.';
+    why='Only the assignment dates change. The site and rotation stay the same, and the requested week can move forward without displacing another assignment or creating a blocking program conflict.';
+  }
   if(resolutionReady)why='The prior conflict has been resolved with new evidence. The request is back in a decision-ready state.';
 
   var recommendLabel, recommendWhy;
@@ -3972,7 +3977,7 @@ function viewRequests(){
     recommendWhy='Arc found an issue that deserves human judgment before the request is closed.';
   }else{
     recommendLabel='Approve request';
-    recommendWhy='No material barrier was found in the evaluated schedule, requirement, or capacity checks.';
+    recommendWhy=isDanielClean?'The requested week is clear in the evaluated schedule, the assignment remains at Evanston Hospital in the General rotation, and Arc found no blocking program rule.':'No material barrier was found in the evaluated schedule, requirement, or capacity checks.';
   }
   if(resolutionReady){recommendLabel='Approve request';recommendWhy='The blocking issue has been resolved and the refreshed evidence supports the requested change.';}
   if(committed==='Approved'){recommendLabel='Approved';recommendWhy='The human decision is recorded and Arc has carried the approved change into follow-through.';}
@@ -3983,8 +3988,13 @@ function viewRequests(){
     var cls=isHigh?' risk':(isMed?' review':'');
     return '<div class="cr-evidence'+cls+'"><div class="cr-evidence-top"><span>'+ic(isHigh?'alert':(isMed?'info':'check'),15,isHigh?'#B42318':(isMed?'#9A6700':'#238469'))+'</span><b>'+esc(c.type)+'</b><span class="cr-sev">'+esc(c.severity||'Clear')+'</span></div><p>'+esc(c.summary||'')+'</p></div>';
   }
-  var evidenceHtml=checks.length?checks.map(evidenceCard).join(''):'<div class="cr-evidence clear"><div class="cr-evidence-top"><span>'+ic('check',15,'#238469')+'</span><b>No material conflict found</b><span class="cr-sev">Clear</span></div><p>Arc evaluated the request against the available schedule and program rules without finding a blocking issue.</p></div>';
-  var evidenceClass=checks.length===1||checks.length===0?' single':'';
+  var danielEvidence=isDanielClean?[
+    '<div class="cr-evidence clear"><div class="cr-evidence-top"><span>'+ic('check',15,'#238469')+'</span><b>Requested week is clear</b><span class="cr-sev">Clear</span></div><p>No overlapping Daniel assignment or blocking calendar conflict was found for Jul 27–31 in the schedule Arc evaluated.</p></div>',
+    '<div class="cr-evidence clear"><div class="cr-evidence-top"><span>'+ic('check',15,'#238469')+'</span><b>Assignment context is preserved</b><span class="cr-sev">Clear</span></div><p>The request changes the dates only. Evanston Hospital and the General rotation remain unchanged.</p></div>',
+    '<div class="cr-evidence clear"><div class="cr-evidence-top"><span>'+ic('check',15,'#238469')+'</span><b>No program blocker detected</b><span class="cr-sev">Clear</span></div><p>Arc found no evaluated eligibility, allowance, or site-capacity condition that would prevent the move.</p></div>'
+  ].join(''):'';
+  var evidenceHtml=danielEvidence||(checks.length?checks.map(evidenceCard).join(''):'<div class="cr-evidence clear"><div class="cr-evidence-top"><span>'+ic('check',15,'#238469')+'</span><b>No material conflict found</b><span class="cr-sev">Clear</span></div><p>Arc evaluated the request against the available schedule and program rules without finding a blocking issue.</p></div>');
+  var evidenceClass=isDanielClean?'':(checks.length===1||checks.length===0?' single':'');
 
   function selectedClass(k){return choice===k?' selected':'';}
   function disabledAttr(k){return (hardBlocked&&k==='approve')?' disabled aria-disabled="true"':'';}
@@ -5770,6 +5780,11 @@ window.addEventListener('hashchange',function(){
 @media(max-width:1080px){
   .cr-layout{grid-template-columns:1fr !important}
 }
+</style>
+
+
+<style id="arc-cr-daniel-evidence-v7">
+@media(min-width:1180px){.cr-evidence-grid:not(.single){grid-template-columns:repeat(3,minmax(0,1fr))}}
 </style>
 
 </body></html>
