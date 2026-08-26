@@ -1,0 +1,21 @@
+{
+  "name": "arc-prototype-v2",
+  "version": "1.0.0",
+  "description": "Front-end prototype for AtlasFlow Align - Clinical Operations Intelligence",
+  "type": "module",
+  "scripts": {
+    "dev": "npx serve .",
+    "build": "echo 'Static site - no build needed'",
+    "lint": "echo 'No linter configured for static HTML site'"
+  },
+  "keywords": [
+    "clinical-operations",
+    "healthcare",
+    "analytics"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vercel/analytics": "^1.1.1"
+  }
+}
